@@ -62,13 +62,25 @@
                 <!-- Menu -->
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#features" class="text-soft-brown hover:text-jade-green transition">Features</a>
-                    <a href="#products" class="text-soft-brown hover:text-jade-green transition">Products</a>
+                    <a href="{{ route('products.index') }}" class="text-soft-brown hover:text-jade-green transition">Products</a>
                     <a href="#about" class="text-soft-brown hover:text-jade-green transition">About</a>
                 </div>
                 
                 <!-- Auth Links -->
                 <div class="flex items-center space-x-4">
                     @auth
+                        @if(auth()->user()->isAdmin())
+                            <a href="{{ route('admin.dashboard') }}" class="text-soft-brown hover:text-jade-green transition font-medium">Admin Panel</a>
+                        @endif
+                        @if(auth()->user()->isCustomer())
+                            <a href="{{ route('seller.application.create') }}" class="text-soft-brown hover:text-jade-green transition">Become a Seller</a>
+                            <a href="{{ route('orders.index') }}" class="text-soft-brown hover:text-jade-green transition">My Orders</a>
+                        @endif
+                        @if(auth()->user()->isSeller())
+                            <a href="{{ route('products.my') }}" class="text-soft-brown hover:text-jade-green transition">My Products</a>
+                            <a href="{{ route('orders.index') }}" class="text-soft-brown hover:text-jade-green transition">My Orders</a>
+                        @endif
+                        <a href="{{ route('profile.show') }}" class="text-soft-brown hover:text-jade-green transition">Profile</a>
                         <a href="{{ url('/dashboard') }}" class="text-soft-brown hover:text-jade-green transition">Dashboard</a>
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf

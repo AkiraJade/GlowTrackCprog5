@@ -20,6 +20,26 @@
             <form method="POST" action="{{ route('register') }}" class="space-y-4">
                 @csrf
 
+                <!-- Full Name Field -->
+                <div class="space-y-2">
+                    <label for="name" class="block text-sm font-semibold text-soft-brown">
+                        Full Name
+                    </label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value="{{ old('name') }}"
+                        required
+                        autofocus
+                        class="w-full px-4 py-3 rounded-xl border-2 border-light-sage focus:border-jade-green focus:outline-none transition @error('name') border-red-500 @enderror bg-mint-cream"
+                        placeholder="Your full name"
+                    >
+                    @error('name')
+                        <p class="text-red-500 text-sm font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
+
                 <!-- Username Field -->
                 <div class="space-y-2">
                     <label for="username" class="block text-sm font-semibold text-soft-brown">
@@ -31,7 +51,6 @@
                         name="username"
                         value="{{ old('username') }}"
                         required
-                        autofocus
                         class="w-full px-4 py-3 rounded-xl border-2 border-light-sage focus:border-jade-green focus:outline-none transition @error('username') border-red-500 @enderror bg-mint-cream"
                         placeholder="Choose your username"
                     >

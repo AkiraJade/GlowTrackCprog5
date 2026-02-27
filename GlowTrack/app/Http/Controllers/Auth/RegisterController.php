@@ -24,6 +24,7 @@ class RegisterController extends Controller
     public function register(Request $request)
     {
         $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
             'username' => ['required', 'string', 'max:255', 'unique:users,username'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'phone' => ['required', 'string', 'max:20'],
@@ -32,10 +33,12 @@ class RegisterController extends Controller
         ]);
 
         $user = User::create([
+            'name' => $validated['name'],
             'username' => $validated['username'],
             'email' => $validated['email'],
             'phone' => $validated['phone'],
             'address' => $validated['address'],
+            'role' => 'customer', // FR7.1: Assign Buyer role by default
             'password' => Hash::make($validated['password']),
         ]);
 
