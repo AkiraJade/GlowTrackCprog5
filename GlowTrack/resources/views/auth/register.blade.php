@@ -20,23 +20,60 @@
             <form method="POST" action="{{ route('register') }}" class="space-y-4">
                 @csrf
 
-                <!-- Name Field -->
+                <!-- Username Field -->
                 <div class="space-y-2">
-                    <label for="name" class="block text-sm font-semibold text-soft-brown">
-                        Full Name
+                    <label for="username" class="block text-sm font-semibold text-soft-brown">
+                        Username
                     </label>
                     <input
                         type="text"
-                        id="name"
-                        name="name"
-                        value="{{ old('name') }}"
+                        id="username"
+                        name="username"
+                        value="{{ old('username') }}"
                         required
                         autofocus
-                        autocomplete="name"
-                        class="w-full px-4 py-3 rounded-xl border-2 border-light-sage focus:border-jade-green focus:outline-none transition @error('name') border-red-500 @enderror bg-mint-cream"
-                        placeholder="Your full name"
+                        class="w-full px-4 py-3 rounded-xl border-2 border-light-sage focus:border-jade-green focus:outline-none transition @error('username') border-red-500 @enderror bg-mint-cream"
+                        placeholder="Choose your username"
                     >
-                    @error('name')
+                    @error('username')
+                        <p class="text-red-500 text-sm font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Phone Number Field -->
+                <div class="space-y-2">
+                    <label for="phone" class="block text-sm font-semibold text-soft-brown">
+                        Phone Number
+                    </label>
+                    <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value="{{ old('phone') }}"
+                        required
+                        class="w-full px-4 py-3 rounded-xl border-2 border-light-sage focus:border-jade-green focus:outline-none transition @error('phone') border-red-500 @enderror bg-mint-cream"
+                        placeholder="Your phone number"
+                    >
+                    @error('phone')
+                        <p class="text-red-500 text-sm font-medium">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Address Field -->
+                <div class="space-y-2">
+                    <label for="address" class="block text-sm font-semibold text-soft-brown">
+                        Address
+                    </label>
+                    <input
+                        type="text"
+                        id="address"
+                        name="address"
+                        value="{{ old('address') }}"
+                        required
+                        class="w-full px-4 py-3 rounded-xl border-2 border-light-sage focus:border-jade-green focus:outline-none transition @error('address') border-red-500 @enderror bg-mint-cream"
+                        placeholder="Your address"
+                    >
+                    @error('address')
                         <p class="text-red-500 text-sm font-medium">{{ $message }}</p>
                     @enderror
                 </div>
@@ -131,21 +168,6 @@
                         Sign in here
                     </a>
                 </p>
-            </div>
-
-            <!-- Social Sign Up -->
-            <div class="mt-6 pt-6 border-t border-light-sage">
-                <p class="text-center text-xs text-soft-brown opacity-60 mb-4">
-                    Or sign up with
-                </p>
-                <div class="grid grid-cols-2 gap-3">
-                    <button type="button" class="py-3 px-4 border-2 border-light-sage rounded-xl hover:bg-mint-cream transition font-semibold text-soft-brown text-sm">
-                        Google
-                    </button>
-                    <button type="button" class="py-3 px-4 border-2 border-light-sage rounded-xl hover:bg-mint-cream transition font-semibold text-soft-brown text-sm">
-                        Apple
-                    </button>
-                </div>
             </div>
         </div>
 

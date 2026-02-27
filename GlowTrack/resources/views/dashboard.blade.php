@@ -10,7 +10,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <h1 class="text-4xl font-bold text-soft-brown font-playfair mb-2">
-                        Welcome back, {{ Auth::user()->name }}! ✨
+                        Welcome back, {{ Auth::user()->username }}! ✨
                     </h1>
                     <p class="text-lg text-soft-brown opacity-75">
                         Your personalized skincare dashboard is ready

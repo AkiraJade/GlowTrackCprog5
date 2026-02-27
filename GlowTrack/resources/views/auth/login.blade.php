@@ -101,21 +101,6 @@
                     </p>
                 </div>
             </div>
-
-            <!-- Decorative Elements -->
-            <div class="mt-8 pt-8 border-t border-light-sage">
-                <p class="text-center text-xs text-soft-brown opacity-60 mb-4">
-                    Sign in with other methods
-                </p>
-                <div class="grid grid-cols-2 gap-3">
-                    <button type="button" class="py-3 px-4 border-2 border-light-sage rounded-xl hover:bg-mint-cream transition font-semibold text-soft-brown">
-                        Google
-                    </button>
-                    <button type="button" class="py-3 px-4 border-2 border-light-sage rounded-xl hover:bg-mint-cream transition font-semibold text-soft-brown">
-                        Apple
-                    </button>
-                </div>
-            </div>
         </div>
 
         <!-- Trust Badge -->
