@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\ForumController;
+use App\Http\Controllers\LoyaltyController;
 use App\Http\Controllers\SellerApplicationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
@@ -53,6 +54,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/forum/{discussion}/reply', [ForumController::class, 'reply'])->name('forum.reply');
     Route::post('/forum/replies/{replyId}/reply', [ForumController::class, 'replyToReply'])->name('forum.reply-to-reply');
     Route::delete('/forum/replies/{reply}', [ForumController::class, 'deleteReply'])->name('forum.delete-reply');
+
+    // Loyalty Program Routes
+    Route::get('/loyalty', [LoyaltyController::class, 'index'])->name('loyalty.index');
+    Route::post('/loyalty/redeem', [LoyaltyController::class, 'redeem'])->name('loyalty.redeem');
 });
 
 // Optional: Dashboard route

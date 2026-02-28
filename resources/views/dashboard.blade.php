@@ -76,10 +76,10 @@
         </div>
 
         <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
             
             <!-- Left Column -->
-            <div class="lg:col-span-2 space-y-8">
+            <div class="lg:col-span-2 flex flex-col gap-8">
                 
                 <!-- Recent Orders Section -->
                 <div class="bg-white rounded-2xl shadow-lg p-8">
@@ -130,26 +130,29 @@
                 </div>
 
                 <!-- Wishlist Section -->
-                <div class="bg-white rounded-2xl shadow-lg p-8">
+                <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-2xl font-bold text-soft-brown font-playfair">My Wishlist</h2>
                         <a href="{{ route('profile.show') }}#wishlist" class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">View All</a>
                     </div>
                     
-                    <div class="text-center py-12">
-                        <div class="text-6xl mb-4 opacity-50">💕</div>
-                        <p class="text-soft-brown opacity-75 text-lg">No items in wishlist</p>
-                        <p class="text-soft-brown opacity-60 text-sm mb-6">Save your favorite products for later</p>
-                        <a href="{{ route('products.index') }}" class="inline-block px-6 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
-                            Explore Products
-                        </a>
+                    <div class="flex-grow flex items-center justify-center">
+                        <div class="text-center">
+                            <div class="text-6xl mb-4 opacity-50">💕</div>
+                            <p class="text-soft-brown opacity-75 text-lg">No items in wishlist</p>
+                            <p class="text-soft-brown opacity-60 text-sm mb-6">Save your favorite products for later</p>
+                            <a href="{{ route('products.index') }}" class="inline-block px-6 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
+                                Explore Products
+                            </a>
+                        </div>
                     </div>
                 </div>
 
             </div>
 
             <!-- Right Column - Sidebar -->
-            <div class="space-y-8">
+            {{-- This column's natural height is what the left column's Wishlist card aligns to --}}
+            <div class="flex flex-col gap-8">
                 
                 <!-- Quick Account Actions -->
                 <div class="bg-white rounded-2xl shadow-lg p-8">
@@ -226,21 +229,24 @@
 
         </div>
 
-        <!-- Help & Support Section -->
-        <div class="mt-8 bg-white rounded-2xl shadow-lg p-8">
-            <h2 class="text-2xl font-bold text-soft-brown font-playfair mb-6">Need Help?</h2>
+        <!-- Add whitespace between main content and help section -->
+        <div class="h-12"></div>
+
+        <!-- Need Help? Section -->
+        <div class="bg-white rounded-3xl shadow-xl p-8 md:p-12">
+            <h2 class="text-2xl font-bold text-soft-brown font-playfair mb-6">Need help?</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <a href="{{ route('support.contact') }}" class="p-6 rounded-xl border-2 border-light-sage hover:border-jade-green hover:shadow-lg transition">
-                    <p class="text-3xl mb-3">📧</p>
+                    <p class="text-3xl mb-3">💬</p>
                     <h3 class="font-bold text-soft-brown mb-2">Contact Support</h3>
-                    <p class="text-sm text-soft-brown opacity-75">Response within 24 hours</p>
+                    <p class="text-sm text-soft-brown opacity-75">Get help from our team</p>
                 </a>
 
                 <a href="{{ route('support.knowledge') }}" class="p-6 rounded-xl border-2 border-light-sage hover:border-jade-green hover:shadow-lg transition">
                     <p class="text-3xl mb-3">📚</p>
                     <h3 class="font-bold text-soft-brown mb-2">Knowledge Base</h3>
-                    <p class="text-sm text-soft-brown opacity-75">FAQs and guides</p>
+                    <p class="text-sm text-soft-brown opacity-75">Browse helpful articles</p>
                 </a>
 
                 <a href="{{ route('support.forum') }}" class="p-6 rounded-xl border-2 border-light-sage hover:border-jade-green hover:shadow-lg transition">
@@ -250,7 +256,6 @@
                 </a>
             </div>
         </div>
-
     </div>
 </section>
 @endsection
