@@ -62,12 +62,42 @@ Route::middleware('auth')->group(function () {
     // Loyalty Program Routes
     Route::get('/loyalty', [LoyaltyController::class, 'index'])->name('loyalty.index');
     Route::post('/loyalty/redeem', [LoyaltyController::class, 'redeem'])->name('loyalty.redeem');
+
+    // Cart Routes
+    Route::get('/cart', [\App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
+    Route::post('/cart/add/{product}', [\App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
+    Route::put('/cart/update/{cart}', [\App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
+    Route::delete('/cart/remove/{cart}', [\App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
+    Route::delete('/cart/clear', [\App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
+
+    // Checkout Routes
+    Route::get('/checkout', [\App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout/process', [\App\Http\Controllers\CheckoutController::class, 'process'])->name('checkout.process');
+    Route::get('/checkout/success/{order}', [\App\Http\Controllers\CheckoutController::class, 'success'])->name('checkout.success');
+
+    // Orders Routes
+    Route::get('/orders', [\App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
+    Route::put('/orders/{order}/cancel', [\App\Http\Controllers\OrderController::class, 'cancel'])->name('orders.cancel');
+
+    // Seller Application Routes (for customers)
+    Route::get('/seller/application', [SellerApplicationController::class, 'create'])->name('seller.application.create');
+    Route::post('/seller/application', [SellerApplicationController::class, 'store'])->name('seller.application.store');
+    Route::get('/seller/application/status', [SellerApplicationController::class, 'status'])->name('seller.application.status');
+    Route::get('/seller/application/{application}', [SellerApplicationController::class, 'show'])->name('seller.application.show');
 });
 
 // Optional: Dashboard route
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        // Redirect based on user role
+        if (auth()->user()->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        } elseif (auth()->user()->isSeller()) {
+            return redirect()->route('seller.dashboard');
+        } else {
+            return view('dashboard');
+        }
     })->name('dashboard');
 });
 
@@ -89,21 +119,46 @@ Route::middleware('auth')->group(function () {
     Route::put('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });
 
-// Seller Application Routes
-Route::middleware('auth')->prefix('seller')->name('seller.')->group(function () {
-    Route::get('/application', [SellerApplicationController::class, 'create'])->name('application.create');
-    Route::post('/application', [SellerApplicationController::class, 'store'])->name('application.store');
-    Route::get('/application/status', [SellerApplicationController::class, 'status'])->name('application.status');
-    Route::get('/application/{application}', [SellerApplicationController::class, 'show'])->name('application.show');
+// Seller Routes
+Route::middleware(['auth', 'seller'])->prefix('seller')->name('seller.')->group(function () {
+    Route::get('/dashboard', function () {
+        return view('seller.dashboard');
+    })->name('dashboard');
+    // Seller-specific application management removed here to avoid route conflicts
+    // Public/customer-facing seller application routes are defined earlier (auth guarded)
+    
+    // Seller Product Management
+    Route::get('/products', [ProductController::class, 'sellerIndex'])->name('products.index');
+    Route::get('/products/create', [ProductController::class, 'sellerCreate'])->name('products.create');
+    Route::post('/products', [ProductController::class, 'sellerStore'])->name('products.store');
+    Route::get('/products/{product}/edit', [ProductController::class, 'sellerEdit'])->name('products.edit');
+    Route::put('/products/{product}', [ProductController::class, 'sellerUpdate'])->name('products.update');
+    Route::delete('/products/{product}', [ProductController::class, 'sellerDestroy'])->name('products.destroy');
 });
 
 // Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+    
+    // User Management
     Route::get('/users', [AdminController::class, 'users'])->name('users');
     Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
     Route::put('/users/{user}/role', [AdminController::class, 'updateUserRole'])->name('users.update-role');
     Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('users.delete');
+    
+    // Product Management
+    Route::get('/products', [AdminController::class, 'products'])->name('products');
+    Route::post('/products/{product}/approve', [AdminController::class, 'approveProduct'])->name('products.approve');
+    Route::post('/products/{product}/reject', [AdminController::class, 'rejectProduct'])->name('products.reject');
+    
+    // Order Management
+    Route::get('/orders', [AdminController::class, 'orders'])->name('orders');
+    Route::put('/orders/{order}/status', [AdminController::class, 'updateOrderStatus'])->name('orders.update-status');
+    
+    // Reports
+    Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
+    Route::get('/reports/sales', [AdminController::class, 'salesReport'])->name('reports.sales');
+    Route::get('/reports/inventory', [AdminController::class, 'inventoryReport'])->name('reports.inventory');
     
     // Seller Application Management
     Route::get('/seller-applications', [SellerApplicationController::class, 'index'])->name('seller-applications');

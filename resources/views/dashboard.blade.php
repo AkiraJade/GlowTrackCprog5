@@ -25,6 +25,11 @@
                             <a href="{{ route('profile.show') }}#help" class="px-6 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
                                 Help Center
                             </a>
+                            @if(Auth::user()->isAdmin())
+                                <a href="{{ route('admin.dashboard') }}" class="px-6 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition font-semibold">
+                                    🛡️ Admin Panel
+                                </a>
+                            @endif
                         </div>
                     </div>
                     <div class="text-8xl opacity-50">✨</div>

@@ -128,6 +128,14 @@ class Product extends Model
     }
 
     /**
+     * Get the cart items for this product.
+     */
+    public function cartItems()
+    {
+        return $this->hasMany(Cart::class);
+    }
+
+    /**
      * Scope a query to only include products from verified sellers.
      */
     public function scopeVerified($query)

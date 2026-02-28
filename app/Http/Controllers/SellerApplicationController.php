@@ -28,7 +28,7 @@ class SellerApplicationController extends Controller
 
         // Check if user is already a seller
         if (auth()->user()->isSeller()) {
-            return redirect()->route('products.my')
+            return redirect()->route('seller.dashboard')
                 ->with('info', 'You are already approved as a seller.');
         }
 

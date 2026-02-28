@@ -22,18 +22,22 @@
                                 <div>
                                     <div class="flex items-center space-x-4 mb-2">
                                         <h3 class="text-lg font-semibold text-gray-900">
-                                            Order {{ $order->order_id }}
-                                        </h3>
-                                        <span class="px-3 py-1 text-sm font-medium rounded-full
-                                            {{ $order->status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                               ($order->status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
-                                               ($order->status === 'processing' ? 'bg-purple-100 text-purple-800' :
-                                               ($order->status === 'shipped' ? 'bg-indigo-100 text-indigo-800' :
-                                               ($order->status === 'delivered' ? 'bg-green-100 text-green-800' :
-                                               ($order->status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                                               'bg-gray-100 text-gray-800'))))) }}">
-                                            {{ ucfirst($order->status) }}
-                                        </span>
+                                                Order #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}
+                                            </h3>
+                                            @php
+                                                $statusClasses = [
+                                                    'pending' => 'bg-yellow-100 text-yellow-800',
+                                                    'confirmed' => 'bg-blue-100 text-blue-800',
+                                                    'processing' => 'bg-purple-100 text-purple-800',
+                                                    'shipped' => 'bg-indigo-100 text-indigo-800',
+                                                    'delivered' => 'bg-green-100 text-green-800',
+                                                    'cancelled' => 'bg-red-100 text-red-800',
+                                                ];
+                                                $statusClass = $statusClasses[$order->status] ?? 'bg-gray-100 text-gray-800';
+                                            @endphp
+                                            <span class="px-3 py-1 text-sm font-medium rounded-full {{ $statusClass }}">
+                                                {{ ucfirst($order->status) }}
+                                            </span>
                                     </div>
                                     <p class="text-sm text-gray-600">
                                         Placed on {{ $order->created_at->format('F d, Y \a\t g:i A') }}

@@ -252,7 +252,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Display seller's products.
+     * Display seller's products (legacy route - redirects to seller routes).
      */
     public function myProducts(Request $request)
     {
@@ -260,11 +260,179 @@ class ProductController extends Controller
             abort(403, 'Only sellers and admins can view their products.');
         }
 
+        // Redirect sellers to the new seller-specific route
+        if (auth()->user()->isSeller()) {
+            return redirect()->route('seller.products.index');
+        }
+
+        // Admins can use the old view for now
         $products = Product::where('seller_id', auth()->id())
             ->withCount('reviews')
             ->latest()
             ->paginate(10);
 
         return view('products.my-products', compact('products'));
+    }
+
+    // Seller-specific product management methods
+    /**
+     * Display seller's products management page.
+     */
+    public function sellerIndex(Request $request)
+    {
+        if (!auth()->user()->isSeller() && !auth()->user()->isAdmin()) {
+            abort(403, 'Only sellers and admins can view their products.');
+        }
+
+        $products = Product::where('seller_id', auth()->id())
+            ->withCount('reviews')
+            ->withAvg('reviews', 'rating')
+            ->latest()
+            ->paginate(10);
+
+        return view('seller.products.index', compact('products'));
+    }
+
+    /**
+     * Show the form for creating a new product for sellers.
+     */
+    public function sellerCreate()
+    {
+        if (!auth()->user()->isSeller() && !auth()->user()->isAdmin()) {
+            abort(403, 'Only sellers and admins can create products.');
+        }
+
+        $classifications = ['Cleanser', 'Moisturizer', 'Serum', 'Toner', 'Sunscreen', 'Mask', 'Exfoliant', 'Treatment'];
+        $skinTypes = ['Oily', 'Dry', 'Combination', 'Sensitive', 'Normal'];
+        
+        return view('seller.products.create', compact('classifications', 'skinTypes'));
+    }
+
+    /**
+     * Store a newly created product for sellers.
+     */
+    public function sellerStore(Request $request)
+    {
+        if (!auth()->user()->isSeller() && !auth()->user()->isAdmin()) {
+            abort(403, 'Only sellers and admins can create products.');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string|max:2000',
+            'brand' => 'required|string|max:255',
+            'classification' => 'required|in:Cleanser,Moisturizer,Serum,Toner,Sunscreen,Mask,Exfoliant,Treatment',
+            'price' => 'required|numeric|min:0|max:999999.99',
+            'size_volume' => 'required|string|max:50',
+            'quantity' => 'required|integer|min:0',
+            'skin_types' => 'required|array|min:1',
+            'skin_types.*' => 'in:Oily,Dry,Combination,Sensitive,Normal',
+            'active_ingredients' => 'required|array|min:1',
+            'active_ingredients.*' => 'string|max:100',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $data = $request->all();
+        $data['seller_id'] = auth()->id();
+        $data['status'] = 'pending'; // All new products start as pending
+
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $photoPath = $photo->store('products', 'public');
+            $data['photo'] = $photoPath;
+        }
+
+        Product::create($data);
+
+        return redirect()->route('seller.products.index')
+            ->with('success', 'Product submitted successfully! It will be reviewed by an administrator.');
+    }
+
+    /**
+     * Show the form for editing the specified product for sellers.
+     */
+    public function sellerEdit(Product $product)
+    {
+        // Check if user can edit this product
+        if (auth()->id() !== $product->seller_id && !auth()->user()->isAdmin()) {
+            abort(403, 'You can only edit your own products.');
+        }
+
+        $classifications = ['Cleanser', 'Moisturizer', 'Serum', 'Toner', 'Sunscreen', 'Mask', 'Exfoliant', 'Treatment'];
+        $skinTypes = ['Oily', 'Dry', 'Combination', 'Sensitive', 'Normal'];
+        
+        return view('seller.products.edit', compact('product', 'classifications', 'skinTypes'));
+    }
+
+    /**
+     * Update the specified product for sellers.
+     */
+    public function sellerUpdate(Request $request, Product $product)
+    {
+        // Check if user can edit this product
+        if (auth()->id() !== $product->seller_id && !auth()->user()->isAdmin()) {
+            abort(403, 'You can only edit your own products.');
+        }
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'required|string|max:2000',
+            'brand' => 'required|string|max:255',
+            'classification' => 'required|in:Cleanser,Moisturizer,Serum,Toner,Sunscreen,Mask,Exfoliant,Treatment',
+            'price' => 'required|numeric|min:0|max:999999.99',
+            'size_volume' => 'required|string|max:50',
+            'quantity' => 'required|integer|min:0',
+            'skin_types' => 'required|array|min:1',
+            'skin_types.*' => 'in:Oily,Dry,Combination,Sensitive,Normal',
+            'active_ingredients' => 'required|array|min:1',
+            'active_ingredients.*' => 'string|max:100',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $data = $request->all();
+
+        // Handle photo upload
+        if ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($product->photo) {
+                Storage::disk('public')->delete($product->photo);
+            }
+            
+            $photo = $request->file('photo');
+            $photoPath = $photo->store('products', 'public');
+            $data['photo'] = $photoPath;
+        }
+
+        // Reset status to pending if product was previously approved
+        if ($product->status === 'approved') {
+            $data['status'] = 'pending';
+        }
+
+        $product->update($data);
+
+        return redirect()->route('seller.products.index')
+            ->with('success', 'Product updated successfully!');
+    }
+
+    /**
+     * Remove the specified product for sellers.
+     */
+    public function sellerDestroy(Product $product)
+    {
+        // Check if user can delete this product
+        if (auth()->id() !== $product->seller_id && !auth()->user()->isAdmin()) {
+            abort(403, 'You can only delete your own products.');
+        }
+
+        // Delete photo if exists
+        if ($product->photo) {
+            Storage::disk('public')->delete($product->photo);
+        }
+
+        $product->delete();
+
+        return redirect()->route('seller.products.index')
+            ->with('success', 'Product deleted successfully!');
     }
 }

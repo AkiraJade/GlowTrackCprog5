@@ -133,9 +133,13 @@
                                 <p class="text-gray-600">{{ $product->seller->name }}</p>
                             </div>
                             @if($product->isInStock())
-                                <button class="px-6 py-3 bg-jade-green text-white rounded-lg hover:bg-opacity-90 transition font-semibold">
-                                    Add to Cart
-                                </button>
+                                <form action="{{ route('cart.add', $product) }}" method="POST" class="inline">
+                                    @csrf
+                                    <input type="number" name="quantity" value="1" min="1" max="{{ $product->quantity }}" class="w-20 px-3 py-2 border border-gray-300 rounded-lg mr-3" required>
+                                    <button type="submit" class="px-6 py-3 bg-jade-green text-white rounded-lg hover:bg-opacity-90 transition font-semibold">
+                                        Add to Cart
+                                    </button>
+                                </form>
                             @else
                                 <button disabled class="px-6 py-3 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed font-semibold">
                                     Out of Stock

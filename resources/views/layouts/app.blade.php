@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="GlowTrack - Your Premium Skincare E-commerce Platform">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'GlowTrack - Premium Skincare')</title>
     
     <!-- Fonts -->
@@ -72,8 +73,9 @@
                         @if(auth()->user()->isAdmin())
                             <a href="{{ route('admin.dashboard') }}" class="text-soft-brown hover:text-jade-green transition font-medium">Admin Panel</a>
                         @endif
-                        @if(auth()->user()->isCustomer())
+                        @if(!auth()->user()->isSeller() && !auth()->user()->isAdmin())
                             <a href="{{ route('seller.application.create') }}" class="text-soft-brown hover:text-jade-green transition">Become a Seller</a>
+                            <a href="{{ route('cart.index') }}" class="text-soft-brown hover:text-jade-green transition">Cart ({{ Auth::user()->cartItems()->count() }})</a>
                             <a href="{{ route('orders.index') }}" class="text-soft-brown hover:text-jade-green transition">My Orders</a>
                         @endif
                         @if(auth()->user()->isSeller())

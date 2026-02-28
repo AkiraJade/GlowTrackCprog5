@@ -11,11 +11,11 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database.
+     * Seed the application's database with minimal user set.
      */
     public function run(): void
     {
-        // Create admin account
+        // Create only essential admin account
         User::factory()->create([
             'name' => 'Admin User',
             'username' => 'admin',
@@ -25,26 +25,7 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
         ]);
 
-        // Create customer accounts
-        User::factory()->create([
-            'name' => 'John Customer',
-            'username' => 'john_customer',
-            'email' => 'john@glowtrack.com',
-            'phone' => '+1234567891',
-            'address' => '456 Customer Avenue, Customer City, CC 67890',
-            'role' => 'customer',
-        ]);
-
-        User::factory()->create([
-            'name' => 'Jane Customer',
-            'username' => 'jane_customer',
-            'email' => 'jane@glowtrack.com',
-            'phone' => '+1234567892',
-            'address' => '789 Customer Boulevard, Customer Town, CT 11223',
-            'role' => 'customer',
-        ]);
-
-        // Create seller account
+        // Create only essential seller account
         User::factory()->create([
             'name' => 'Sarah Seller',
             'username' => 'sarah_seller',
@@ -54,10 +35,17 @@ class DatabaseSeeder extends Seeder
             'role' => 'seller',
         ]);
 
-        // Create additional random users for testing
-        User::factory(10)->create();
+        // Create only essential customer account
+        User::factory()->create([
+            'name' => 'John Customer',
+            'username' => 'john_customer',
+            'email' => 'john@glowtrack.com',
+            'phone' => '+1234567891',
+            'address' => '456 Customer Avenue, Customer City, CC 67890',
+            'role' => 'customer',
+        ]);
 
-        // Seed products
-        $this->call(ProductSeeder::class);
+        // Products removed - ready for custom products
+        // $this->call(ProductSeeder::class); // Commented out to prevent auto-seeding
     }
 }

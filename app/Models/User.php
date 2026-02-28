@@ -72,6 +72,15 @@ class User extends Authenticatable
      */
     public function isCustomer(): bool
     {
-        return $this->role === 'customer';
+        // Treat any user who is not an admin or seller as a customer.
+        return $this->role === 'customer' || (!in_array($this->role, ['admin', 'seller']));
+    }
+
+    /**
+     * Get cart items for this user.
+     */
+    public function cartItems()
+    {
+        return $this->hasMany(Cart::class);
     }
 }
