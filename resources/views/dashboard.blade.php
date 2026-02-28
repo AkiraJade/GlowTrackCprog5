@@ -22,7 +22,7 @@
                             <a href="{{ route('products.index') }}" class="px-6 py-2 bg-jade-green text-white rounded-full hover:shadow-lg transition font-semibold">
                                 Continue Shopping
                             </a>
-                            <a href="#" class="px-6 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
+                            <a href="{{ route('profile.show') }}#help" class="px-6 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
                                 Help Center
                             </a>
                         </div>
@@ -35,7 +35,7 @@
         <!-- Stats Section -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <!-- Total Orders -->
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('orders.index') }}'">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-soft-brown">Total Orders</h3>
                     <span class="text-4xl">📦</span>
@@ -45,7 +45,7 @@
             </div>
 
             <!-- Total Spent -->
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('orders.index') }}'">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-soft-brown">Amount Spent</h3>
                     <span class="text-4xl">💰</span>
@@ -55,7 +55,7 @@
             </div>
 
             <!-- Loyalty Points -->
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('profile.show') }}#loyalty'">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-soft-brown">Loyalty Points</h3>
                     <span class="text-4xl">⭐</span>
@@ -65,7 +65,7 @@
             </div>
 
             <!-- Wishlist Items -->
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('profile.show') }}#wishlist'">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-soft-brown">Wishlist Items</h3>
                     <span class="text-4xl">❤️</span>
@@ -133,7 +133,7 @@
                 <div class="bg-white rounded-2xl shadow-lg p-8">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-2xl font-bold text-soft-brown font-playfair">My Wishlist</h2>
-                        <a href="#" class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">View All</a>
+                        <a href="{{ route('profile.show') }}#wishlist" class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">View All</a>
                     </div>
                     
                     <div class="text-center py-12">
@@ -205,7 +205,7 @@
                         </div>
                     </div>
 
-                    <button class="w-full py-2 bg-white text-jade-green rounded-full font-semibold hover:bg-opacity-90 transition">
+                    <button onclick="window.location.href='{{ route('profile.show') }}#loyalty'" class="w-full py-2 bg-white text-jade-green rounded-full font-semibold hover:bg-opacity-90 transition cursor-pointer">
                         Learn More
                     </button>
                 </div>
@@ -216,6 +216,9 @@
                     
                     <div class="text-center py-8">
                         <p class="text-soft-brown opacity-75">No items viewed yet</p>
+                        <a href="{{ route('products.index') }}" class="text-jade-green hover:text-soft-brown transition font-semibold text-sm mt-2 inline-block">
+                            Browse Products
+                        </a>
                     </div>
                 </div>
 
@@ -228,19 +231,19 @@
             <h2 class="text-2xl font-bold text-soft-brown font-playfair mb-6">Need Help?</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <a href="#" class="p-6 rounded-xl border-2 border-light-sage hover:border-jade-green hover:shadow-lg transition">
+                <a href="{{ route('support.contact') }}" class="p-6 rounded-xl border-2 border-light-sage hover:border-jade-green hover:shadow-lg transition">
                     <p class="text-3xl mb-3">📧</p>
                     <h3 class="font-bold text-soft-brown mb-2">Contact Support</h3>
                     <p class="text-sm text-soft-brown opacity-75">Response within 24 hours</p>
                 </a>
 
-                <a href="#" class="p-6 rounded-xl border-2 border-light-sage hover:border-jade-green hover:shadow-lg transition">
+                <a href="{{ route('support.knowledge') }}" class="p-6 rounded-xl border-2 border-light-sage hover:border-jade-green hover:shadow-lg transition">
                     <p class="text-3xl mb-3">📚</p>
                     <h3 class="font-bold text-soft-brown mb-2">Knowledge Base</h3>
                     <p class="text-sm text-soft-brown opacity-75">FAQs and guides</p>
                 </a>
 
-                <a href="#" class="p-6 rounded-xl border-2 border-light-sage hover:border-jade-green hover:shadow-lg transition">
+                <a href="{{ route('support.forum') }}" class="p-6 rounded-xl border-2 border-light-sage hover:border-jade-green hover:shadow-lg transition">
                     <p class="text-3xl mb-3">💬</p>
                     <h3 class="font-bold text-soft-brown mb-2">Forum</h3>
                     <p class="text-sm text-soft-brown opacity-75">Join community discussions</p>

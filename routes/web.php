@@ -4,10 +4,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ProductController;
-use App\Http\Controllers\SellerApplicationController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\SupportController;
+use App\Http\Controllers\ForumController;
+use App\Http\Controllers\SellerApplicationController;
+use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return view('index');
@@ -33,6 +36,23 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+    
+    // Support Routes
+    Route::get('/support/contact', [SupportController::class, 'contact'])->name('support.contact');
+    Route::post('/support/submit', [SupportController::class, 'submit'])->name('support.submit');
+    Route::get('/support/knowledge', [SupportController::class, 'knowledge'])->name('support.knowledge');
+    Route::get('/support/forum', [ForumController::class, 'index'])->name('support.forum');
+
+    // Forum Routes
+    Route::get('/forum/create', [ForumController::class, 'create'])->name('forum.create');
+    Route::post('/forum', [ForumController::class, 'store'])->name('forum.store');
+    Route::get('/forum/{discussion}', [ForumController::class, 'show'])->name('forum.discussion');
+    Route::get('/forum/{discussion}/edit', [ForumController::class, 'edit'])->name('forum.edit');
+    Route::put('/forum/{discussion}', [ForumController::class, 'update'])->name('forum.update');
+    Route::delete('/forum/{discussion}', [ForumController::class, 'destroy'])->name('forum.destroy');
+    Route::post('/forum/{discussion}/reply', [ForumController::class, 'reply'])->name('forum.reply');
+    Route::post('/forum/replies/{replyId}/reply', [ForumController::class, 'replyToReply'])->name('forum.reply-to-reply');
+    Route::delete('/forum/replies/{reply}', [ForumController::class, 'deleteReply'])->name('forum.delete-reply');
 });
 
 // Optional: Dashboard route
