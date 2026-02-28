@@ -63,7 +63,7 @@
                 <div class="hidden md:flex items-center space-x-8">
                     <a href="#features" class="text-soft-brown hover:text-jade-green transition">Features</a>
                     <a href="{{ route('products.index') }}" class="text-soft-brown hover:text-jade-green transition">Products</a>
-                    <a href="#about" class="text-soft-brown hover:text-jade-green transition">About</a>
+                    <a href="{{ route('about') }}" class="text-soft-brown hover:text-jade-green transition">About</a>
                 </div>
                 
                 <!-- Auth Links -->

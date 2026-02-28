@@ -177,6 +177,7 @@ class ProductSeeder extends Seeder
             $productData['is_verified'] = rand(0, 1); // Random verification status
             $productData['average_rating'] = rand(30, 50) / 10; // Random rating 3.0-5.0
             $productData['review_count'] = rand(0, 200); // Random review count
+            $productData['slug'] = \Illuminate\Support\Str::slug($productData['name']) . '-' . uniqid();
             
             Product::create($productData);
         }
@@ -216,6 +217,7 @@ class ProductSeeder extends Seeder
             $productData['is_verified'] = false;
             $productData['average_rating'] = 0;
             $productData['review_count'] = 0;
+            $productData['slug'] = \Illuminate\Support\Str::slug($productData['name']) . '-' . uniqid();
             
             Product::create($productData);
         }
