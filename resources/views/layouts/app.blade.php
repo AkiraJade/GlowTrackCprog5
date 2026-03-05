@@ -62,7 +62,11 @@
                 
                 <!-- Menu -->
                 <div class="hidden md:flex items-center space-x-8">
+<<<<<<< HEAD
                     <a href="{{ route('features') }}" class="text-soft-brown hover:text-jade-green transition">Features</a>
+=======
+                    <a href="#features" class="text-soft-brown hover:text-jade-green transition">Features</a>
+>>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
                     <a href="{{ route('products.index') }}" class="text-soft-brown hover:text-jade-green transition">Products</a>
                     <a href="{{ route('about') }}" class="text-soft-brown hover:text-jade-green transition">About</a>
                 </div>
@@ -73,12 +77,17 @@
                         @if(auth()->user()->isAdmin())
                             <a href="{{ route('admin.dashboard') }}" class="text-soft-brown hover:text-jade-green transition font-medium">Admin Panel</a>
                         @endif
+<<<<<<< HEAD
                         
                         @if(auth()->user()->isCustomer())
+=======
+                        @if(!auth()->user()->isSeller() && !auth()->user()->isAdmin())
+>>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
                             <a href="{{ route('seller.application.create') }}" class="text-soft-brown hover:text-jade-green transition">Become a Seller</a>
                             <a href="{{ route('cart.index') }}" class="text-soft-brown hover:text-jade-green transition">Cart ({{ Auth::user()->cartItems()->count() }})</a>
                             <a href="{{ route('orders.index') }}" class="text-soft-brown hover:text-jade-green transition">My Orders</a>
                         @endif
+<<<<<<< HEAD
                         
                         @if(auth()->user()->isSeller())
                             <a href="{{ route('seller.dashboard') }}" class="text-soft-brown hover:text-jade-green transition">Seller Dashboard</a>
@@ -87,6 +96,14 @@
                         @endif
                         
                         <a href="{{ route('profile.show') }}" class="text-soft-brown hover:text-jade-green transition">Profile</a>
+=======
+                        @if(auth()->user()->isSeller())
+                            <a href="{{ route('products.my') }}" class="text-soft-brown hover:text-jade-green transition">My Products</a>
+                            <a href="{{ route('orders.index') }}" class="text-soft-brown hover:text-jade-green transition">My Orders</a>
+                        @endif
+                        <a href="{{ route('profile.show') }}" class="text-soft-brown hover:text-jade-green transition">Profile</a>
+                        <a href="{{ url('/dashboard') }}" class="text-soft-brown hover:text-jade-green transition">Dashboard</a>
+>>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
                             <button type="submit" class="text-soft-brown hover:text-jade-green transition font-medium">Logout</button>

@@ -127,7 +127,11 @@ class AdminController extends Controller
      */
     public function orders()
     {
+<<<<<<< HEAD
         $orders = Order::with('user', 'orderItems.product')->latest()->paginate(10);
+=======
+        $orders = Order::with('user', 'items.product')->latest()->paginate(10);
+>>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
         return view('admin.orders', compact('orders'));
     }
 
@@ -163,7 +167,11 @@ class AdminController extends Controller
 
         $orders = Order::whereBetween('created_at', [$startDate, $endDate])
             ->where('status', '!=', 'cancelled')
+<<<<<<< HEAD
             ->with('orderItems.product', 'user')
+=======
+            ->with('items.product', 'user')
+>>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
             ->get();
 
         $totalRevenue = $orders->sum('total_amount');
@@ -193,6 +201,7 @@ class AdminController extends Controller
     public function inventoryReport()
     {
         $products = Product::with('seller')
+<<<<<<< HEAD
             ->orderBy('quantity', 'asc')
             ->get();
 
@@ -202,6 +211,18 @@ class AdminController extends Controller
 
         $outOfStockProducts = $products->filter(function($product) {
             return $product->quantity == 0;
+=======
+            ->select(['*', 'stock_quantity'])
+            ->orderBy('stock_quantity', 'asc')
+            ->get();
+
+        $lowStockProducts = $products->filter(function($product) {
+            return $product->stock_quantity <= 10;
+        });
+
+        $outOfStockProducts = $products->filter(function($product) {
+            return $product->stock_quantity == 0;
+>>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
         });
 
         return view('admin.inventory-report', compact(

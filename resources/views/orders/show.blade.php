@@ -10,7 +10,11 @@
             <a href="{{ route('orders.index') }}" class="text-jade-green hover:text-jade-green-900 font-medium">
                 ← Back to Orders
             </a>
+<<<<<<< HEAD
             <h1 class="text-3xl font-bold text-gray-900 mt-4">Order #{{ str_pad($order->id, 6, '0', STR_PAD_LEFT) }}</h1>
+=======
+            <h1 class="text-3xl font-bold text-gray-900 mt-4">Order {{ $order->order_id }}</h1>
+>>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
         </div>
 
         <!-- Order Status Card -->

@@ -105,11 +105,14 @@ Route::middleware('auth')->group(function () {
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
+<<<<<<< HEAD
 // Features Route
 Route::get('/features', function () {
     return view('features');
 })->name('features');
 
+=======
+>>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
 Route::middleware('auth')->group(function () {
     Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
