@@ -18,7 +18,6 @@ class OrderController extends Controller
      */
     public function index(Request $request)
     {
-<<<<<<< HEAD
         // Admins can see all orders, customers can only see their own
         if (auth()->user()->isAdmin()) {
             $orders = Order::with(['orderItems.product', 'orderItems.product.seller'])
@@ -30,12 +29,6 @@ class OrderController extends Controller
                 ->latest()
                 ->paginate(10);
         }
-=======
-        $orders = Order::where('user_id', auth()->id())
-            ->with(['orderItems.product', 'orderItems.product.seller'])
-            ->latest()
-            ->paginate(10);
->>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
 
         return view('orders.index', compact('orders'));
     }
@@ -45,13 +38,8 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-<<<<<<< HEAD
         // Allow admins to view all orders, customers can only view their own
         if (!auth()->user()->isAdmin() && $order->user_id !== auth()->id()) {
-=======
-        // Ensure user can only view their own orders
-        if ($order->user_id !== auth()->id()) {
->>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
             abort(403, 'Unauthorized action.');
         }
 

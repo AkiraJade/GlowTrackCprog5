@@ -81,13 +81,8 @@
                                     ${{ number_format($product->price, 2) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-<<<<<<< HEAD
-                                    <span class="text-sm {{ $product->quantity <= 10 ? 'text-red-600 font-semibold' : 'text-gray-900' }}">
+<span class="text-sm {{ $product->quantity <= 10 ? 'text-red-600 font-semibold' : 'text-gray-900' }}">
                                         {{ $product->quantity }}
-=======
-                                    <span class="text-sm {{ $product->stock_quantity <= 10 ? 'text-red-600 font-semibold' : 'text-gray-900' }}">
-                                        {{ $product->stock_quantity }}
->>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">

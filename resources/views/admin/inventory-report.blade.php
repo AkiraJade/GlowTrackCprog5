@@ -108,11 +108,7 @@
                             <div class="font-semibold text-gray-900">{{ $product->name }}</div>
                             <div class="text-sm text-gray-500">{{ $product->brand }}</div>
                             <div class="flex items-center justify-between mt-2">
-<<<<<<< HEAD
                                 <span class="text-sm text-yellow-600 font-medium">{{ $product->quantity }} units left</span>
-=======
-                                <span class="text-sm text-yellow-600 font-medium">{{ $product->stock_quantity }} units left</span>
->>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
                                 <span class="text-xs text-gray-500">{{ $product->seller->name }}</span>
                             </div>
                         </div>
@@ -154,11 +150,7 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200" id="inventoryTable">
                         @foreach($products as $product)
-<<<<<<< HEAD
                             <tr data-stock="{{ $product->quantity }}" data-name="{{ $product->name }}" data-seller="{{ $product->seller->name }}">
-=======
-                            <tr data-stock="{{ $product->stock_quantity }}" data-name="{{ $product->name }}" data-seller="{{ $product->seller->name }}">
->>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         @if($product->image)
@@ -184,39 +176,22 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="text-sm font-medium 
-<<<<<<< HEAD
                                         {{ $product->quantity == 0 ? 'text-red-600' : 
                                            ($product->quantity <= 10 ? 'text-yellow-600' : 'text-gray-900') }}">
                                         {{ $product->quantity }}
-=======
-                                        {{ $product->stock_quantity == 0 ? 'text-red-600' : 
-                                           ($product->stock_quantity <= 10 ? 'text-yellow-600' : 'text-gray-900') }}">
-                                        {{ $product->stock_quantity }}
->>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-<<<<<<< HEAD
                                         {{ $product->quantity == 0 ? 'bg-red-100 text-red-800' : 
                                            ($product->quantity <= 10 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
                                         {{ $product->quantity == 0 ? 'Out of Stock' : 
                                            ($product->quantity <= 10 ? 'Low Stock' : 'In Stock') }}
-=======
-                                        {{ $product->stock_quantity == 0 ? 'bg-red-100 text-red-800' : 
-                                           ($product->stock_quantity <= 10 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800') }}">
-                                        {{ $product->stock_quantity == 0 ? 'Out of Stock' : 
-                                           ($product->stock_quantity <= 10 ? 'Low Stock' : 'In Stock') }}
->>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <a href="{{ route('products.show', $product) }}" class="text-jade-green hover:text-jade-green-900">View</a>
-<<<<<<< HEAD
                                     @if($product->quantity <= 10)
-=======
-                                    @if($product->stock_quantity <= 10)
->>>>>>> 3c3d9503314415a2e2f4eadc7884e89c97d92e8c
                                         <a href="mailto:{{ $product->seller->email }}?subject=Low Stock Alert for {{ $product->name }}" 
                                            class="ml-3 text-yellow-600 hover:text-yellow-900">Notify Seller</a>
                                     @endif
