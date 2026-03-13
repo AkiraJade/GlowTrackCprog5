@@ -308,6 +308,45 @@ class ForumController extends Controller
     }
 
     /**
+     * Show the form for editing a reply.
+     */
+    public function editReply(ForumReply $reply)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Please login to edit replies.');
+        }
+
+        if ($reply->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('support.replies.edit', compact('reply'));
+    }
+
+    /**
+     * Update the reply.
+     */
+    public function updateReply(Request $request, ForumReply $reply)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Please login to update replies.');
+        }
+
+        if ($reply->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $validated = $request->validate([
+            'content' => 'required|string|min:3',
+        ]);
+
+        $reply->update($validated);
+
+        return redirect()->route('forum.discussion', $reply->discussion)
+            ->with('success', 'Reply updated successfully!');
+    }
+
+    /**
      * Delete a reply.
      */
     public function deleteReply(ForumReply $reply)

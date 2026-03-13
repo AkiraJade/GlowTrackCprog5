@@ -30,17 +30,91 @@ class RegisterController extends Controller
             'phone' => ['required', 'string', 'max:20'],
             'address' => ['required', 'string', 'max:500'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'photo' => ['nullable'], // Remove file validation temporarily
         ]);
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'username' => $validated['username'],
-            'email' => $validated['email'],
-            'phone' => $validated['phone'],
-            'address' => $validated['address'],
-            'role' => 'customer', // FR7.1: Assign Buyer role by default
-            'password' => Hash::make($validated['password']),
+        // Handle photo upload
+        $photoPath = null;
+        
+        \Log::info('Registration request received', [
+            'has_file' => $request->hasFile('photo'),
+            'all_files' => $request->allFiles(),
+            'photo_field' => $request->input('photo')
         ]);
+        
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            
+            \Log::info('Photo upload detected:', [
+                'original_name' => $photo->getClientOriginalName(),
+                'mime_type' => $photo->getMimeType(),
+                'size' => $photo->getSize(),
+                'extension' => $photo->getClientOriginalExtension(),
+                'tmp_name' => $photo->getFilename(),
+                'tmp_path' => $photo->getPathname()
+            ]);
+            
+            // Validate file manually
+            if ($photo) {
+                $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+                $fileMime = $photo->getMimeType();
+                
+                \Log::info('Validating photo', ['mime' => $fileMime, 'allowed' => $allowedMimes]);
+                
+                if (!in_array($fileMime, $allowedMimes) || $photo->getSize() > 2048 * 1024) {
+                    \Log::error('Photo validation failed', ['mime' => $fileMime, 'size' => $photo->getSize()]);
+                    return back()->withErrors(['photo' => 'The photo must be a valid image file (JPEG, PNG, JPG, GIF, WebP) and less than 2MB.'])->withInput();
+                }
+                
+                $photoName = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
+                $uploadPath = public_path('storage/user_photos/' . $photoName);
+                
+                \Log::info('Moving photo to: ' . $uploadPath);
+                
+                try {
+                    $photo->move(public_path('storage/user_photos'), $photoName);
+                    $photoPath = $photoName;
+                    
+                    \Log::info('Photo moved successfully', ['filename' => $photoName, 'path' => $photoPath]);
+                    
+                    // Verify file was actually moved
+                    if (file_exists($uploadPath)) {
+                        \Log::info('File exists after move: YES');
+                    } else {
+                        \Log::error('File does not exist after move: ' . $uploadPath);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Photo move failed: ' . $e->getMessage());
+                    return back()->withErrors(['photo' => 'Failed to upload photo. Please try again.'])->withInput();
+                }
+            }
+        } else {
+            \Log::info('No photo file detected in request');
+        }
+
+        \Log::info('Creating user with photo path', ['photo_path' => $photoPath]);
+
+        try {
+            $user = User::create([
+                'name' => $validated['name'],
+                'username' => $validated['username'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'address' => $validated['address'],
+                'role' => 'customer', // FR7.1: Assign Buyer role by default
+                'password' => Hash::make($validated['password']),
+                'photo' => $photoPath,
+            ]);
+
+            \Log::info('User created successfully', [
+                'user_id' => $user->id,
+                'photo' => $user->photo,
+                'photo_url' => $user->photo_url
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('User creation failed: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Registration failed. Please try again.'])->withInput();
+        }
 
         event(new Registered($user));
 

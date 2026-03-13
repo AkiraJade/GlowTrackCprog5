@@ -14,14 +14,38 @@ class LoyaltyController extends Controller
     {
         $user = Auth::user();
         
-        // Mock loyalty points data (in a real app, this would come from database)
+        // Get real loyalty points data from user
+        $currentPoints = $user->loyalty_points ?? 0;
+        
+        // Calculate tier based on points
+        $tier = 'Bronze';
+        $nextTier = 'Silver';
+        $pointsToNextTier = 100;
+        
+        if ($currentPoints >= 500) {
+            $tier = 'Gold';
+            $nextTier = 'Platinum';
+            $pointsToNextTier = 1000 - $currentPoints;
+        } elseif ($currentPoints >= 100) {
+            $tier = 'Silver';
+            $nextTier = 'Gold';
+            $pointsToNextTier = 500 - $currentPoints;
+        } else {
+            $pointsToNextTier = 100 - $currentPoints;
+        }
+        
+        // Calculate total earned (for demo, we'll use current points as total earned)
+        // In a real app, you'd track this separately
+        $totalEarned = $currentPoints;
+        $totalRedeemed = 0; // For demo, assume no points redeemed yet
+        
         $loyaltyData = [
-            'current_points' => 250,
-            'total_earned' => 500,
-            'total_redeemed' => 250,
-            'tier' => 'Silver',
-            'next_tier' => 'Gold',
-            'points_to_next_tier' => 250,
+            'current_points' => $currentPoints,
+            'total_earned' => $totalEarned,
+            'total_redeemed' => $totalRedeemed,
+            'tier' => $tier,
+            'next_tier' => $nextTier,
+            'points_to_next_tier' => max(0, $pointsToNextTier),
             'member_since' => $user->created_at->format('F Y'),
         ];
 
@@ -132,7 +156,6 @@ class LoyaltyController extends Controller
     {
         $rewardId = $request->input('reward_id');
         
-        // Mock redemption logic (in a real app, this would process the redemption)
         $rewards = [
             1 => ['name' => '10% Off Next Purchase', 'points_cost' => 100],
             2 => ['name' => 'Free Shipping', 'points_cost' => 50],
@@ -147,13 +170,20 @@ class LoyaltyController extends Controller
 
         $reward = $rewards[$rewardId];
         
-        // Mock user points check (in a real app, check actual user points)
-        $userPoints = 250;
+        // Check actual user points
+        $user = Auth::user();
+        $userPoints = $user->loyalty_points ?? 0;
         
         if ($userPoints < $reward['points_cost']) {
             return back()->with('error', 'Insufficient points for this reward.');
         }
 
+        // In a real app, you would:
+        // 1. Create a redemption record
+        // 2. Deduct points from user account
+        // 3. Generate coupon code or process reward
+        
+        // For demo, we'll just show success message
         return back()->with('success', "Successfully redeemed {$reward['name']}! Check your email for details.");
     }
 }

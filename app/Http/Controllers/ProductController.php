@@ -77,7 +77,13 @@ class ProductController extends Controller
             'Glycolic Acid', 'Ceramides', 'Peptides', 'Azelaic Acid', 'Bakuchiol'
         ];
 
-        return view('products.index', compact('products', 'classifications', 'skinTypes', 'ingredients'));
+        // Get user's wishlist items if authenticated
+        $wishlistProductIds = [];
+        if (auth()->check()) {
+            $wishlistProductIds = auth()->user()->wishlistItems()->pluck('product_id')->toArray();
+        }
+
+        return view('products.index', compact('products', 'classifications', 'skinTypes', 'ingredients', 'wishlistProductIds'));
     }
 
     /**

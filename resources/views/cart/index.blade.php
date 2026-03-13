@@ -8,9 +8,15 @@
         
         <!-- Header -->
         <div class="mb-8">
-            <div class="bg-white rounded-3xl shadow-xl p-8">
-                <h1 class="text-4xl font-bold text-soft-brown font-playfair mb-3">Shopping Cart 🛒</h1>
-                <p class="text-lg text-soft-brown opacity-75">Review your items before checkout</p>
+            <div class="bg-white rounded-3xl shadow-xl p-8 flex justify-between items-center">
+                <div>
+                    <h1 class="text-4xl font-bold text-soft-brown font-playfair mb-3">Shopping Cart 🛒</h1>
+                    <p class="text-lg text-soft-brown opacity-75">Review your items before checkout</p>
+                </div>
+                <a href="{{ route('orders.index') }}" 
+                   class="px-6 py-3 border-2 border-soft-brown text-soft-brown rounded-full hover:bg-soft-brown hover:text-white transition font-semibold">
+                    📦 My Orders
+                </a>
             </div>
         </div>
 
@@ -49,7 +55,7 @@
                                         </div>
                                     </td>
                                     <td class="py-4 px-4">
-                                        <span class="font-semibold text-jade-green">${{ number_format($item->price, 2) }}</span>
+                                        <span class="font-semibold text-jade-green">₱{{ number_format($item->price, 2) }}</span>
                                     </td>
                                     <td class="py-4 px-4">
                                         <form action="{{ route('cart.update', $item) }}" method="POST" class="inline">
@@ -63,7 +69,7 @@
                                     </td>
                                     <td class="py-4 px-4">
                                         <span class="font-semibold text-jade-green">
-                                            ${{ number_format($item->price * $item->quantity, 2) }}
+                                            ₱{{ number_format($item->price * $item->quantity, 2) }}
                                         </span>
                                     </td>
                                     <td class="py-4 px-4">
@@ -92,14 +98,14 @@
                         </div>
                         <div class="text-right">
                             <div class="text-3xl font-bold text-jade-green">
-                                ${{ number_format($total, 2) }}
+                                ₱{{ number_format($total, 2) }}
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Actions -->
-                <div class="mt-8 flex gap-4 justify-center">
+                <div class="mt-8 flex flex-wrap gap-4 justify-center">
                     <a href="{{ route('products.index') }}" 
                        class="px-6 py-3 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
                         Continue Shopping

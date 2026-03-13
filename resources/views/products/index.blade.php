@@ -168,7 +168,7 @@
 
                                 <!-- Price and Rating -->
                                 <div class="flex items-center justify-between mb-2">
-                                    <span class="text-lg font-bold text-gray-900">${{ number_format($product->price, 2) }}</span>
+                                    <span class="text-lg font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
                                     @if($product->review_count > 0)
                                         <div class="flex items-center">
                                             <span class="text-yellow-400">★</span>
@@ -191,13 +191,60 @@
 
                                 <!-- Key Ingredients -->
                                 @if($product->active_ingredients)
-                                    <div class="text-xs text-gray-500">
+                                    <div class="text-xs text-gray-500 mb-3">
                                         <strong>Key ingredients:</strong> {{ implode(', ', array_slice($product->active_ingredients, 0, 2)) }}
                                         @if(count($product->active_ingredients) > 2)
                                             +{{ count($product->active_ingredients) - 2 }} more
                                         @endif
                                     </div>
                                 @endif
+
+                                <!-- Action Buttons -->
+                                <div class="flex gap-2">
+                                    @auth
+                                        <form method="POST" action="{{ route('wishlist.toggle') }}" class="flex-1">
+                                            @csrf
+                                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                            <button type="button" 
+                                                    onclick="toggleWishlist(this, {{ $product->id }})"
+                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition flex items-center justify-center gap-2 wishlist-btn"
+                                                    data-in-wishlist="{{ in_array($product->id, $wishlistProductIds) ? 'true' : 'false' }}">
+                                                <span class="wishlist-icon">
+                                                    @if(in_array($product->id, $wishlistProductIds))
+                                                        ❤️
+                                                    @else
+                                                        🤍
+                                                    @endif
+                                                </span>
+                                                <span class="wishlist-text">
+                                                    @if(in_array($product->id, $wishlistProductIds))
+                                                        In Wishlist
+                                                    @else
+                                                        Wishlist
+                                                    @endif
+                                                </span>
+                                            </button>
+                                        </form>
+                                        @if($product->isInStock())
+                                            <form method="POST" action="{{ route('cart.add', $product->id) }}" class="flex-1">
+                                                @csrf
+                                                <input type="hidden" name="quantity" value="1">
+                                                <button type="submit" class="w-full px-3 py-2 bg-jade-green text-white rounded-md hover:bg-opacity-90 transition">
+                                                    Add to Cart
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @else
+                                        <a href="{{ route('login') }}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition flex items-center justify-center gap-2">
+                                            🤍 Wishlist
+                                        </a>
+                                        @if($product->isInStock())
+                                            <a href="{{ route('login') }}" class="flex-1 px-3 py-2 bg-jade-green text-white rounded-md hover:bg-opacity-90 transition text-center">
+                                                Add to Cart
+                                            </a>
+                                        @endif
+                                    @endauth
+                                </div>
                             </div>
                         </div>
                     @endforeach
@@ -221,4 +268,60 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleWishlist(button, productId) {
+    const form = button.closest('form');
+    const formData = new FormData(form);
+    
+    fetch('{{ route("wishlist.toggle") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const icon = button.querySelector('.wishlist-icon');
+            const text = button.querySelector('.wishlist-text');
+            const isInWishlist = button.dataset.inWishlist === 'true';
+            
+            if (data.action === 'added') {
+                icon.textContent = '❤️';
+                text.textContent = 'In Wishlist';
+                button.dataset.inWishlist = 'true';
+                button.classList.add('border-red-300', 'bg-red-50');
+            } else {
+                icon.textContent = '🤍';
+                text.textContent = 'Wishlist';
+                button.dataset.inWishlist = 'false';
+                button.classList.remove('border-red-300', 'bg-red-50');
+            }
+            
+            // Show toast notification
+            showToast(data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('An error occurred. Please try again.', 'error');
+    });
+}
+
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
+        type === 'success' ? 'bg-green-500' : 'bg-red-500'
+    }`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 3000);
+}
+</script>
 @endsection

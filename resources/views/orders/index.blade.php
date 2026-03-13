@@ -44,7 +44,7 @@
                                     </p>
                                 </div>
                                 <div class="text-right">
-                                    <p class="text-2xl font-bold text-gray-900">${{ number_format($order->total_amount, 2) }}</p>
+                                    <p class="text-2xl font-bold text-gray-900">₱{{ number_format($order->total_amount, 2) }}</p>
                                     <p class="text-sm text-gray-500">{{ $order->orderItems->count() }} items</p>
                                 </div>
                             </div>
@@ -77,7 +77,7 @@
                                             <p class="text-sm text-gray-500">{{ $item->product->brand }}</p>
                                             <div class="flex items-center space-x-4 mt-1">
                                                 <span class="text-sm text-gray-600">Qty: {{ $item->quantity }}</span>
-                                                <span class="text-sm text-gray-600">${{ number_format($item->price, 2) }} each</span>
+                                                <span class="text-sm text-gray-600">₱{{ number_format($item->price, 2) }} each</span>
                                             </div>
                                         </div>
 

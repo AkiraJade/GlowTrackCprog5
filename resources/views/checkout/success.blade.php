@@ -20,6 +20,18 @@
             </div>
         </div>
 
+        <!-- Loyalty Points Earned -->
+        @isset($loyaltyPointsEarned)
+            <div class="mb-8">
+                <div class="bg-gradient-to-r from-jade-green to-light-sage text-white rounded-2xl shadow-lg p-6 text-center">
+                    <div class="text-2xl mb-2">⭐</div>
+                    <h3 class="text-xl font-bold mb-2">Loyalty Points Earned!</h3>
+                    <p class="text-3xl font-bold mb-2">+{{ $loyaltyPointsEarned }} Points</p>
+                    <p class="text-sm opacity-90">You've earned {{ $loyaltyPointsEarned }} loyalty points from this order. 1 point per quantity purchased!</p>
+                </div>
+            </div>
+        @endisset
+
         <!-- Order Details -->
         <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
             <h2 class="text-2xl font-bold text-soft-brown mb-6">Order Details</h2>
@@ -49,7 +61,7 @@
                             </span>
                         </div>
                         <div><strong>Payment Method:</strong> {{ ucfirst($order->payment_method) }}</div>
-                        <div><strong>Total Amount:</strong> <span class="text-jade-green font-bold">${{ number_format($order->total_amount, 2) }}</span></div>
+                        <div><strong>Total Amount:</strong> <span class="text-jade-green font-bold">₱{{ number_format($order->total_amount, 2) }}</span></div>
                     </div>
                 </div>
             </div>
@@ -88,11 +100,11 @@
                                         </div>
                                     </td>
                                     <td class="py-4 px-4">
-                                        <span class="font-semibold text-jade-green">${{ number_format($item->price, 2) }}</span>
+                                        <span class="font-semibold text-jade-green">₱{{ number_format($item->price, 2) }}</span>
                                     </td>
                                     <td class="py-4 px-4">{{ $item->quantity }}</td>
                                     <td class="py-4 px-4 text-right">
-                                        <span class="font-semibold text-jade-green">${{ number_format($item->price * $item->quantity, 2) }}</span>
+                                        <span class="font-semibold text-jade-green">₱{{ number_format($item->price * $item->quantity, 2) }}</span>
                                     </td>
                                 </tr>
                             @endforeach

@@ -39,7 +39,7 @@
                                 </div>
                             </div>
                             <div class="text-right">
-                                <div class="font-semibold text-jade-green">${{ number_format($item->price * $item->quantity, 2) }}</div>
+                                <div class="font-semibold text-jade-green">₱{{ number_format($item->price * $item->quantity, 2) }}</div>
                             </div>
                         </div>
                     @endforeach
@@ -48,19 +48,19 @@
                     <div class="mt-6 space-y-3">
                         <div class="flex justify-between text-sm">
                             <span class="text-soft-brown">Subtotal</span>
-                            <span class="font-semibold">${{ number_format($subtotal, 2) }}</span>
+                            <span class="font-semibold">₱{{ number_format($subtotal, 2) }}</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-soft-brown">Shipping</span>
-                            <span class="font-semibold">${{ number_format($shipping, 2) }}</span>
+                            <span class="font-semibold">₱{{ number_format($shipping, 2) }}</span>
                         </div>
                         <div class="flex justify-between text-sm">
                             <span class="text-soft-brown">Tax (8%)</span>
-                            <span class="font-semibold">${{ number_format($tax, 2) }}</span>
+                            <span class="font-semibold">₱{{ number_format($tax, 2) }}</span>
                         </div>
                         <div class="flex justify-between text-lg font-bold text-soft-brown pt-3 border-t border-gray-200">
                             <span>Total</span>
-                            <span class="text-jade-green">${{ number_format($total, 2) }}</span>
+                            <span class="text-jade-green">₱{{ number_format($total, 2) }}</span>
                         </div>
                     </div>
                 </div>

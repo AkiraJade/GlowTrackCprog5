@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -115,6 +116,23 @@ class CheckoutController extends Controller
             // Clear cart (stock is already managed by cart system)
             Cart::where('user_id', Auth::id())->delete();
 
+            // Calculate and award loyalty points based on total quantity
+            $totalQuantity = 0;
+            foreach ($cartItems as $cartItem) {
+                $totalQuantity += $cartItem->quantity;
+            }
+            
+            $loyaltyPoints = User::calculateLoyaltyPoints($totalQuantity);
+            $user = Auth::user();
+            $user->addLoyaltyPoints($loyaltyPoints);
+
+            Log::info('Loyalty points awarded', [
+                'user_id' => Auth::id(),
+                'total_quantity' => $totalQuantity,
+                'points_awarded' => $loyaltyPoints,
+                'order_id' => $order->id,
+            ]);
+
             DB::commit();
 
             Log::info('Checkout completed successfully', ['order_id' => $order->id]);
@@ -147,6 +165,10 @@ class CheckoutController extends Controller
 
         $order->load('orderItems.product');
 
-        return view('checkout.success', compact('order'));
+        // Calculate loyalty points earned for this order
+        $totalQuantity = $order->orderItems->sum('quantity');
+        $loyaltyPointsEarned = User::calculateLoyaltyPoints($totalQuantity);
+
+        return view('checkout.success', compact('order', 'loyaltyPointsEarned'));
     }
 }

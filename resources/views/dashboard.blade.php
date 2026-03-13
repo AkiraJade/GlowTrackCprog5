@@ -11,25 +11,32 @@
         <div class="mb-8">
             <div class="bg-white rounded-3xl shadow-xl p-8 md:p-12">
                 <div class="flex flex-col md:flex-row items-center justify-between gap-8">
-                    <div>
-                        <h1 class="text-4xl md:text-5xl font-bold text-soft-brown font-playfair mb-3">
-                            Welcome back, {{ Auth::user()->username }}! ✨
-                        </h1>
-                        <p class="text-lg text-soft-brown opacity-75 mb-4">
-                            Your personalized skincare dashboard
-                        </p>
-                        <div class="flex flex-wrap gap-4">
-                            <a href="{{ route('products.index') }}" class="px-6 py-2 bg-jade-green text-white rounded-full hover:shadow-lg transition font-semibold">
-                                Continue Shopping
-                            </a>
-                            <a href="{{ route('profile.show') }}#help" class="px-6 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
-                                Help Center
-                            </a>
-                            @if(Auth::user()->isAdmin())
-                                <a href="{{ route('admin.dashboard') }}" class="px-6 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition font-semibold">
-                                    🛡️ Admin Panel
+                    <div class="flex items-center gap-6">
+                        <div class="flex-shrink-0">
+                            <img src="{{ Auth::user()->photo_url }}" 
+                                 alt="{{ Auth::user()->name }}" 
+                                 class="w-20 h-20 rounded-full object-cover border-4 border-jade-green shadow-lg">
+                        </div>
+                        <div>
+                            <h1 class="text-4xl md:text-5xl font-bold text-soft-brown font-playfair mb-3">
+                                Welcome back, {{ Auth::user()->username }}! ✨
+                            </h1>
+                            <p class="text-lg text-soft-brown opacity-75 mb-4">
+                                Your personalized skincare dashboard
+                            </p>
+                            <div class="flex flex-wrap gap-4">
+                                <a href="{{ route('products.index') }}" class="px-6 py-2 bg-jade-green text-white rounded-full hover:shadow-lg transition font-semibold">
+                                    Continue Shopping
                                 </a>
-                            @endif
+                                <a href="#help" class="px-6 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
+                                    Help Center
+                                </a>
+                                @if(Auth::user()->isAdmin())
+                                    <a href="{{ route('admin.dashboard') }}" class="px-6 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition font-semibold">
+                                        🛡️ Admin Panel
+                                    </a>
+                                @endif
+                            </div>
                         </div>
                     </div>
                     <div class="text-8xl opacity-50">✨</div>
@@ -55,12 +62,12 @@
                     <h3 class="text-lg font-bold text-soft-brown">Amount Spent</h3>
                     <span class="text-4xl">💰</span>
                 </div>
-                <p class="text-4xl font-bold text-jade-green mb-2">${{ number_format($total_spent ?? 0, 2) }}</p>
+                <p class="text-4xl font-bold text-jade-green mb-2">₱{{ number_format($total_spent ?? 0, 2) }}</p>
                 <p class="text-sm text-soft-brown opacity-75">Lifetime value</p>
             </div>
 
             <!-- Loyalty Points -->
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('profile.show') }}#loyalty'">
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('loyalty.points') }}'">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-soft-brown">Loyalty Points</h3>
                     <span class="text-4xl">⭐</span>
@@ -112,7 +119,7 @@
                                     </div>
                                     <div class="flex items-center justify-between">
                                         <span class="text-sm text-soft-brown opacity-75">{{ $order->created_at->format('M d, Y') }}</span>
-                                        <span class="font-bold text-jade-green">${{ number_format($order->total_amount, 2) }}</span>
+                                        <span class="font-bold text-jade-green">₱{{ number_format($order->total_amount, 2) }}</span>
                                     </div>
                                     <div class="mt-3">
                                         <a href="{{ route('orders.show', $order) }}" class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">
@@ -138,19 +145,78 @@
                 <div class="bg-white rounded-2xl shadow-lg p-8 flex flex-col">
                     <div class="flex items-center justify-between mb-6">
                         <h2 class="text-2xl font-bold text-soft-brown font-playfair">My Wishlist</h2>
-                        <a href="{{ route('profile.show') }}#wishlist" class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">View All</a>
+                        <a href="{{ route('wishlist.index') }}" class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">View All</a>
                     </div>
                     
-                    <div class="flex-grow flex items-center justify-center">
-                        <div class="text-center">
-                            <div class="text-6xl mb-4 opacity-50">💕</div>
-                            <p class="text-soft-brown opacity-75 text-lg">No items in wishlist</p>
-                            <p class="text-soft-brown opacity-60 text-sm mb-6">Save your favorite products for later</p>
-                            <a href="{{ route('products.index') }}" class="inline-block px-6 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
-                                Explore Products
-                            </a>
+                    @if($wishlist_items->count() > 0)
+                        <div class="flex-grow">
+                            <div class="grid grid-cols-2 gap-4">
+                                @foreach($wishlist_items as $wishlistItem)
+                                    @if($wishlistItem->product)
+                                        <div class="group cursor-pointer" onclick="window.location.href='{{ route('products.show', $wishlistItem->product) }}'">
+                                            <div class="relative overflow-hidden rounded-lg mb-3">
+                                                @if($wishlistItem->product->photo)
+                                                    <img src="{{ asset('storage/' . $wishlistItem->product->photo) }}" 
+                                                         alt="{{ $wishlistItem->product->name }}" 
+                                                         class="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300">
+                                                @else
+                                                    <div class="w-full h-32 bg-gray-200 flex items-center justify-center">
+                                                        <span class="text-gray-400 text-sm">No img</span>
+                                                    </div>
+                                                @endif
+                                                
+                                                <!-- Remove from wishlist button -->
+                                                <form method="POST" action="{{ route('wishlist.remove') }}" 
+                                                      class="absolute top-2 right-2"
+                                                      onclick="event.stopPropagation()">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <input type="hidden" name="product_id" value="{{ $wishlistItem->product_id }}">
+                                                    <button type="submit" 
+                                                            class="w-8 h-8 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-red-50 transition">
+                                                        <span class="text-red-500 hover:text-red-700">✕</span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            
+                                            <div>
+                                                <h4 class="font-semibold text-soft-brown text-sm mb-1 line-clamp-2 group-hover:text-jade-green transition">
+                                                    {{ $wishlistItem->product->name }}
+                                                </h4>
+                                                <p class="text-xs text-gray-500 mb-2">{{ $wishlistItem->product->brand }}</p>
+                                                <div class="flex items-center justify-between">
+                                                    <span class="text-jade-green font-bold">₱{{ number_format($wishlistItem->product->price, 2) }}</span>
+                                                    @if($wishlistItem->product->isInStock())
+                                                        <form method="POST" action="{{ route('cart.add', $wishlistItem->product->id) }}" 
+                                                              onclick="event.stopPropagation()">
+                                                            @csrf
+                                                            <input type="hidden" name="quantity" value="1">
+                                                            <button type="submit" class="text-xs bg-jade-green text-white px-2 py-1 rounded hover:bg-opacity-90 transition">
+                                                                Add to Cart
+                                                            </button>
+                                                        </form>
+                                                    @else
+                                                        <span class="text-xs text-red-500">Out of Stock</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
                         </div>
-                    </div>
+                    @else
+                        <div class="flex-grow flex items-center justify-center">
+                            <div class="text-center">
+                                <div class="text-6xl mb-4 opacity-50">💕</div>
+                                <p class="text-soft-brown opacity-75 text-lg">No items in wishlist</p>
+                                <p class="text-soft-brown opacity-60 text-sm mb-6">Save your favorite products for later</p>
+                                <a href="{{ route('products.index') }}" class="inline-block px-6 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
+                                    Explore Products
+                                </a>
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
             </div>
@@ -238,7 +304,7 @@
         <div class="h-12"></div>
 
         <!-- Need Help? Section -->
-        <div class="bg-white rounded-3xl shadow-xl p-8 md:p-12">
+        <div id="help" class="bg-white rounded-3xl shadow-xl p-8 md:p-12">
             <h2 class="text-2xl font-bold text-soft-brown font-playfair mb-6">Need help?</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">

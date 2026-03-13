@@ -12,6 +12,7 @@ use App\Http\Controllers\LoyaltyController;
 use App\Http\Controllers\SellerApplicationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\WishlistController;
 
 Route::get('/', function () {
     return view('index');
@@ -24,6 +25,32 @@ Route::get('/welcome', function () {
 Route::get('/about', function () {
     return view('about');
 })->name('about');
+
+Route::get('/terms-of-service', function () {
+    return view('legal.terms-of-service');
+})->name('legal.terms');
+
+Route::get('/privacy-policy', function () {
+    return view('legal.privacy-policy');
+})->name('legal.privacy');
+
+// Debug route for photo upload
+Route::get('/debug-photo', function () {
+    $user = \Illuminate\Support\Facades\Auth::user();
+    
+    if (!$user) {
+        return response()->json(['error' => 'Not logged in']);
+    }
+    
+    return response()->json([
+        'user_id' => $user->id,
+        'name' => $user->name,
+        'photo' => $user->photo,
+        'photo_url' => $user->photo_url,
+        'file_exists' => $user->photo ? file_exists(public_path('storage/user_photos/' . $user->photo)) : null,
+        'storage_path' => $user->photo ? public_path('storage/user_photos/' . $user->photo) : null
+    ]);
+})->name('debug.photo');
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
@@ -57,11 +84,74 @@ Route::middleware('auth')->group(function () {
     Route::delete('/forum/{discussion}', [ForumController::class, 'destroy'])->name('forum.destroy');
     Route::post('/forum/{discussion}/reply', [ForumController::class, 'reply'])->name('forum.reply');
     Route::post('/forum/replies/{replyId}/reply', [ForumController::class, 'replyToReply'])->name('forum.reply-to-reply');
+    Route::get('/forum/replies/{reply}/edit', [ForumController::class, 'editReply'])->name('forum.edit-reply');
+    Route::put('/forum/replies/{reply}', [ForumController::class, 'updateReply'])->name('forum.update-reply');
     Route::delete('/forum/replies/{reply}', [ForumController::class, 'deleteReply'])->name('forum.delete-reply');
 
     // Loyalty Program Routes
     Route::get('/loyalty', [LoyaltyController::class, 'index'])->name('loyalty.index');
+    Route::get('/loyalty/points', function() {
+        return view('loyalty.points');
+    })->name('loyalty.points');
     Route::post('/loyalty/redeem', [LoyaltyController::class, 'redeem'])->name('loyalty.redeem');
+
+    // Knowledge Base Routes
+    Route::get('/support/knowledge', function() {
+        return view('support.knowledge');
+    })->name('support.knowledge');
+    
+    // Getting Started Articles
+    Route::get('/knowledge/creating-account', function() {
+        return view('knowledge.creating-account');
+    })->name('knowledge.creating-account');
+    Route::get('/knowledge/complete-profile', function() {
+        return view('knowledge.complete-profile');
+    })->name('knowledge.complete-profile');
+    Route::get('/knowledge/first-purchase', function() {
+        return view('knowledge.first-purchase');
+    })->name('knowledge.first-purchase');
+    
+    // Orders & Shipping Articles
+    Route::get('/knowledge/track-order', function() {
+        return view('knowledge.track-order');
+    })->name('knowledge.track-order');
+    Route::get('/knowledge/shipping', function() {
+        return view('knowledge.shipping');
+    })->name('knowledge.shipping');
+    Route::get('/knowledge/returns', function() {
+        return view('knowledge.returns');
+    })->name('knowledge.returns');
+    Route::get('/knowledge/cancel-order', function() {
+        return view('knowledge.cancel-order');
+    })->name('knowledge.cancel-order');
+    
+    // Account & Settings Articles
+    Route::get('/knowledge/update-profile', function() {
+        return view('knowledge.update-profile');
+    })->name('knowledge.update-profile');
+    Route::get('/knowledge/password', function() {
+        return view('knowledge.password');
+    })->name('knowledge.password');
+    Route::get('/knowledge/addresses', function() {
+        return view('knowledge.addresses');
+    })->name('knowledge.addresses');
+    Route::get('/knowledge/privacy', function() {
+        return view('knowledge.privacy');
+    })->name('knowledge.privacy');
+    
+    // Popular Articles
+    Route::get('/knowledge/payment-security', function() {
+        return view('knowledge.payment-security');
+    })->name('knowledge.payment-security');
+    Route::get('/knowledge/loyalty-program', function() {
+        return view('knowledge.loyalty-program');
+    })->name('knowledge.loyalty-program');
+    Route::get('/knowledge/product-quality', function() {
+        return view('knowledge.product-quality');
+    })->name('knowledge.product-quality');
+    Route::get('/knowledge/become-seller', function() {
+        return view('knowledge.become-seller');
+    })->name('knowledge.become-seller');
 
     // Cart Routes
     Route::get('/cart', [\App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
@@ -96,7 +186,37 @@ Route::middleware('auth')->group(function () {
         } elseif (auth()->user()->isSeller()) {
             return redirect()->route('seller.dashboard');
         } else {
-            return view('dashboard');
+            $user = auth()->user();
+            
+            // Get user's order statistics
+            $orders_count = $user->orders()->count();
+            $total_spent = $user->orders()->sum('total_amount');
+            $loyalty_points = $user->loyalty_points ?? 0;
+            $wishlist_count = $user->wishlistItems()->count();
+            
+            // Get recent orders
+            $recent_orders = $user->orders()
+                ->with(['orderItems.product'])
+                ->latest()
+                ->take(5)
+                ->get();
+            
+            // Get wishlist items
+            $wishlist_items = $user->wishlistItems()
+                ->with('product')
+                ->latest()
+                ->take(4) // Show latest 4 items
+                ->get();
+            
+            return view('dashboard', compact(
+                'user', 
+                'orders_count', 
+                'total_spent', 
+                'loyalty_points', 
+                'wishlist_count', 
+                'recent_orders',
+                'wishlist_items'
+            ));
         }
     })->name('dashboard');
 });
@@ -117,6 +237,11 @@ Route::middleware('auth')->group(function () {
     Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
     Route::get('/my-products', [ProductController::class, 'myProducts'])->name('products.my');
+    
+    // Wishlist Routes
+    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+    Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove');
     
     // Order Routes
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');

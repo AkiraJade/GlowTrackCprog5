@@ -41,7 +41,7 @@
                 </div>
                 <ul class="space-y-3">
                     <li>
-                        <a href="#getting-started" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
+                        <a href="{{ route('knowledge.creating-account') }}" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
                             <span class="text-sm font-medium">Creating an Account</span>
                             <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -49,7 +49,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#getting-started" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
+                        <a href="{{ route('knowledge.complete-profile') }}" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
                             <span class="text-sm font-medium">Complete Your Profile</span>
                             <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -57,7 +57,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#getting-started" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
+                        <a href="{{ route('knowledge.first-purchase') }}" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
                             <span class="text-sm font-medium">First Purchase Guide</span>
                             <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -75,7 +75,7 @@
                 </div>
                 <ul class="space-y-3">
                     <li>
-                        <a href="#orders" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
+                        <a href="{{ route('knowledge.track-order') }}" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
                             <span class="text-sm font-medium">Track Your Order</span>
                             <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -83,7 +83,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#orders" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
+                        <a href="{{ route('knowledge.shipping') }}" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
                             <span class="text-sm font-medium">Shipping Information</span>
                             <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -91,7 +91,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#orders" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
+                        <a href="{{ route('knowledge.returns') }}" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
                             <span class="text-sm font-medium">Returns & Refunds</span>
                             <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -99,7 +99,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#orders" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
+                        <a href="{{ route('knowledge.cancel-order') }}" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
                             <span class="text-sm font-medium">Cancel an Order</span>
                             <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -117,7 +117,7 @@
                 </div>
                 <ul class="space-y-3">
                     <li>
-                        <a href="#account" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
+                        <a href="{{ route('knowledge.update-profile') }}" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
                             <span class="text-sm font-medium">Update Profile Information</span>
                             <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -125,7 +125,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#account" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
+                        <a href="{{ route('knowledge.password') }}" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
                             <span class="text-sm font-medium">Change Password</span>
                             <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -133,7 +133,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#account" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
+                        <a href="{{ route('knowledge.addresses') }}" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
                             <span class="text-sm font-medium">Manage Addresses</span>
                             <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -141,7 +141,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#account" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
+                        <a href="{{ route('knowledge.privacy') }}" class="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-jade-green hover:text-white transition group">
                             <span class="text-sm font-medium">Privacy Settings</span>
                             <svg class="w-4 h-4 opacity-0 group-hover:opacity-100 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -166,7 +166,7 @@
                         <div>
                             <h3 class="font-bold text-soft-brown mb-2">Payment Methods & Security</h3>
                             <p class="text-sm text-soft-brown opacity-75 mb-4">Learn about accepted payment methods and how we keep your information secure.</p>
-                            <a href="#payment" class="text-jade-green hover:text-soft-brown font-semibold text-sm transition">
+                            <a href="{{ route('knowledge.payment-security') }}" class="text-jade-green hover:text-soft-brown font-semibold text-sm transition">
                                 Read More →
                             </a>
                         </div>
@@ -182,7 +182,7 @@
                         <div>
                             <h3 class="font-bold text-soft-brown mb-2">Loyalty Program Explained</h3>
                             <p class="text-sm text-soft-brown opacity-75 mb-4">Understand how to earn points and redeem rewards in our loyalty program.</p>
-                            <a href="#loyalty" class="text-jade-green hover:text-soft-brown font-semibold text-sm transition">
+                            <a href="{{ route('knowledge.loyalty-program') }}" class="text-jade-green hover:text-soft-brown font-semibold text-sm transition">
                                 Read More →
                             </a>
                         </div>
@@ -198,7 +198,7 @@
                         <div>
                             <h3 class="font-bold text-soft-brown mb-2">Product Quality & Authenticity</h3>
                             <p class="text-sm text-soft-brown opacity-75 mb-4">Information about our product quality standards and authenticity guarantees.</p>
-                            <a href="#quality" class="text-jade-green hover:text-soft-brown font-semibold text-sm transition">
+                            <a href="{{ route('knowledge.product-quality') }}" class="text-jade-green hover:text-soft-brown font-semibold text-sm transition">
                                 Read More →
                             </a>
                         </div>
@@ -214,7 +214,7 @@
                         <div>
                             <h3 class="font-bold text-soft-brown mb-2">Become a Seller</h3>
                             <p class="text-sm text-soft-brown opacity-75 mb-4">Step-by-step guide to becoming a seller on GlowTrack and reaching more customers.</p>
-                            <a href="#seller" class="text-jade-green hover:text-soft-brown font-semibold text-sm transition">
+                            <a href="{{ route('knowledge.become-seller') }}" class="text-jade-green hover:text-soft-brown font-semibold text-sm transition">
                                 Read More →
                             </a>
                         </div>

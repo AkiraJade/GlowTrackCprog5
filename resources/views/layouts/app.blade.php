@@ -74,18 +74,15 @@
                             <a href="{{ route('admin.dashboard') }}" class="text-soft-brown hover:text-jade-green transition font-medium">Admin Panel</a>
                         @endif
 @if(auth()->user()->isCustomer())
-                            <a href="{{ route('seller.application.create') }}" class="text-soft-brown hover:text-jade-green transition">Become a Seller</a>
                             <a href="{{ route('cart.index') }}" class="text-soft-brown hover:text-jade-green transition">Cart ({{ Auth::user()->cartItems()->count() }})</a>
-                            <a href="{{ route('orders.index') }}" class="text-soft-brown hover:text-jade-green transition">My Orders</a>
                         @endif
                         
                         @if(auth()->user()->isSeller())
                             <a href="{{ route('seller.dashboard') }}" class="text-soft-brown hover:text-jade-green transition">Seller Dashboard</a>
                             <a href="{{ route('seller.products.index') }}" class="text-soft-brown hover:text-jade-green transition">My Products</a>
-                            <a href="{{ route('orders.index') }}" class="text-soft-brown hover:text-jade-green transition">My Orders</a>
                         @endif
                         
-                        <a href="{{ route('profile.show') }}" class="text-soft-brown hover:text-jade-green transition">Profile</a>
+                        <a href="{{ route('dashboard') }}" class="text-soft-brown hover:text-jade-green transition">Dashboard</a>
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
                             <button type="submit" class="text-soft-brown hover:text-jade-green transition font-medium">Logout</button>

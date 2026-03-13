@@ -6,6 +6,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Order;
+use App\Models\Cart;
+use App\Models\Wishlist;
 
 class User extends Authenticatable
 {
@@ -24,8 +27,10 @@ class User extends Authenticatable
         'phone',
         'address',
         'role',
+        'loyalty_points',
         'password',
         'last_seen_at',
+        'photo',
     ];
 
     /**
@@ -82,5 +87,89 @@ class User extends Authenticatable
     public function cartItems()
     {
         return $this->hasMany(Cart::class);
+    }
+
+    /**
+     * Get orders for this user.
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get wishlist items for this user.
+     */
+    public function wishlistItems()
+    {
+        return $this->hasMany(Wishlist::class);
+    }
+
+    /**
+     * Check if a product is in user's wishlist.
+     */
+    public function isInWishlist($productId)
+    {
+        return $this->wishlistItems()->where('product_id', $productId)->exists();
+    }
+
+    /**
+     * Add product to wishlist.
+     */
+    public function addToWishlist($productId)
+    {
+        if (!$this->isInWishlist($productId)) {
+            return $this->wishlistItems()->create(['product_id' => $productId]);
+        }
+        return null;
+    }
+
+    /**
+     * Remove product from wishlist.
+     */
+    public function removeFromWishlist($productId)
+    {
+        return $this->wishlistItems()->where('product_id', $productId)->delete();
+    }
+
+    /**
+     * Add loyalty points to user's account
+     */
+    public function addLoyaltyPoints(int $points): void
+    {
+        $this->increment('loyalty_points', $points);
+    }
+
+    /**
+     * Calculate loyalty points for an order based on quantity
+     * 1 point per quantity (1 quantity = 1 point, 10 quantity = 10 points)
+     */
+    public static function calculateLoyaltyPoints(int $quantity): int
+    {
+        return $quantity;
+    }
+
+    /**
+     * Get the user's photo URL with fallback to default avatar
+     */
+    public function getPhotoUrlAttribute(): string
+    {
+        if ($this->photo) {
+            $photoPath = 'storage/user_photos/' . $this->photo;
+            
+            // Check if file exists
+            $fullPath = public_path($photoPath);
+            if (file_exists($fullPath)) {
+                return asset($photoPath);
+            }
+        }
+        
+        // Return default avatar based on user's name initials
+        $initials = collect(explode(' ', $this->name))
+            ->map(fn($word) => strtoupper(substr($word, 0, 1)))
+            ->take(2)
+            ->implode('');
+            
+        return "https://ui-avatars.com/api/?name={$initials}&color=ffffff&background=4a7c59&size=200&bold=true";
     }
 }

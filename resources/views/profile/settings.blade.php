@@ -30,9 +30,35 @@
                 <h2 class="text-lg font-semibold text-gray-900">Profile Information</h2>
             </div>
             <div class="p-6">
-                <form method="POST" action="{{ route('profile.update') }}">
+                <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
+                    
+                    <!-- Profile Photo Section -->
+                    <div class="mb-8">
+                        <label class="block text-sm font-medium text-gray-700 mb-4">Profile Photo</label>
+                        <div class="flex items-center space-x-6">
+                            <div class="flex-shrink-0">
+                                <img id="current-photo" src="{{ $user->photo_url }}" alt="{{ $user->name }}" 
+                                     class="w-24 h-24 rounded-full object-cover border-4 border-gray-200">
+                            </div>
+                            <div class="flex-1">
+                                <div>
+                                    <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/jpg,image/gif,image/webp"
+                                           class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-jade-green file:text-white hover:file:bg-soft-brown">
+                                    <p class="text-xs text-gray-500 mt-1">JPG, PNG, JPEG, GIF or WebP (Max 2MB)</p>
+                                    @error('photo')
+                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <div class="mt-3">
+                                    <button type="button" id="remove-photo" class="text-sm text-red-600 hover:text-red-800 font-medium">
+                                        Remove Current Photo
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Name -->
@@ -172,6 +198,58 @@
                 </div>
             </div>
         </div>
+
+        <!-- Seller Options -->
+        @if(auth()->user()->isCustomer())
+            <div class="mt-8 bg-white rounded-lg shadow">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Seller Options</h2>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 mb-4">Want to start selling your own skincare products on GlowTrack?</p>
+                    <a href="{{ route('seller.application.create') }}" class="inline-flex items-center px-6 py-3 bg-jade-green text-white rounded-md hover:bg-opacity-90 transition font-medium">
+                        <span class="mr-2">🛍️</span>
+                        Become a Seller
+                    </a>
+                </div>
+            </div>
+        @endif
     </div>
 </div>
+
+<script>
+// Photo preview functionality
+document.getElementById('photo').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const currentPhoto = document.getElementById('current-photo');
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            currentPhoto.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// Remove photo functionality
+document.getElementById('remove-photo').addEventListener('click', function() {
+    if (confirm('Are you sure you want to remove your profile photo?')) {
+        // Create a hidden input to indicate photo removal
+        const form = document.querySelector('form[action="{{ route('profile.update') }}"]');
+        const removeInput = document.createElement('input');
+        removeInput.type = 'hidden';
+        removeInput.name = 'remove_photo';
+        removeInput.value = '1';
+        form.appendChild(removeInput);
+        
+        // Reset the photo input and show default avatar
+        document.getElementById('photo').value = '';
+        document.getElementById('current-photo').src = "https://ui-avatars.com/api/?name={{ substr($user->name, 0, 2) }}&color=ffffff&background=4a7c59&size=200&bold=true";
+        
+        // Submit form to update profile
+        form.submit();
+    }
+});
+</script>
 @endsection

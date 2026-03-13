@@ -72,7 +72,7 @@
                     <div class="border-b border-gray-200 pb-6 mb-6">
                         <div class="flex items-center justify-between">
                             <div>
-                                <span class="text-3xl font-bold text-gray-900">${{ number_format($product->price, 2) }}</span>
+                                <span class="text-3xl font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
                             </div>
                             @if($product->review_count > 0)
                                 <div class="flex items-center">
@@ -219,7 +219,7 @@
                                         {{ $relatedProduct->name }}
                                     </a>
                                 </h3>
-                                <p class="text-lg font-bold text-gray-900">${{ number_format($relatedProduct->price, 2) }}</p>
+                                <p class="text-lg font-bold text-gray-900">₱{{ number_format($relatedProduct->price, 2) }}</p>
                                 <p class="text-xs text-gray-500">{{ $relatedProduct->brand }}</p>
                             </div>
                         </div>

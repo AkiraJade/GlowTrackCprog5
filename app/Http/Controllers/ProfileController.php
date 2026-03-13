@@ -34,7 +34,41 @@ class ProfileController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'phone' => 'nullable|string|max:20',
             'address' => 'nullable|string|max:500',
+            'photo' => 'nullable', // Remove file validation temporarily
         ]);
+
+        // Handle photo upload
+        $photoPath = $user->photo; // Keep existing photo
+        
+        // Check if user wants to remove photo
+        if ($request->has('remove_photo') && $request->remove_photo == '1') {
+            // Delete old photo if exists
+            if ($user->photo && file_exists(public_path('storage/user_photos/' . $user->photo))) {
+                unlink(public_path('storage/user_photos/' . $user->photo));
+            }
+            $photoPath = null;
+        } elseif ($request->hasFile('photo')) {
+            // Delete old photo if exists
+            if ($user->photo && file_exists(public_path('storage/user_photos/' . $user->photo))) {
+                unlink(public_path('storage/user_photos/' . $user->photo));
+            }
+            
+            $photo = $request->file('photo');
+            
+            // Validate file manually
+            if ($photo) {
+                $allowedMimes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
+                $fileMime = $photo->getMimeType();
+                
+                if (!in_array($fileMime, $allowedMimes) || $photo->getSize() > 2048 * 1024) {
+                    return back()->withErrors(['photo' => 'The photo must be a valid image file (JPEG, PNG, JPG, GIF, WebP) and less than 2MB.'])->withInput();
+                }
+                
+                $photoName = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
+                $photo->move(public_path('storage/user_photos'), $photoName);
+                $photoPath = $photoName;
+            }
+        }
 
         $user->update([
             'name' => $request->name,
@@ -42,6 +76,7 @@ class ProfileController extends Controller
             'email' => $request->email,
             'phone' => $request->phone,
             'address' => $request->address,
+            'photo' => $photoPath,
         ]);
 
         return redirect()->back()->with('success', 'Profile updated successfully.');

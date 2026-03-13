@@ -116,15 +116,21 @@
                                 </div>
                                 
                                 @if($reply->user_id === Auth::id())
-                                    <form method="POST" action="{{ route('forum.delete-reply', $reply) }}" 
-                                          onsubmit="return confirm('Are you sure you want to delete this reply?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" 
-                                                class="text-red-500 hover:text-red-700 transition font-semibold text-sm">
-                                            Delete
-                                        </button>
-                                    </form>
+                                    <div class="flex gap-2">
+                                        <a href="{{ route('forum.edit-reply', $reply) }}" 
+                                           class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">
+                                            Edit
+                                        </a>
+                                        <form method="POST" action="{{ route('forum.delete-reply', $reply) }}" 
+                                              onsubmit="return confirm('Are you sure you want to delete this reply?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" 
+                                                    class="text-red-500 hover:text-red-700 transition font-semibold text-sm">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
                                 @endif
                             </div>
                             
@@ -177,15 +183,21 @@
                                                 </div>
                                                 
                                                 @if($childReply->user_id === Auth::id())
-                                                    <form method="POST" action="{{ route('forum.delete-reply', $childReply) }}" 
-                                                          onsubmit="return confirm('Are you sure you want to delete this reply?')">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" 
-                                                                class="text-red-500 hover:text-red-700 transition font-semibold text-xs">
-                                                            Delete
-                                                        </button>
-                                                    </form>
+                                                    <div class="flex gap-2">
+                                                        <a href="{{ route('forum.edit-reply', $childReply) }}" 
+                                                           class="text-jade-green hover:text-soft-brown transition font-semibold text-xs">
+                                                            Edit
+                                                        </a>
+                                                        <form method="POST" action="{{ route('forum.delete-reply', $childReply) }}" 
+                                                              onsubmit="return confirm('Are you sure you want to delete this reply?')">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" 
+                                                                    class="text-red-500 hover:text-red-700 transition font-semibold text-xs">
+                                                                Delete
+                                                            </button>
+                                                        </form>
+                                                    </div>
                                                 @endif
                                             </div>
                                             
