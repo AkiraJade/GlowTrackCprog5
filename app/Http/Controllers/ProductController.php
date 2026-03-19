@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\ProductImage;
+use App\Models\Review;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -11,7 +14,7 @@ class ProductController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except(['index', 'show']);
+        $this->middleware('auth')->except(['index', 'show', 'brandPage']);
     }
 
     /**
@@ -123,20 +126,44 @@ class ProductController extends Controller
             'active_ingredients' => 'required|array|min:1',
             'active_ingredients.*' => 'string|max:100',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         $data = $request->all();
         $data['seller_id'] = auth()->id();
         $data['status'] = 'pending'; // All new products start as pending
 
-        // Handle photo upload
+        // Handle single photo upload (for backward compatibility)
         if ($request->hasFile('photo')) {
             $photo = $request->file('photo');
             $photoPath = $photo->store('products', 'public');
             $data['photo'] = $photoPath;
         }
 
-        Product::create($data);
+        $product = Product::create($data);
+
+        // Handle multiple image uploads
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $index => $image) {
+                $imagePath = $image->store('products', 'public');
+                
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_path' => $imagePath,
+                    'sort_order' => $index,
+                    'is_primary' => $index === 0, // First image is primary
+                ]);
+            }
+        } elseif ($request->hasFile('photo')) {
+            // If only single photo was uploaded, create a ProductImage record
+            ProductImage::create([
+                'product_id' => $product->id,
+                'image_path' => $data['photo'],
+                'sort_order' => 0,
+                'is_primary' => true,
+            ]);
+        }
 
         return redirect()->route('products.index')
             ->with('success', 'Product submitted successfully! It will be reviewed by an administrator.');
@@ -153,8 +180,25 @@ class ProductController extends Controller
 
         // Load related data
         $product->load(['seller', 'reviews' => function ($query) {
-            $query->latest()->take(5);
-        }]);
+            $query->with('user')->orderBy('updated_at', 'desc')->take(5);
+        }, 'images']);
+
+        // Get current user's review (if any)
+        $userReview = null;
+        if (auth()->check()) {
+            $userReview = Review::where('product_id', $product->id)
+                ->where('user_id', auth()->id())
+                ->first();
+        }
+
+        // Ensure user's review is included in the reviews list
+        $reviews = $product->reviews;
+        if ($userReview && !$reviews->contains('id', $userReview->id)) {
+            $reviews = $reviews->merge([$userReview->load('user')])->sortByDesc('updated_at')->take(5);
+        }
+
+        // Can the current user review this product?
+        $canReview = auth()->check() && auth()->user()->hasPurchasedProduct($product->id);
 
         // Get related products
         $relatedProducts = Product::where('id', '!=', $product->id)
@@ -167,7 +211,78 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-        return view('products.show', compact('product', 'relatedProducts'));
+        return view('products.show', compact('product', 'relatedProducts', 'userReview', 'reviews', 'canReview'));
+    }
+
+    /**
+     * Store a new or updated review for a product.
+     */
+    public function storeReview(Request $request, Product $product)
+    {
+        if ($product->status !== 'approved') {
+            abort(404);
+        }
+
+        $existingReview = Review::where('product_id', $product->id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if (!auth()->user()->hasPurchasedProduct($product->id)) {
+            return redirect()->route('products.show', $product)
+                ->with('error', 'You can only review products you have purchased.');
+        }
+
+        if ($existingReview) {
+            // Updating existing review
+            $request->validate([
+                'rating' => 'nullable|integer|min:1|max:5',
+                'comment' => 'required|string|max:2000',
+            ]);
+
+            $data = ['comment' => $request->comment];
+            if ($request->filled('rating')) {
+                $data['rating'] = $request->rating;
+            }
+
+            $existingReview->update($data);
+        } else {
+            // Creating new review
+            $request->validate([
+                'rating' => 'required|integer|min:1|max:5',
+                'comment' => 'required|string|max:2000',
+            ]);
+
+            Review::create([
+                'product_id' => $product->id,
+                'user_id' => auth()->id(),
+                'rating' => $request->rating,
+                'comment' => $request->comment,
+            ]);
+        }
+
+        return redirect()->route('products.show', $product)
+            ->with('success', 'Your review has been submitted.');
+    }
+
+    /**
+     * Delete the user's review for a product.
+     */
+    public function deleteReview(Product $product)
+    {
+        if ($product->status !== 'approved') {
+            abort(404);
+        }
+
+        $review = Review::where('product_id', $product->id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if ($review) {
+            $review->delete();
+        }
+
+        return redirect()->route('products.show', $product)
+            ->with('success', 'Your review has been deleted.');
     }
 
     /**
@@ -182,6 +297,9 @@ class ProductController extends Controller
 
         $classifications = ['Cleanser', 'Moisturizer', 'Serum', 'Toner', 'Sunscreen', 'Mask', 'Exfoliant', 'Treatment'];
         $skinTypes = ['Oily', 'Dry', 'Combination', 'Sensitive', 'Normal'];
+        
+        // Load product images
+        $product->load('images');
         
         return view('products.edit', compact('product', 'classifications', 'skinTypes'));
     }
@@ -209,11 +327,15 @@ class ProductController extends Controller
             'active_ingredients' => 'required|array|min:1',
             'active_ingredients.*' => 'string|max:100',
             'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images' => 'nullable|array|max:5',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'remove_images' => 'nullable|array',
+            'remove_images.*' => 'integer',
         ]);
 
         $data = $request->all();
 
-        // Handle photo upload
+        // Handle photo upload (for backward compatibility)
         if ($request->hasFile('photo')) {
             // Delete old photo if exists
             if ($product->photo) {
@@ -223,6 +345,45 @@ class ProductController extends Controller
             $photo = $request->file('photo');
             $photoPath = $photo->store('products', 'public');
             $data['photo'] = $photoPath;
+        }
+
+        // Handle removing images
+        if ($request->has('remove_images')) {
+            foreach ($request->remove_images as $imageId) {
+                $image = $product->images()->find($imageId);
+                if ($image) {
+                    Storage::disk('public')->delete($image->image_path);
+                    $image->delete();
+                }
+            }
+        }
+
+        // Handle new image uploads
+        if ($request->hasFile('images')) {
+            $maxSortOrder = $product->images()->max('sort_order') ?? 0;
+            
+            foreach ($request->file('images') as $index => $image) {
+                $imagePath = $image->store('products', 'public');
+                
+                ProductImage::create([
+                    'product_id' => $product->id,
+                    'image_path' => $imagePath,
+                    'sort_order' => $maxSortOrder + $index + 1,
+                    'is_primary' => false, // Don't change primary on update
+                ]);
+            }
+        }
+
+        // Handle setting primary image
+        if ($request->has('primary_image')) {
+            // Reset all images to non-primary
+            $product->images()->update(['is_primary' => false]);
+            
+            // Set new primary image
+            $primaryImage = $product->images()->find($request->primary_image);
+            if ($primaryImage) {
+                $primaryImage->update(['is_primary' => true]);
+            }
         }
 
         // Reset status to pending if product was previously approved
@@ -440,5 +601,42 @@ class ProductController extends Controller
 
         return redirect()->route('seller.products.index')
             ->with('success', 'Product deleted successfully!');
+    }
+
+    /**
+     * Display seller brand page.
+     */
+    public function brandPage(User $seller)
+    {
+        // Only show brand pages for verified sellers
+        if (!$seller->isSeller() || !$seller->sellerApplication || $seller->sellerApplication->status !== 'approved') {
+            abort(404, 'Seller not found or not verified.');
+        }
+
+        $products = Product::where('seller_id', $seller->id)
+            ->where('status', 'approved')
+            ->with(['reviews'])
+            ->latest()
+            ->paginate(12);
+
+        // Calculate seller statistics
+        $stats = [
+            'total_products' => $products->total(),
+            'total_reviews' => $seller->products()->withCount('reviews')->get()->sum('reviews_count'),
+            'average_rating' => $seller->products()->where('status', 'approved')->avg('average_rating') ?: 0,
+            'total_sales' => \App\Models\Order::whereHas('orderItems.product', function($query) use ($seller) {
+                $query->where('seller_id', $seller->id);
+            })->where('status', '!=', 'cancelled')->sum('total_amount'),
+        ];
+
+        // Get featured products (highest rated)
+        $featuredProducts = Product::where('seller_id', $seller->id)
+            ->where('status', 'approved')
+            ->where('average_rating', '>', 0)
+            ->orderBy('average_rating', 'desc')
+            ->take(3)
+            ->get();
+
+        return view('brand.show', compact('seller', 'products', 'stats', 'featuredProducts'));
     }
 }

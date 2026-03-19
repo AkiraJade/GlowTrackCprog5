@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use App\Models\Order;
 use App\Models\Cart;
 use App\Models\Wishlist;
+use App\Models\SellerApplication;
 
 class User extends Authenticatable
 {
@@ -103,6 +104,35 @@ class User extends Authenticatable
     public function wishlistItems()
     {
         return $this->hasMany(Wishlist::class);
+    }
+
+    /**
+     * Get seller application for this user.
+     */
+    public function sellerApplication()
+    {
+        return $this->hasOne(SellerApplication::class);
+    }
+
+    /**
+     * Get products for this user (if seller).
+     */
+    public function products()
+    {
+        return $this->hasMany(Product::class, 'seller_id');
+    }
+
+    /**
+     * Check if the user has purchased a given product (non-cancelled orders).
+     */
+    public function hasPurchasedProduct(int $productId): bool
+    {
+        return $this->orders()
+            ->where('status', '!=', 'cancelled')
+            ->whereHas('orderItems', function ($query) use ($productId) {
+                $query->where('product_id', $productId);
+            })
+            ->exists();
     }
 
     /**

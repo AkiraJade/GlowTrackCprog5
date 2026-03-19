@@ -21,6 +21,9 @@
                             <a href="{{ route('seller.products.index') }}" class="px-6 py-2 bg-jade-green text-white rounded-full hover:shadow-lg transition font-semibold">
                                 My Products
                             </a>
+                            <a href="{{ route('seller.orders.index') }}" class="px-6 py-2 bg-jade-green text-white rounded-full hover:shadow-lg transition font-semibold">
+                                My Orders
+                            </a>
                             <a href="{{ route('seller.products.create') }}" class="px-6 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
                                 Add New Product
                             </a>
@@ -42,31 +45,31 @@
                 <p class="text-sm text-soft-brown opacity-75">View all products</p>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('orders.index') }}'">
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('seller.orders.index') }}'">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-soft-brown">Total Orders</h3>
                     <span class="text-4xl">🛒</span>
                 </div>
                 <p class="text-4xl font-bold text-jade-green mb-2">{{ App\Models\Order::whereHas('orderItems.product', function($query) { $query->where('seller_id', Auth::id()); })->count() }}</p>
-                <p class="text-sm text-soft-brown opacity-75">View all orders</p>
+                <p class="text-sm text-soft-brown opacity-75">Manage orders</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('seller.orders.index', ['status' => 'pending']) }}'">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-soft-brown">Pending Orders</h3>
+                    <span class="text-4xl">⏳</span>
+                </div>
+                <p class="text-4xl font-bold text-yellow-500 mb-2">{{ App\Models\Order::whereHas('orderItems.product', function($query) { $query->where('seller_id', Auth::id()); })->where('status', 'pending')->count() }}</p>
+                <p class="text-sm text-soft-brown opacity-75">Awaiting confirmation</p>
             </div>
 
             <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-soft-brown">Revenue</h3>
+                    <h3 class="text-lg font-bold text-soft-brown">Total Revenue</h3>
                     <span class="text-4xl">💰</span>
                 </div>
-                <p class="text-4xl font-bold text-jade-green mb-2">${{ number_format(App\Models\Order::whereHas('orderItems.product', function($query) { $query->where('seller_id', Auth::id()); })->where('status', '!=', 'cancelled')->sum('total_amount'), 2) }}</p>
-                <p class="text-sm text-soft-brown opacity-75">Total earnings</p>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-bold text-soft-brown">Profile</h3>
-                    <span class="text-4xl">👤</span>
-                </div>
-                <p class="text-4xl font-bold text-jade-green mb-2">{{ Auth::user()->name }}</p>
-                <p class="text-sm text-soft-brown opacity-75">Manage account settings</p>
+                <p class="text-4xl font-bold text-jade-green mb-2">₱{{ number_format(App\Models\Order::whereHas('orderItems.product', function($query) { $query->where('seller_id', Auth::id()); })->where('status', '!=', 'cancelled')->sum('total_amount'), 0) }}</p>
+                <p class="text-sm text-soft-brown opacity-75">Lifetime earnings</p>
             </div>
         </div>
 

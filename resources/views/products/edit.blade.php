@@ -1,21 +1,22 @@
 @extends('layouts.app')
 
-@section('title', 'Create Product - GlowTrack')
+@section('title', 'Edit Product - GlowTrack')
 
 @section('content')
 <div class="min-h-screen bg-gray-50 py-8">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Header -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Create New Product</h1>
-            <p class="text-gray-600 mt-2">Add your skincare product to our marketplace</p>
+            <h1 class="text-3xl font-bold text-gray-900">Edit Product</h1>
+            <p class="text-gray-600 mt-2">Update your skincare product information</p>
         </div>
 
         <!-- Form -->
         <div class="bg-white rounded-lg shadow-lg">
             <div class="p-6">
-                <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data">
+                <form method="POST" action="{{ route('products.update', $product) }}" enctype="multipart/form-data">
                     @csrf
+                    @method('PUT')
 
                     <!-- Basic Information -->
                     <div class="mb-8">
@@ -25,8 +26,8 @@
                             <div class="md:col-span-2">
                                 <label for="name" class="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
                                 <input type="text" id="name" name="name" required
-                                       class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-                                       placeholder="e.g., Vitamin C Brightening Serum">
+                                       value="{{ old('name', $product->name) }}"
+                                       class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
                                 @error('name')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -36,8 +37,8 @@
                             <div>
                                 <label for="brand" class="block text-sm font-medium text-gray-700 mb-1">Brand *</label>
                                 <input type="text" id="brand" name="brand" required
-                                       class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-                                       placeholder="e.g., GlowLab">
+                                       value="{{ old('brand', $product->brand) }}"
+                                       class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
                                 @error('brand')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -48,9 +49,11 @@
                                 <label for="classification" class="block text-sm font-medium text-gray-700 mb-1">Product Type *</label>
                                 <select id="classification" name="classification" required
                                         class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
-                                    <option value="">Select a type</option>
+                                    <option value="">Select Product Type</option>
                                     @foreach($classifications as $classification)
-                                        <option value="{{ $classification }}">{{ $classification }}</option>
+                                        <option value="{{ $classification }}" {{ old('classification', $product->classification) == $classification ? 'selected' : '' }}>
+                                            {{ $classification }}
+                                        </option>
                                     @endforeach
                                 </select>
                                 @error('classification')
@@ -58,29 +61,12 @@
                                 @enderror
                             </div>
 
-                            <!-- Description -->
-                            <div class="md:col-span-2">
-                                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
-                                <textarea id="description" name="description" rows="4" required
-                                          class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-                                          placeholder="Describe your product, its benefits, and key features..."></textarea>
-                                @error('description')
-                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Pricing and Inventory -->
-                    <div class="mb-8">
-                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Pricing & Inventory</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <!-- Price -->
                             <div>
-                                <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Price ($) *</label>
-                                <input type="number" id="price" name="price" step="0.01" min="0" required
-                                       class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-                                       placeholder="29.99">
+                                <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Price (₱) *</label>
+                                <input type="number" id="price" name="price" required step="0.01" min="0"
+                                       value="{{ old('price', $product->price) }}"
+                                       class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
                                 @error('price')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -90,6 +76,7 @@
                             <div>
                                 <label for="size_volume" class="block text-sm font-medium text-gray-700 mb-1">Size/Volume *</label>
                                 <input type="text" id="size_volume" name="size_volume" required
+                                       value="{{ old('size_volume', $product->size_volume) }}"
                                        class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
                                        placeholder="e.g., 30ml, 50g">
                                 @error('size_volume')
@@ -99,10 +86,10 @@
 
                             <!-- Quantity -->
                             <div>
-                                <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Initial Stock *</label>
-                                <input type="number" id="quantity" name="quantity" min="0" required
-                                       class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-                                       placeholder="100">
+                                <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+                                <input type="number" id="quantity" name="quantity" required min="0"
+                                       value="{{ old('quantity', $product->quantity) }}"
+                                       class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
                                 @error('quantity')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -110,52 +97,57 @@
                         </div>
                     </div>
 
-                    <!-- Skin Types -->
+                    <!-- Description -->
                     <div class="mb-8">
-                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Suitable Skin Types *</h2>
-                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                            @foreach(['Oily', 'Dry', 'Combination', 'Sensitive', 'Normal'] as $skinType)
-                                <label class="flex items-center">
-                                    <input type="checkbox" name="skin_types[]" value="{{ $skinType }}"
-                                           class="mr-2 border-gray-300 rounded text-jade-green focus:ring-jade-green">
-                                    <span class="text-sm text-gray-700">{{ $skinType }}</span>
-                                </label>
-                            @endforeach
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Product Description</h2>
+                        <div>
+                            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Description *</label>
+                            <textarea id="description" name="description" rows="4" required
+                                      class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">{{ old('description', $product->description) }}</textarea>
+                            <p class="text-sm text-gray-500 mt-1">Describe your product, its benefits, and usage instructions</p>
+                            @error('description')
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
                         </div>
-                        @error('skin_types')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <!-- Active Ingredients -->
-                    <div class="mb-8">
-                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Active Ingredients *</h2>
-                        <div class="space-y-2">
-                            <div id="ingredients-container">
-                                <div class="flex items-center space-x-2">
-                                    <input type="text" name="active_ingredients[]" 
-                                           class="flex-1 border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-                                           placeholder="e.g., Niacinamide">
-                                    <button type="button" onclick="addIngredientField()" 
-                                            class="px-3 py-2 bg-jade-green text-white rounded-md hover:bg-opacity-90 transition">
-                                        +
-                                    </button>
-                                </div>
-                            </div>
-                            <p class="text-sm text-gray-500">Add at least one active ingredient</p>
-                        </div>
-                        @error('active_ingredients')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
 
                     <!-- Product Photos -->
                     <div class="mb-8">
                         <h2 class="text-lg font-semibold text-gray-900 mb-4">Product Photos</h2>
                         
-                        <!-- Multiple Images Upload -->
+                        <!-- Existing Images -->
+                        @if($product->images->count() > 0)
+                            <div class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Current Images</label>
+                                <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                                    @foreach($product->images as $image)
+                                        <div class="relative group">
+                                            <img src="{{ $image->image_url }}" alt="Product Image" 
+                                                 class="w-full h-32 object-cover rounded-lg border-2 {{ $image->is_primary ? 'border-jade-green' : 'border-gray-200' }}">
+                                            @if($image->is_primary)
+                                                <span class="absolute top-1 left-1 bg-jade-green text-white text-xs px-2 py-1 rounded">Primary</span>
+                                            @endif
+                                            <div class="absolute top-1 right-1 flex space-x-1">
+                                                <button type="button" onclick="setPrimaryImage({{ $image->id }})" 
+                                                        class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-blue-600 {{ $image->is_primary ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                                        {{ $image->is_primary ? 'disabled' : '' }}>
+                                                    ★
+                                                </button>
+                                                <button type="button" onclick="removeImage({{ $image->id }})" 
+                                                        class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">
+                                                    ×
+                                                </button>
+                                            </div>
+                                            <input type="hidden" name="remove_images[]" value="{{ $image->id }}" id="remove_{{ $image->id }}" style="display:none;">
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
+                        <!-- Add New Images -->
                         <div class="mb-6">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Product Images (Multiple)</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Add New Images</label>
                             <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-jade-green transition-colors">
                                 <input type="file" id="images" name="images[]" accept="image/*" multiple
                                        class="hidden" onchange="previewImages(this)">
@@ -165,7 +157,7 @@
                                     </svg>
                                     <div class="mt-4">
                                         <p class="text-sm text-gray-600">Click to upload or drag and drop</p>
-                                        <p class="text-xs text-gray-500">PNG, JPG, GIF up to 2MB each (Max 5 images)</p>
+                                        <p class="text-xs text-gray-500">PNG, JPG, GIF up to 2MB each (Max 5 images total)</p>
                                     </div>
                                 </label>
                             </div>
@@ -185,17 +177,20 @@
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
+
+                        <!-- Hidden field for primary image -->
+                        <input type="hidden" name="primary_image" id="primary_image" value="{{ $product->images->where('is_primary', true)->first()->id ?? 0 }}">
                     </div>
 
                     <!-- Submit Buttons -->
                     <div class="flex justify-end space-x-4">
-                        <a href="{{ route('products.index') }}" 
+                        <a href="{{ route('products.show', $product) }}" 
                            class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition">
                             Cancel
                         </a>
                         <button type="submit" 
                                 class="px-6 py-2 bg-jade-green text-white rounded-md hover:bg-opacity-90 transition font-semibold">
-                            Submit for Review
+                            Update Product
                         </button>
                     </div>
                 </form>
@@ -213,7 +208,7 @@
                 <div class="ml-3">
                     <h3 class="text-sm font-medium text-blue-800">Review Process</h3>
                     <div class="mt-2 text-sm text-blue-700">
-                        <p>Your product will be submitted for admin review before being published. This typically takes 1-2 business days.</p>
+                        <p>Updating your product will require admin review before changes are published.</p>
                     </div>
                 </div>
             </div>
@@ -263,34 +258,66 @@ function previewImages(input) {
             }
         });
         
-        // Show warning if more than 5 images
-        if (files.length > 5) {
+        // Show warning if too many images
+        const currentImageCount = {{ $product->images->count() }};
+        if (currentImageCount + files.length > 5) {
             const warning = document.createElement('div');
             warning.className = 'col-span-full text-sm text-yellow-600 mt-2';
-            warning.textContent = 'Maximum 5 images allowed. Only first 5 will be uploaded.';
+            warning.textContent = 'Maximum 5 images allowed total. You currently have ' + currentImageCount + ' images.';
             preview.appendChild(warning);
         }
     }
 }
 
-function addIngredientField() {
-    const container = document.getElementById('ingredients-container');
-    const newField = document.createElement('div');
-    newField.className = 'flex items-center space-x-2 mt-2';
-    newField.innerHTML = `
-        <input type="text" name="active_ingredients[]" 
-               class="flex-1 border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-               placeholder="e.g., Hyaluronic Acid">
-        <button type="button" onclick="removeIngredientField(this)" 
-                class="px-3 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition">
-            -
-        </button>
-    `;
-    container.appendChild(newField);
+function removeImage(imageId) {
+    if (confirm('Are you sure you want to remove this image?')) {
+        const checkbox = document.getElementById('remove_' + imageId);
+        checkbox.style.display = 'block';
+        checkbox.checked = true;
+        
+        // Hide the image container
+        event.target.closest('.relative').style.display = 'none';
+    }
 }
 
-function removeIngredientField(button) {
-    button.parentElement.remove();
+function setPrimaryImage(imageId) {
+    // Update hidden field
+    document.getElementById('primary_image').value = imageId;
+    
+    // Remove primary indicator from all images
+    document.querySelectorAll('.border-jade-green').forEach(el => {
+        el.classList.remove('border-jade-green');
+        el.classList.add('border-gray-200');
+    });
+    
+    document.querySelectorAll('span').forEach(el => {
+        if (el.textContent === 'Primary') {
+            el.remove();
+        }
+    });
+    
+    // Add primary indicator to selected image
+    const imageContainer = event.target.closest('.relative');
+    const img = imageContainer.querySelector('img');
+    img.classList.remove('border-gray-200');
+    img.classList.add('border-jade-green');
+    
+    const primaryLabel = document.createElement('span');
+    primaryLabel.className = 'absolute top-1 left-1 bg-jade-green text-white text-xs px-2 py-1 rounded';
+    primaryLabel.textContent = 'Primary';
+    imageContainer.appendChild(primaryLabel);
+    
+    // Disable the star button
+    event.target.disabled = true;
+    event.target.classList.add('opacity-50', 'cursor-not-allowed');
+    
+    // Enable other star buttons
+    document.querySelectorAll('button[onclick^="setPrimaryImage"]').forEach(btn => {
+        if (btn !== event.target) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    });
 }
 </script>
 @endsection

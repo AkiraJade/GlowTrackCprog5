@@ -24,6 +24,8 @@ class Product extends Model
         'skin_types',
         'active_ingredients',
         'photo',
+        'expiry_date',
+        'inventory_notes',
         'seller_id',
         'status',
         'is_verified',
@@ -37,6 +39,7 @@ class Product extends Model
         'active_ingredients' => 'array',
         'is_verified' => 'boolean',
         'average_rating' => 'decimal:2',
+        'expiry_date' => 'date',
     ];
 
     /**
@@ -53,6 +56,22 @@ class Product extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get the images for the product.
+     */
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class)->ordered();
+    }
+
+    /**
+     * Get the primary image for the product.
+     */
+    public function primaryImage(): HasOne
+    {
+        return $this->hasOne(ProductImage::class)->primary();
     }
 
     /**
@@ -191,5 +210,114 @@ class Product extends Model
         $this->average_rating = $this->reviews()->avg('rating') ?? 0;
         $this->review_count = $this->reviews()->count();
         $this->save();
+    }
+
+    /**
+     * Check if product is expiring soon (within 30 days).
+     */
+    public function isExpiringSoon(): bool
+    {
+        if (!$this->expiry_date) {
+            return false;
+        }
+        
+        return $this->expiry_date->lte(now()->addDays(30));
+    }
+
+    /**
+     * Check if product is expired.
+     */
+    public function isExpired(): bool
+    {
+        if (!$this->expiry_date) {
+            return false;
+        }
+        
+        return $this->expiry_date->lt(now());
+    }
+
+    /**
+     * Get expiry status label.
+     */
+    public function getExpiryStatusLabel(): string
+    {
+        if (!$this->expiry_date) {
+            return 'Not specified';
+        }
+        
+        if ($this->isExpired()) {
+            return 'Expired';
+        }
+        
+        if ($this->isExpiringSoon()) {
+            return 'Expiring Soon';
+        }
+        
+        return 'Good';
+    }
+
+    /**
+     * Get expiry status color.
+     */
+    public function getExpiryStatusColor(): string
+    {
+        if (!$this->expiry_date) {
+            return 'gray';
+        }
+        
+        if ($this->isExpired()) {
+            return 'red';
+        }
+        
+        if ($this->isExpiringSoon()) {
+            return 'yellow';
+        }
+        
+        return 'green';
+    }
+
+    /**
+     * Scope a query to only include expired products.
+     */
+    public function scopeExpired($query)
+    {
+        return $query->whereNotNull('expiry_date')
+                    ->where('expiry_date', '<', now());
+    }
+
+    /**
+     * Scope a query to only include products expiring soon.
+     */
+    public function scopeExpiringSoon($query, $days = 30)
+    {
+        return $query->whereNotNull('expiry_date')
+                    ->where('expiry_date', '<=', now()->addDays($days))
+                    ->where('expiry_date', '>', now());
+    }
+
+    /**
+     * Get the photo URL attribute (for backward compatibility).
+     */
+    public function getPhotoUrlAttribute(): string
+    {
+        // If product has multiple images, return the primary one
+        if ($this->images()->exists()) {
+            return $this->images()->first()->image_url;
+        }
+        
+        // Fallback to old single photo field
+        return $this->photo ? asset('storage/' . $this->photo) : asset('images/default-product.jpg');
+    }
+
+    /**
+     * Get all image URLs for the product.
+     */
+    public function getAllImageUrlsAttribute(): array
+    {
+        if ($this->images()->exists()) {
+            return $this->images->pluck('image_url')->toArray();
+        }
+        
+        return $this->photo ? [asset('storage/' . $this->photo)] : [asset('images/default-product.jpg')];
     }
 }

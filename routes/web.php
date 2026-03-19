@@ -224,6 +224,7 @@ Route::middleware('auth')->group(function () {
 // Product Routes
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/brand/{seller}', [ProductController::class, 'brandPage'])->name('brand.show');
 
 // Features Route
 Route::get('/features', function () {
@@ -233,6 +234,8 @@ Route::get('/features', function () {
 Route::middleware('auth')->group(function () {
     Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
     Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::post('/products/{product}/reviews', [ProductController::class, 'storeReview'])->name('products.reviews.store');
+    Route::delete('/products/{product}/reviews', [ProductController::class, 'deleteReview'])->name('products.reviews.delete');
     Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
     Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
@@ -254,6 +257,13 @@ Route::middleware(['auth', 'seller'])->prefix('seller')->name('seller.')->group(
     Route::get('/dashboard', function () {
         return view('seller.dashboard');
     })->name('dashboard');
+    
+    // Seller Order Management
+    Route::get('/orders', [OrderController::class, 'sellerOrders'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'sellerShow'])->name('orders.show');
+    Route::put('/orders/{order}/status', [OrderController::class, 'sellerUpdateStatus'])->name('orders.update-status');
+    Route::put('/orders/{order}/prepare-shipment', [OrderController::class, 'sellerPrepareShipment'])->name('orders.prepare-shipment');
+    
     // Seller-specific application management removed here to avoid route conflicts
     // Public/customer-facing seller application routes are defined earlier (auth guarded)
     
@@ -289,6 +299,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
     Route::get('/reports/sales', [AdminController::class, 'salesReport'])->name('reports.sales');
     Route::get('/reports/inventory', [AdminController::class, 'inventoryReport'])->name('reports.inventory');
+    Route::get('/reports/sales/export', [AdminController::class, 'exportSalesReport'])->name('reports.sales.export');
+    Route::get('/reports/inventory/export', [AdminController::class, 'exportInventoryReport'])->name('reports.inventory.export');
     
     // Seller Application Management
     Route::get('/seller-applications', [SellerApplicationController::class, 'index'])->name('seller-applications');

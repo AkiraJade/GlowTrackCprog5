@@ -8,6 +8,9 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\SellerApplication;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\SalesReportExport;
+use App\Exports\InventoryReportExport;
 
 class AdminController extends Controller
 {
@@ -160,52 +163,304 @@ class AdminController extends Controller
     {
         $startDate = $request->input('start_date', now()->subDays(30)->format('Y-m-d'));
         $endDate = $request->input('end_date', now()->format('Y-m-d'));
+        $productId = $request->input('product_id');
+        $brand = $request->input('brand');
+        $productCategory = $request->input('product_category');
+        $sellerId = $request->input('seller_id');
 
-        $orders = Order::whereBetween('created_at', [$startDate, $endDate])
+        $query = Order::whereBetween('order_date', [$startDate, $endDate])
             ->where('status', '!=', 'cancelled')
-            ->with('orderItems.product', 'user')
-            ->get();
+            ->with(['orderItems.product', 'user']);
 
+        // Filter by specific product
+        if ($productId) {
+            $query->whereHas('orderItems', function($q) use ($productId) {
+                $q->where('product_id', $productId);
+            });
+        }
+
+        // Filter by brand
+        if ($brand) {
+            $query->whereHas('orderItems.product', function($q) use ($brand) {
+                $q->where('brand', $brand);
+            });
+        }
+
+        // Filter by product category
+        if ($productCategory) {
+            $query->whereHas('orderItems.product', function($q) use ($productCategory) {
+                $q->where('classification', $productCategory);
+            });
+        }
+
+        // Filter by seller
+        if ($sellerId) {
+            $query->whereHas('orderItems.product', function($q) use ($sellerId) {
+                $q->where('seller_id', $sellerId);
+            });
+        }
+
+        $orders = $query->get();
+
+        // Calculate basic metrics
         $totalRevenue = $orders->sum('total_amount');
         $totalOrders = $orders->count();
         $averageOrderValue = $totalOrders > 0 ? $totalRevenue / $totalOrders : 0;
+        $totalUnitsSold = $orders->sum(function($order) {
+            return $order->orderItems->sum('quantity');
+        });
 
-        $topProducts = OrderItem::whereHas('order', function($query) use ($startDate, $endDate) {
-            $query->whereBetween('created_at', [$startDate, $endDate])
+        // Top products by revenue and units sold
+        $topProductsQuery = OrderItem::whereHas('order', function($query) use ($startDate, $endDate) {
+            $query->whereBetween('order_date', [$startDate, $endDate])
+                  ->where('status', '!=', 'cancelled');
+        });
+
+        if ($brand) {
+            $topProductsQuery->whereHas('product', function($q) use ($brand) {
+                $q->where('brand', $brand);
+            });
+        }
+
+        if ($productCategory) {
+            $topProductsQuery->whereHas('product', function($q) use ($productCategory) {
+                $q->where('classification', $productCategory);
+            });
+        }
+
+        if ($sellerId) {
+            $topProductsQuery->whereHas('product', function($q) use ($sellerId) {
+                $q->where('seller_id', $sellerId);
+            });
+        }
+
+        $topProducts = $topProductsQuery->with('product')
+            ->selectRaw('product_id, SUM(quantity) as total_sold, SUM(price * quantity) as total_revenue, AVG(price) as avg_price')
+            ->groupBy('product_id')
+            ->orderByDesc('total_revenue')
+            ->limit(10)
+            ->get();
+
+        // Top brands by revenue
+        $topBrands = OrderItem::whereHas('order', function($query) use ($startDate, $endDate) {
+            $query->whereBetween('order_date', [$startDate, $endDate])
                   ->where('status', '!=', 'cancelled');
         })
+        ->whereHas('product', function($q) use ($sellerId) {
+            if ($sellerId) {
+                $q->where('seller_id', $sellerId);
+            }
+        })
         ->with('product')
-        ->selectRaw('product_id, SUM(quantity) as total_sold, SUM(price * quantity) as total_revenue')
-        ->groupBy('product_id')
-        ->orderByDesc('total_sold')
+        ->selectRaw('products.brand, SUM(order_items.quantity) as total_sold, SUM(order_items.price * order_items.quantity) as total_revenue')
+        ->join('products', 'order_items.product_id', '=', 'products.id')
+        ->groupBy('products.brand')
+        ->orderByDesc('total_revenue')
         ->limit(10)
         ->get();
 
+        // Top sellers by revenue
+        $topSellers = OrderItem::whereHas('order', function($query) use ($startDate, $endDate) {
+            $query->whereBetween('order_date', [$startDate, $endDate])
+                  ->where('status', '!=', 'cancelled');
+        })
+        ->with('product.seller')
+        ->selectRaw('products.seller_id, SUM(order_items.quantity) as total_sold, SUM(order_items.price * order_items.quantity) as total_revenue')
+        ->join('products', 'order_items.product_id', '=', 'products.id')
+        ->groupBy('products.seller_id')
+        ->orderByDesc('total_revenue')
+        ->limit(10)
+        ->get();
+
+        // Sales by category
+        $salesByCategory = OrderItem::whereHas('order', function($query) use ($startDate, $endDate) {
+            $query->whereBetween('order_date', [$startDate, $endDate])
+                  ->where('status', '!=', 'cancelled');
+        })
+        ->whereHas('product', function($q) use ($sellerId) {
+            if ($sellerId) {
+                $q->where('seller_id', $sellerId);
+            }
+        })
+        ->with('product')
+        ->selectRaw('products.classification, SUM(order_items.quantity) as total_sold, SUM(order_items.price * order_items.quantity) as total_revenue')
+        ->join('products', 'order_items.product_id', '=', 'products.id')
+        ->groupBy('products.classification')
+        ->orderByDesc('total_revenue')
+        ->get();
+
+        // Daily sales trend
+        $dailySales = Order::whereBetween('order_date', [$startDate, $endDate])
+            ->where('status', '!=', 'cancelled')
+            ->selectRaw('DATE(order_date) as date, COUNT(*) as orders, SUM(total_amount) as revenue')
+            ->groupBy('date')
+            ->orderBy('date')
+            ->get();
+
+        // Get filter options
+        $products = Product::where('status', 'approved')->orderBy('name')->pluck('name', 'id');
+        $brands = Product::where('status', 'approved')->distinct()->pluck('brand', 'brand');
+        $categories = ['Cleanser', 'Moisturizer', 'Serum', 'Toner', 'Sunscreen', 'Mask', 'Exfoliant', 'Treatment'];
+        $sellers = User::where('role', 'seller')->orderBy('name')->pluck('name', 'id');
+
         return view('admin.sales-report', compact(
-            'orders', 'totalRevenue', 'totalOrders', 'averageOrderValue', 
-            'topProducts', 'startDate', 'endDate'
+            'orders', 'totalRevenue', 'totalOrders', 'averageOrderValue', 'totalUnitsSold',
+            'topProducts', 'topBrands', 'topSellers', 'salesByCategory', 'dailySales',
+            'startDate', 'endDate', 'productId', 'brand', 'productCategory', 'sellerId',
+            'products', 'brands', 'categories', 'sellers'
         ));
     }
 
     /**
      * Generate inventory report
      */
-    public function inventoryReport()
+    public function inventoryReport(Request $request)
     {
-        $products = Product::with('seller')
-            ->orderBy('quantity', 'asc')
-            ->get();
+        $stockFilter = $request->input('stock_filter', 'all'); // all, low_stock, out_of_stock
+        $expiryFilter = $request->input('expiry_filter', 'all'); // all, expired, expiring_soon
+        $sellerId = $request->input('seller_id');
+        $category = $request->input('category');
 
-        $lowStockProducts = $products->filter(function($product) {
-            return $product->quantity <= 10;
+        $query = Product::with('seller');
+
+        // Filter by stock status
+        if ($stockFilter === 'low_stock') {
+            $query->where('quantity', '>', 0)->where('quantity', '<=', 5);
+        } elseif ($stockFilter === 'out_of_stock') {
+            $query->where('quantity', 0);
+        }
+
+        // Filter by expiry status
+        if ($expiryFilter === 'expired') {
+            $query->expired();
+        } elseif ($expiryFilter === 'expiring_soon') {
+            $query->expiringSoon(30);
+        }
+
+        // Filter by seller
+        if ($sellerId) {
+            $query->where('seller_id', $sellerId);
+        }
+
+        // Filter by category
+        if ($category) {
+            $query->where('classification', $category);
+        }
+
+        $products = $query->orderBy('quantity', 'asc')->get();
+
+        // Calculate inventory statistics
+        $totalProducts = $products->count();
+        $totalValue = $products->sum(function($product) {
+            return $product->quantity * $product->price;
         });
-
+        
+        $lowStockProducts = $products->filter(function($product) {
+            return $product->quantity > 0 && $product->quantity <= 5;
+        });
+        
         $outOfStockProducts = $products->filter(function($product) {
             return $product->quantity == 0;
         });
 
+        $expiredProducts = $products->filter(function($product) {
+            return $product->isExpired();
+        });
+
+        $expiringSoonProducts = $products->filter(function($product) {
+            return $product->isExpiringSoon();
+        });
+
+        // Products by category
+        $productsByCategory = $products->groupBy('classification')->map(function($categoryProducts) {
+            return [
+                'count' => $categoryProducts->count(),
+                'total_quantity' => $categoryProducts->sum('quantity'),
+                'total_value' => $categoryProducts->sum(function($product) {
+                    return $product->quantity * $product->price;
+                })
+            ];
+        });
+
+        // Inventory value by seller
+        $inventoryBySeller = $products->groupBy('seller_id')->map(function($sellerProducts) {
+            $seller = $sellerProducts->first()->seller;
+            return [
+                'seller_name' => $seller ? $seller->name : 'Unknown',
+                'product_count' => $sellerProducts->count(),
+                'total_quantity' => $sellerProducts->sum('quantity'),
+                'total_value' => $sellerProducts->sum(function($product) {
+                    return $product->quantity * $product->price;
+                })
+            ];
+        });
+
+        // Restocking recommendations (products that are out of stock or low stock)
+        $restockingRecommendations = $products->filter(function($product) {
+            return $product->quantity <= 5;
+        })->sortBy('quantity')->take(20);
+
+        // Get filter options
+        $sellers = User::where('role', 'seller')->orderBy('name')->pluck('name', 'id');
+        $categories = ['Cleanser', 'Moisturizer', 'Serum', 'Toner', 'Sunscreen', 'Mask', 'Exfoliant', 'Treatment'];
+
         return view('admin.inventory-report', compact(
-            'products', 'lowStockProducts', 'outOfStockProducts'
+            'products', 'totalProducts', 'totalValue',
+            'lowStockProducts', 'outOfStockProducts', 
+            'expiredProducts', 'expiringSoonProducts',
+            'productsByCategory', 'inventoryBySeller', 'restockingRecommendations',
+            'stockFilter', 'expiryFilter', 'sellerId', 'category',
+            'sellers', 'categories'
         ));
+    }
+
+    /**
+     * Export sales report to Excel/CSV
+     */
+    public function exportSalesReport(Request $request)
+    {
+        $format = $request->input('format', 'excel'); // excel or csv
+        $startDate = $request->input('start_date', now()->subDays(30)->format('Y-m-d'));
+        $endDate = $request->input('end_date', now()->format('Y-m-d'));
+        $productId = $request->input('product_id');
+        $brand = $request->input('brand');
+        $productCategory = $request->input('product_category');
+        $sellerId = $request->input('seller_id');
+
+        $filename = "sales_report_{$startDate}_to_{$endDate}";
+        
+        if ($format === 'csv') {
+            return Excel::download(new SalesReportExport(
+                $startDate, $endDate, $productId, $brand, $productCategory, $sellerId
+            ), $filename . '.csv');
+        }
+        
+        return Excel::download(new SalesReportExport(
+            $startDate, $endDate, $productId, $brand, $productCategory, $sellerId
+        ), $filename . '.xlsx');
+    }
+
+    /**
+     * Export inventory report to Excel/CSV
+     */
+    public function exportInventoryReport(Request $request)
+    {
+        $format = $request->input('format', 'excel'); // excel or csv
+        $stockFilter = $request->input('stock_filter', 'all');
+        $expiryFilter = $request->input('expiry_filter', 'all');
+        $sellerId = $request->input('seller_id');
+        $category = $request->input('category');
+
+        $filename = "inventory_report_" . now()->format('Y-m-d');
+        
+        if ($format === 'csv') {
+            return Excel::download(new InventoryReportExport(
+                $stockFilter, $expiryFilter, $sellerId, $category
+            ), $filename . '.csv');
+        }
+        
+        return Excel::download(new InventoryReportExport(
+            $stockFilter, $expiryFilter, $sellerId, $category
+        ), $filename . '.xlsx');
     }
 }
