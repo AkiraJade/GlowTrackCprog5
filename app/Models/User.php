@@ -178,6 +178,228 @@ class User extends Authenticatable
     }
 
     /**
+     * Calculate total revenue for this seller.
+     */
+    public function calculateRevenue($startDate = null, $endDate = null): float
+    {
+        return $this->products()
+            ->where('status', 'approved')
+            ->whereHas('orderItems', function ($query) use ($startDate, $endDate) {
+                $query->whereHas('order', function ($orderQuery) use ($startDate, $endDate) {
+                    if ($startDate && $endDate) {
+                        $orderQuery->whereBetween('created_at', [$startDate, $endDate]);
+                    }
+                });
+            })
+            ->with(['orderItems.order'])
+            ->get()
+            ->sum(function ($product) {
+                return $product->orderItems->sum('price');
+            });
+    }
+
+    /**
+     * Calculate total orders for this seller.
+     */
+    public function calculateOrders($startDate = null, $endDate = null): int
+    {
+        $query = Order::where('seller_id', $this->id);
+        
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        
+        return $query->count();
+    }
+
+    /**
+     * Calculate fulfillment rate for this seller.
+     */
+    public function calculateFulfillmentRate($startDate = null, $endDate = null): float
+    {
+        $query = Order::where('seller_id', $this->id);
+        
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        }
+        
+        $totalOrders = $query->count();
+        if ($totalOrders === 0) return 0;
+        
+        $deliveredOrders = $query->where('status', 'delivered')->count();
+        
+        return ($deliveredOrders / $totalOrders) * 100;
+    }
+
+    /**
+     * Calculate average satisfaction score for this seller.
+     */
+    public function calculateSatisfactionScore($startDate = null, $endDate = null): float
+    {
+        $query = $this->products()
+            ->where('status', 'approved')
+            ->with('reviews');
+        
+        if ($startDate && $endDate) {
+            $query->whereHas('reviews', function ($reviewQuery) use ($startDate, $endDate) {
+                $reviewQuery->whereBetween('created_at', [$startDate, $endDate]);
+            });
+        }
+        
+        $products = $query->get();
+        
+        $totalReviews = 0;
+        $totalRating = 0;
+        
+        foreach ($products as $product) {
+            if ($product->reviews->isNotEmpty()) {
+                $totalReviews += $product->reviews->count();
+                $totalRating += $product->reviews->sum('rating');
+            }
+        }
+        
+        return $totalReviews > 0 ? $totalRating / $totalReviews : 0;
+    }
+
+    /**
+     * Get seller performance metrics.
+     */
+    public function getPerformanceMetrics($startDate = null, $endDate = null): array
+    {
+        return [
+            'revenue' => $this->calculateRevenue($startDate, $endDate),
+            'orders' => $this->calculateOrders($startDate, $endDate),
+            'fulfillment_rate' => $this->calculateFulfillmentRate($startDate, $endDate),
+            'satisfaction_score' => $this->calculateSatisfactionScore($startDate, $endDate),
+            'product_count' => $this->products()->where('status', 'approved')->count(),
+            'avg_product_rating' => $this->products()->where('status', 'approved')->avg('average_rating') ?? 0,
+            'total_reviews' => $this->products()->where('status', 'approved')->sum('review_count'),
+        ];
+    }
+
+    /**
+     * Get monthly performance trends.
+     */
+    public function getMonthlyPerformanceTrends($months = 12): array
+    {
+        $trends = [];
+        $currentDate = now()->copy()->subMonths($months);
+        
+        for ($i = 0; $i < $months; $i++) {
+            $monthStart = $currentDate->copy()->startOfMonth();
+            $monthEnd = $currentDate->copy()->endOfMonth();
+            
+            $trends[$currentDate->format('Y-m')] = [
+                'revenue' => $this->calculateRevenue($monthStart, $monthEnd),
+                'orders' => $this->calculateOrders($monthStart, $monthEnd),
+                'fulfillment_rate' => $this->calculateFulfillmentRate($monthStart, $monthEnd),
+                'satisfaction_score' => $this->calculateSatisfactionScore($monthStart, $monthEnd),
+            ];
+            
+            $currentDate->addMonth();
+        }
+        
+        return $trends;
+    }
+
+    /**
+     * Get top performing products for this seller.
+     */
+    public function getTopPerformingProducts($limit = 10, $startDate = null, $endDate = null): array
+    {
+        $query = $this->products()
+            ->where('status', 'approved')
+            ->with('reviews');
+        
+        if ($startDate && $endDate) {
+            $query->whereHas('orderItems', function ($query) use ($startDate, $endDate) {
+                $query->whereHas('order', function ($orderQuery) use ($startDate, $endDate) {
+                    $orderQuery->whereBetween('created_at', [$startDate, $endDate]);
+                });
+            });
+        }
+        
+        $products = $query->get();
+        
+        $performingProducts = [];
+        foreach ($products as $product) {
+            $revenue = $product->orderItems()
+                ->whereHas('order', function ($query) use ($startDate, $endDate) {
+                    if ($startDate && $endDate) {
+                        $query->whereBetween('created_at', [$startDate, $endDate]);
+                    }
+                })
+                ->sum('price');
+            
+            $orders = $product->orderItems()
+                ->whereHas('order', function ($query) use ($startDate, $endDate) {
+                    if ($startDate && $endDate) {
+                        $query->whereBetween('created_at', [$startDate, $endDate]);
+                    }
+                })
+                ->count();
+            
+            $performingProducts[] = [
+                'product' => $product,
+                'revenue' => $revenue,
+                'orders' => $orders,
+                'rating' => $product->average_rating,
+                'reviews' => $product->review_count,
+                'performance_score' => $this->calculateProductPerformanceScore($revenue, $orders, $product->average_rating, $product->review_count),
+            ];
+        }
+        
+        // Sort by performance score
+        usort($performingProducts, function ($a, $b) {
+            return $b['performance_score'] <=> $a['performance_score'];
+        });
+        
+        return array_slice($performingProducts, 0, $limit);
+    }
+
+    /**
+     * Calculate performance score for a product.
+     */
+    private function calculateProductPerformanceScore($revenue, $orders, $rating, $reviews): float
+    {
+        $revenueScore = min(40, ($revenue / 100) * 40); // Max 40 points
+        $orderScore = min(30, ($orders / 5) * 30); // Max 30 points
+        $ratingScore = ($rating / 5) * 20; // Max 20 points
+        $reviewScore = min(10, ($reviews / 10) * 10); // Max 10 points
+        
+        return $revenueScore + $orderScore + $ratingScore + $reviewScore;
+    }
+
+    /**
+     * Check if seller is active based on recent activity.
+     */
+    public function isActive(): bool
+    {
+        return $this->seller_status === 'active' && 
+               $this->calculateOrders(now()->subDays(30), now()) > 0;
+    }
+
+    /**
+     * Get seller tier based on performance.
+     */
+    public function getSellerTier(): string
+    {
+        $metrics = $this->getPerformanceMetrics(now()->subDays(90), now());
+        
+        if ($metrics['revenue'] >= 50000 && $metrics['fulfillment_rate'] >= 95 && $metrics['satisfaction_score'] >= 4.5) {
+            return 'Platinum';
+        } elseif ($metrics['revenue'] >= 25000 && $metrics['fulfillment_rate'] >= 90 && $metrics['satisfaction_score'] >= 4.0) {
+            return 'Gold';
+        } elseif ($metrics['revenue'] >= 10000 && $metrics['fulfillment_rate'] >= 85 && $metrics['satisfaction_score'] >= 3.5) {
+            return 'Silver';
+        } elseif ($metrics['revenue'] >= 5000 && $metrics['fulfill_rate'] >= 80 && $metrics['satisfaction_score'] >= 3.0) {
+            return 'Bronze';
+        }
+        
+        return 'Standard';
+    }
+
+    /**
      * Check if a product is in user's wishlist.
      */
     public function isInWishlist($productId)

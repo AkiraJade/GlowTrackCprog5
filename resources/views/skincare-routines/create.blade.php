@@ -44,6 +44,9 @@
                         <span class="text-sm font-medium text-gray-700">Make this routine public (others can see and use it)</span>
                     </label>
                 </div>
+
+                <!-- Ingredient Conflict Warnings -->
+                @include('partials.conflict-warnings')
                 
                 <!-- Routine Steps -->
                 <div class="mb-8">
@@ -203,6 +206,13 @@ function toggleCustomProduct(select, stepIndex) {
         customContainer.style.display = 'none';
         customInput.required = false;
         customInput.value = '';
+    }
+    
+    // Check for conflicts when product selection changes
+    if (window.conflictDetector) {
+        setTimeout(() => {
+            window.conflictDetector.checkRoutineBuilderConflicts();
+        }, 100);
     }
 }
 </script>

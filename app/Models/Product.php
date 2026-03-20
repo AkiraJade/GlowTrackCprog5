@@ -385,4 +385,137 @@ class Product extends Model
         
         return $this->photo ? [asset('storage/' . $this->photo)] : [asset('images/default-product.jpg')];
     }
+
+    /**
+     * Calculate revenue for this product within a date range.
+     */
+    public function calculateRevenue($startDate = null, $endDate = null): float
+    {
+        return $this->orderItems()
+            ->whereHas('order', function ($query) use ($startDate, $endDate) {
+                if ($startDate && $endDate) {
+                    $query->whereBetween('created_at', [$startDate, $endDate]);
+                }
+            })
+            ->sum('price');
+    }
+
+    /**
+     * Calculate order count for this product within a date range.
+     */
+    public function calculateOrders($startDate = null, $endDate = null): int
+    {
+        $query = $this->orderItems();
+        
+        if ($startDate && $endDate) {
+            $query->whereHas('order', function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            });
+        }
+        
+        return $query->count();
+    }
+
+    /**
+     * Calculate stock turnover rate for this product.
+     */
+    public function calculateStockTurnover($startDate = null, $endDate = null): float
+    {
+        $initialStock = $this->quantity + ($this->calculateOrders($startDate, $endDate) * 0);
+        $finalStock = $this->quantity;
+        
+        if ($initialStock <= 0) return 0;
+        
+        $soldUnits = $this->calculateOrders($startDate, $endDate);
+        $periodDays = $startDate && $endDate ? $startDate->diffInDays($endDate) : 30;
+        
+        return ($soldUnits / $initialStock) * ($periodDays / 30);
+    }
+
+    /**
+     * Get seller performance metrics for this product.
+     */
+    public function getSellerPerformanceMetrics($startDate = null, $endDate = null): array
+    {
+        return [
+            'revenue' => $this->calculateRevenue($startDate, $endDate),
+            'orders' => $this->calculateOrders($startDate, $endDate),
+            'rating' => $this->average_rating,
+            'reviews' => $this->review_count,
+            'stock_turnover' => $this->calculateStockTurnover($startDate, $endDate),
+            'stock_status' => $this->getStockStatusLabel(),
+            'is_performing' => $this->isPerforming($startDate, $endDate),
+        ];
+    }
+
+    /**
+     * Check if product is performing well.
+     */
+    public function isPerforming($startDate = null, $endDate = null): bool
+    {
+        $metrics = $this->getSellerPerformanceMetrics($startDate, $endDate);
+        
+        return $metrics['revenue'] >= 100 && 
+               $metrics['orders'] >= 5 && 
+               $metrics['rating'] >= 4.0;
+    }
+
+    /**
+     * Get product category performance comparison.
+     */
+    public function getCategoryPerformance($allProducts = null): array
+    {
+        if (!$allProducts) {
+            $allProducts = Product::where('classification', $this->classification)
+                ->where('status', 'approved')
+                ->get();
+        }
+
+        $categoryProducts = $allProducts->filter(function ($product) {
+            return $product->classification === $this->classification;
+        });
+
+        if ($categoryProducts->isEmpty()) {
+            return [
+                'category' => $this->classification,
+                'avg_revenue' => 0,
+                'avg_orders' => 0,
+                'avg_rating' => 0,
+                'total_products' => 0,
+                'rank' => 0,
+                'percentile' => 0,
+            ];
+        }
+
+        $totalRevenue = $categoryProducts->sum(function ($product) {
+            return $product->calculateRevenue();
+        });
+        $totalOrders = $categoryProducts->sum(function ($product) {
+            return $product->calculateOrders();
+        });
+        $avgRating = $categoryProducts->avg('average_rating');
+
+        $productRevenue = $this->calculateRevenue();
+        $productOrders = $this->calculateOrders();
+        
+        $rank = $categoryProducts
+            ->sortByDesc('calculateRevenue')
+            ->search(function ($product) use ($productRevenue) {
+                return $product->calculateRevenue() === $productRevenue;
+            })
+            ->keys()
+            ->first() + 1;
+
+        $percentile = ($totalRevenue > 0) ? ($productRevenue / $totalRevenue) * 100 : 0;
+
+        return [
+            'category' => $this->classification,
+            'avg_revenue' => $categoryProducts->avg('calculateRevenue'),
+            'avg_orders' => $categoryProducts->avg('calculateOrders'),
+            'avg_rating' => $avgRating,
+            'total_products' => $categoryProducts->count(),
+            'rank' => $rank,
+            'percentile' => $percentile,
+        ];
+    }
 }

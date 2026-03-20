@@ -51,18 +51,18 @@
             </div>
 
             <!-- Customer Report -->
-            <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition cursor-pointer">
+            <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('admin.skin-trends') }}'">
                 <div class="flex items-center mb-6">
                     <div class="p-3 bg-blush-pink rounded-full">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold text-soft-brown ml-4">Customer Report</h3>
+                    <h3 class="text-xl font-bold text-soft-brown ml-4">Skin Trends Report</h3>
                 </div>
-                <p class="text-soft-brown opacity-75 mb-4">Customer demographics, behavior analysis, and retention metrics</p>
+                <p class="text-soft-brown opacity-75 mb-4">Platform-wide skin type distribution, concerns, and ingredient usage patterns</p>
                 <div class="flex items-center text-jade-green font-semibold">
-                    <span>Coming Soon</span>
+                    <span>View Trends</span>
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
@@ -89,7 +89,7 @@
             </div>
 
             <!-- Seller Performance -->
-            <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition cursor-pointer">
+            <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('admin.seller-performance') }}'">
                 <div class="flex items-center mb-6">
                     <div class="p-3 bg-pastel-green rounded-full">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -100,7 +100,7 @@
                 </div>
                 <p class="text-soft-brown opacity-75 mb-4">Seller rankings, performance metrics, and compliance reports</p>
                 <div class="flex items-center text-jade-green font-semibold">
-                    <span>Coming Soon</span>
+                    <span>View Performance</span>
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>

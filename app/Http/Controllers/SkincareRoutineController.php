@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SkincareRoutine;
 use App\Models\RoutineStep;
 use App\Models\Product;
+use App\Http\Controllers\IngredientConflictController;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
@@ -59,10 +60,20 @@ class SkincareRoutineController extends Controller
             ]);
         }
 
+        // Check for ingredient conflicts
+        $conflictController = new IngredientConflictController();
+        $conflictCheck = $conflictController->checkConflicts(new Request([
+            'routine_id' => $routine->id,
+        ]));
+
+        $conflicts = $conflictCheck->getData()->conflicts ?? [];
+
         return response()->json([
             'success' => true,
             'message' => 'Skincare routine created successfully!',
-            'routine' => $routine->load('steps')
+            'routine' => $routine->load('steps'),
+            'conflicts' => $conflicts,
+            'conflict_count' => count($conflicts),
         ]);
     }
 
@@ -120,10 +131,20 @@ class SkincareRoutineController extends Controller
             ]);
         }
 
+        // Check for ingredient conflicts
+        $conflictController = new IngredientConflictController();
+        $conflictCheck = $conflictController->checkConflicts(new Request([
+            'routine_id' => $skincareRoutine->id,
+        ]));
+
+        $conflicts = $conflictCheck->getData()->conflicts ?? [];
+
         return response()->json([
             'success' => true,
             'message' => 'Skincare routine updated successfully!',
-            'routine' => $skincareRoutine->fresh()->load('steps')
+            'routine' => $skincareRoutine->fresh()->load('steps'),
+            'conflicts' => $conflicts,
+            'conflict_count' => count($conflicts),
         ]);
     }
 

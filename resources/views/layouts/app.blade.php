@@ -168,6 +168,7 @@
     <!-- Notifications JavaScript -->
     @if(auth()->check())
         <script src="{{ asset('js/notifications.js') }}"></script>
+        <script src="{{ asset('js/conflict-detector.js') }}"></script>
     @endif
     
     @stack('scripts')

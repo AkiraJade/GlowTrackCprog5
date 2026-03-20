@@ -14,6 +14,9 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\IngredientConflictController;
+use App\Http\Controllers\SkinTrendReportController;
+use App\Http\Controllers\SellerPerformanceReportController;
 
 Route::get('/', function () {
     return view('index');
@@ -293,13 +296,18 @@ Route::middleware('auth')->group(function () {
     Route::put('/orders/{order}/cancel', [OrderController::class , 'cancel'])->name('orders.cancel');
 
     // Notification Routes
-    Route::get('/notifications', [NotificationController::class , 'index'])->name('notifications.index');
-    Route::get('/notifications/recent', [NotificationController::class , 'recent'])->name('notifications.recent');
-    Route::post('/notifications/{notification}/mark-as-read', [NotificationController::class , 'markAsRead'])->name('notifications.mark-read');
-    Route::post('/notifications/mark-all-as-read', [NotificationController::class , 'markAllAsRead'])->name('notifications.mark-all-read');
-    Route::delete('/notifications/{notification}', [NotificationController::class , 'destroy'])->name('notifications.destroy');
-    Route::delete('/notifications/clear-all', [NotificationController::class , 'clearAll'])->name('notifications.clear-all');
-    Route::get('/notifications/unread-count', [NotificationController::class , 'unreadCount'])->name('notifications.unread-count');
+        Route::get('/notifications', [NotificationController::class , 'index'])->name('notifications.index');
+        Route::get('/notifications/recent', [NotificationController::class , 'recent'])->name('notifications.recent');
+        Route::post('/notifications/{notification}/mark-as-read', [NotificationController::class , 'markAsRead'])->name('notifications.mark-read');
+        Route::post('/notifications/mark-all-as-read', [NotificationController::class , 'markAllAsRead'])->name('notifications.mark-all-read');
+        Route::delete('/notifications/{notification}', [NotificationController::class , 'destroy'])->name('notifications.destroy');
+        Route::delete('/notifications/clear-all', [NotificationController::class , 'clearAll'])->name('notifications.clear-all');
+        Route::get('/notifications/unread-count', [NotificationController::class , 'unreadCount'])->name('notifications.unread-count');
+
+        // Ingredient Conflict Routes
+        Route::get('/ingredient-conflicts/warnings', [IngredientConflictController::class , 'getUserWarnings'])->name('ingredient-conflicts.warnings');
+        Route::post('/ingredient-conflicts/{warning}/acknowledge', [IngredientConflictController::class , 'acknowledgeWarning'])->name('ingredient-conflicts.acknowledge');
+        Route::post('/ingredient-conflicts/acknowledge-all', [IngredientConflictController::class , 'acknowledgeAllWarnings'])->name('ingredient-conflicts.acknowledge-all');
 });
 
 // Seller Routes
@@ -326,6 +334,12 @@ Route::middleware(['auth', 'seller'])->prefix('seller')->name('seller.')->group(
         Route::put('/products/{product}', [ProductController::class , 'sellerUpdate'])->name('products.update');
         Route::post('/products/{product}/restock', [ProductController::class , 'sellerRestock'])->name('products.restock');
         Route::delete('/products/{product}', [ProductController::class , 'sellerDestroy'])->name('products.destroy');    });
+
+// Ingredient Conflict API Routes
+Route::middleware('auth')->prefix('api/ingredient-conflicts')->name('api.ingredient-conflicts.')->group(function () {
+    Route::post('/check', [IngredientConflictController::class, 'checkConflicts'])->name('check');
+    Route::post('/suggestions', [IngredientConflictController::class, 'getIngredientSuggestions'])->name('suggestions');
+});
 
 // Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -359,6 +373,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/reports/inventory', [AdminController::class , 'inventoryReport'])->name('reports.inventory');
         Route::get('/reports/sales/export', [AdminController::class , 'exportSalesReport'])->name('reports.sales.export');
         Route::get('/reports/inventory/export', [AdminController::class , 'exportInventoryReport'])->name('reports.inventory.export');
+
+        // Skin Trend Reports
+        Route::get('/skin-trends', [SkinTrendReportController::class , 'index'])->name('skin-trends');
+        Route::post('/skin-trends/export', [SkinTrendReportController::class , 'exportCsv'])->name('skin-trends.export');
+        Route::get('/skin-trends/download/{filename}', [SkinTrendReportController::class , 'downloadCsv'])->name('skin-trends.download');
+        Route::get('/api/skin-trends/data', [SkinTrendReportController::class , 'getTrendData'])->name('api.skin-trends.data');
+
+        // Seller Performance Reports
+        Route::get('/seller-performance', [SellerPerformanceReportController::class , 'index'])->name('seller-performance');
+        Route::post('/seller-performance/export', [SellerPerformanceReportController::class , 'exportCsv'])->name('seller-performance.export');
+        Route::get('/seller-performance/download/{filename}', [SellerPerformanceReportController::class , 'downloadCsv'])->name('seller-performance.download');
+        Route::get('/api/seller-performance/data', [SellerPerformanceReportController::class , 'getSellerData'])->name('api.seller-performance.data');
 
         // Seller Application Management
         Route::get('/seller-applications', [SellerApplicationController::class , 'index'])->name('seller-applications');
