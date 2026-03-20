@@ -93,6 +93,12 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <a href="{{ route('products.show', $product) }}" class="text-jade-green hover:text-jade-green-900 mr-3">View</a>
                                     
+                                    <!-- Quick Restock Button -->
+                                    <button onclick="showRestockForm({{ $product->id }}, {{ $product->quantity }}, '{{ $product->name }}')" 
+                                            class="text-blue-600 hover:text-blue-900 mr-2" title="Restock Product">
+                                        📦 Restock
+                                    </button>
+                                    
                                     @if($product->status === 'pending')
                                         <form action="{{ route('admin.products.approve', $product) }}" method="POST" style="display: inline;">
                                             @csrf
@@ -147,6 +153,38 @@
     </div>
 </div>
 
+<!-- Restock Product Modal -->
+<div id="restockModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+        <h3 class="text-xl font-bold text-soft-brown mb-4">Restock Product</h3>
+        <form id="restockForm" action="{{ route('admin.products.restock') }}" method="POST">
+            @csrf
+            <input type="hidden" name="product_id" id="restockProductId">
+            <div class="mb-4">
+                <p class="text-sm text-gray-600 mb-2">Product: <span id="restockProductName" class="font-semibold"></span></p>
+                <p class="text-sm text-gray-600 mb-4">Current Stock: <span id="restockCurrentStock" class="font-semibold"></span></p>
+                <label class="block text-sm font-medium text-soft-brown mb-2">Add Quantity:</label>
+                <input type="number" name="add_quantity" min="1" max="9999" required
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jade-green"
+                       placeholder="Enter quantity to add">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-soft-brown mb-2">Notes (Optional):</label>
+                <textarea name="restock_notes" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jade-green" 
+                          placeholder="Add any notes about this restock"></textarea>
+            </div>
+            <div class="flex gap-3">
+                <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                    Restock Product
+                </button>
+                <button type="button" onclick="hideRestockForm()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
 function showRejectForm(productId) {
     document.getElementById('rejectProductId').value = productId;
@@ -156,6 +194,18 @@ function showRejectForm(productId) {
 
 function hideRejectForm() {
     document.getElementById('rejectModal').classList.add('hidden');
+}
+
+function showRestockForm(productId, currentStock, productName) {
+    document.getElementById('restockProductId').value = productId;
+    document.getElementById('restockProductName').textContent = productName;
+    document.getElementById('restockCurrentStock').textContent = currentStock;
+    document.getElementById('restockModal').classList.remove('hidden');
+}
+
+function hideRestockForm() {
+    document.getElementById('restockModal').classList.add('hidden');
+    document.getElementById('restockForm').reset();
 }
 
 // Search functionality

@@ -43,14 +43,14 @@ class ProfileController extends Controller
         // Check if user wants to remove photo
         if ($request->has('remove_photo') && $request->remove_photo == '1') {
             // Delete old photo if exists
-            if ($user->photo && file_exists(public_path('storage/user_photos/' . $user->photo))) {
-                unlink(public_path('storage/user_photos/' . $user->photo));
+            if ($user->photo) {
+                \Storage::disk('public')->delete('user_photos/' . $user->photo);
             }
             $photoPath = null;
         } elseif ($request->hasFile('photo')) {
             // Delete old photo if exists
-            if ($user->photo && file_exists(public_path('storage/user_photos/' . $user->photo))) {
-                unlink(public_path('storage/user_photos/' . $user->photo));
+            if ($user->photo) {
+                \Storage::disk('public')->delete('user_photos/' . $user->photo);
             }
             
             $photo = $request->file('photo');
@@ -64,9 +64,7 @@ class ProfileController extends Controller
                     return back()->withErrors(['photo' => 'The photo must be a valid image file (JPEG, PNG, JPG, GIF, WebP) and less than 2MB.'])->withInput();
                 }
                 
-                $photoName = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
-                $photo->move(public_path('storage/user_photos'), $photoName);
-                $photoPath = $photoName;
+                $photoPath = $photo->store('user_photos', 'public');
             }
         }
 

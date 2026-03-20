@@ -191,7 +191,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <a href="{{ route('products.show', $product) }}" class="text-jade-green hover:text-jade-green-900">View</a>
-                                    @if($product->quantity <= 10)
+                                    @if($product->quantity <= 10 && auth()->user()->isSeller())
                                         <a href="mailto:{{ $product->seller->email }}?subject=Low Stock Alert for {{ $product->name }}" 
                                            class="ml-3 text-yellow-600 hover:text-yellow-900">Notify Seller</a>
                                     @endif

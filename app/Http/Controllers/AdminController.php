@@ -126,6 +126,43 @@ class AdminController extends Controller
     }
 
     /**
+     * Restock a product
+     */
+    public function restockProduct(Request $request, Product $product)
+    {
+        $request->validate([
+            'add_quantity' => 'required|integer|min:1|max:9999',
+            'restock_notes' => 'nullable|string|max:255'
+        ]);
+
+        $oldQuantity = $product->quantity;
+        $newQuantity = $oldQuantity + $request->add_quantity;
+        
+        $product->update([
+            'quantity' => $newQuantity,
+            'inventory_notes' => $request->restock_notes ? 
+                ($product->inventory_notes ? $product->inventory_notes . '; ' : '') . 
+                date('Y-m-d H:i:s') . ': Restocked +' . $request->add_quantity . ' - ' . $request->restock_notes : 
+                $product->inventory_notes
+        ]);
+
+        // Log the restock activity
+        \Log::info('Product restocked by admin', [
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'old_quantity' => $oldQuantity,
+            'added_quantity' => $request->add_quantity,
+            'new_quantity' => $newQuantity,
+            'admin_id' => auth()->id(),
+            'notes' => $request->restock_notes
+        ]);
+
+        return redirect()->back()->with('success', 
+            "Product '{$product->name}' restocked successfully! Stock increased from {$oldQuantity} to {$newQuantity}."
+        );
+    }
+
+    /**
      * Display all orders for admin management
      */
     public function orders()

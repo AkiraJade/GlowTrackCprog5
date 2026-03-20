@@ -621,6 +621,48 @@ class ProductController extends Controller
     }
 
     /**
+     * Restock a product for sellers
+     */
+    public function sellerRestock(Request $request, Product $product)
+    {
+        // Check if user can restock this product
+        if (auth()->id() !== $product->seller_id && !auth()->user()->isAdmin()) {
+            abort(403, 'You can only restock your own products.');
+        }
+
+        $request->validate([
+            'add_quantity' => 'required|integer|min:1|max:9999',
+            'restock_notes' => 'nullable|string|max:255'
+        ]);
+
+        $oldQuantity = $product->quantity;
+        $newQuantity = $oldQuantity + $request->add_quantity;
+        
+        $product->update([
+            'quantity' => $newQuantity,
+            'inventory_notes' => $request->restock_notes ? 
+                ($product->inventory_notes ? $product->inventory_notes . '; ' : '') . 
+                date('Y-m-d H:i:s') . ': Restocked +' . $request->add_quantity . ' - ' . $request->restock_notes : 
+                $product->inventory_notes
+        ]);
+
+        // Log the restock activity
+        \Log::info('Product restocked by seller', [
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'old_quantity' => $oldQuantity,
+            'added_quantity' => $request->add_quantity,
+            'new_quantity' => $newQuantity,
+            'seller_id' => auth()->id(),
+            'notes' => $request->restock_notes
+        ]);
+
+        return redirect()->back()->with('success', 
+            "Product '{$product->name}' restocked successfully! Stock increased from {$oldQuantity} to {$newQuantity}."
+        );
+    }
+
+    /**
      * Remove the specified product for sellers.
      */
     public function sellerDestroy(Product $product)

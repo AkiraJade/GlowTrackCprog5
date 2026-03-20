@@ -17,7 +17,7 @@
             </div>
 
             <!-- Register Form -->
-            <form method="POST" action="{{ route('register') }}" class="space-y-4">
+            <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data" class="space-y-4">
                 @csrf
 
                 <!-- Full Name Field -->

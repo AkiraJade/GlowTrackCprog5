@@ -295,6 +295,7 @@ Route::middleware(['auth', 'seller'])->prefix('seller')->name('seller.')->group(
     Route::post('/products', [ProductController::class, 'sellerStore'])->name('products.store');
     Route::get('/products/{product}/edit', [ProductController::class, 'sellerEdit'])->name('products.edit');
     Route::put('/products/{product}', [ProductController::class, 'sellerUpdate'])->name('products.update');
+    Route::post('/products/{product}/restock', [ProductController::class, 'sellerRestock'])->name('products.restock');
     Route::delete('/products/{product}', [ProductController::class, 'sellerDestroy'])->name('products.destroy');
 });
 
@@ -317,6 +318,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
     Route::post('/products/{product}/approve', [AdminController::class, 'approveProduct'])->name('products.approve');
     Route::post('/products/{product}/reject', [AdminController::class, 'rejectProduct'])->name('products.reject');
+    Route::post('/products/{product}/restock', [AdminController::class, 'restockProduct'])->name('products.restock');
     
     // Order Management
     Route::get('/orders', [AdminController::class, 'orders'])->name('orders');

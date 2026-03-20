@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use App\Models\Order;
 use App\Models\Cart;
 use App\Models\Wishlist;
@@ -225,12 +226,9 @@ class User extends Authenticatable
     public function getPhotoUrlAttribute(): string
     {
         if ($this->photo) {
-            $photoPath = 'storage/user_photos/' . $this->photo;
-            
-            // Check if file exists
-            $fullPath = public_path($photoPath);
-            if (file_exists($fullPath)) {
-                return asset($photoPath);
+            // Check if file exists in storage
+            if (Storage::disk('public')->exists('user_photos/' . $this->photo)) {
+                return asset('storage/user_photos/' . $this->photo);
             }
         }
         

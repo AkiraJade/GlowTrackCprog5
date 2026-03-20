@@ -66,25 +66,19 @@ class RegisterController extends Controller
                     return back()->withErrors(['photo' => 'The photo must be a valid image file (JPEG, PNG, JPG, GIF, WebP) and less than 2MB.'])->withInput();
                 }
                 
-                $photoName = time() . '_' . uniqid() . '.' . $photo->getClientOriginalExtension();
-                $uploadPath = public_path('storage/user_photos/' . $photoName);
-                
-                \Log::info('Moving photo to: ' . $uploadPath);
-                
                 try {
-                    $photo->move(public_path('storage/user_photos'), $photoName);
-                    $photoPath = $photoName;
+                    $photoPath = $photo->store('user_photos', 'public');
                     
-                    \Log::info('Photo moved successfully', ['filename' => $photoName, 'path' => $photoPath]);
+                    \Log::info('Photo stored successfully', ['path' => $photoPath]);
                     
-                    // Verify file was actually moved
-                    if (file_exists($uploadPath)) {
-                        \Log::info('File exists after move: YES');
+                    // Verify file was actually stored
+                    if (\Storage::disk('public')->exists($photoPath)) {
+                        \Log::info('File exists after storage: YES');
                     } else {
-                        \Log::error('File does not exist after move: ' . $uploadPath);
+                        \Log::error('File does not exist after storage: ' . $photoPath);
                     }
                 } catch (\Exception $e) {
-                    \Log::error('Photo move failed: ' . $e->getMessage());
+                    \Log::error('Photo storage failed: ' . $e->getMessage());
                     return back()->withErrors(['photo' => 'Failed to upload photo. Please try again.'])->withInput();
                 }
             }
