@@ -67,15 +67,16 @@ class RegisterController extends Controller
                 }
                 
                 try {
-                    $photoPath = $photo->store('user_photos', 'public');
+                    $storedPath = $photo->store('user_photos', 'public');
+                    $photoPath = basename($storedPath);
                     
-                    \Log::info('Photo stored successfully', ['path' => $photoPath]);
+                    \Log::info('Photo stored successfully', ['path' => $storedPath]);
                     
                     // Verify file was actually stored
-                    if (\Storage::disk('public')->exists($photoPath)) {
+                    if (\Storage::disk('public')->exists($storedPath)) {
                         \Log::info('File exists after storage: YES');
                     } else {
-                        \Log::error('File does not exist after storage: ' . $photoPath);
+                        \Log::error('File does not exist after storage: ' . $storedPath);
                     }
                 } catch (\Exception $e) {
                     \Log::error('Photo storage failed: ' . $e->getMessage());

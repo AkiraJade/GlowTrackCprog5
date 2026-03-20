@@ -64,7 +64,7 @@ class ProfileController extends Controller
                     return back()->withErrors(['photo' => 'The photo must be a valid image file (JPEG, PNG, JPG, GIF, WebP) and less than 2MB.'])->withInput();
                 }
                 
-                $photoPath = $photo->store('user_photos', 'public');
+                $photoPath = basename($photo->store('user_photos', 'public'));
             }
         }
 
