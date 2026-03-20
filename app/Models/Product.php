@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -306,7 +307,18 @@ class Product extends Model
         }
         
         // Fallback to old single photo field
-        return $this->photo ? asset('storage/' . $this->photo) : asset('images/default-product.jpg');
+        if ($this->photo) {
+            $photoPath = $this->photo;
+
+            // support both raw filename and products/<filename>
+            if (!str_contains($photoPath, '/')) {
+                $photoPath = 'products/' . $photoPath;
+            }
+
+            return asset('storage/' . $photoPath);
+        }
+
+        return asset('images/default-product.jpg');
     }
 
     /**

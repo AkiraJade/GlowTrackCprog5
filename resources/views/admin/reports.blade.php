@@ -140,7 +140,7 @@
                 </div>
                 <div class="text-center">
                     <div class="text-3xl font-bold text-jade-green mb-2">
-                        ${{ number_format(App\Models\Order::where('status', '!=', 'cancelled')->sum('total_amount'), 0) }}
+                        ₱{{ number_format(App\Models\Order::where('status', '!=', 'cancelled')->sum('total_amount'), 0) }}
                     </div>
                     <div class="text-sm text-soft-brown opacity-75">Total Revenue</div>
                 </div>

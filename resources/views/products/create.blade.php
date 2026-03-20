@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends(auth()->user()->isAdmin() ? 'layouts.admin' : 'layouts.app')
 
 @section('title', 'Create Product - GlowTrack')
 
@@ -14,7 +14,7 @@
         <!-- Form -->
         <div class="bg-white rounded-lg shadow-lg">
             <div class="p-6">
-                <form method="POST" action="{{ route('products.store') }}" enctype="multipart/form-data">
+                <form method="POST" action="{{ auth()->user()->isAdmin() ? route('admin.products.store') : route('products.store') }}" enctype="multipart/form-data">
                     @csrf
 
                     <!-- Basic Information -->

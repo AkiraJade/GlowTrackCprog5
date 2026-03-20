@@ -31,7 +31,7 @@
                         </div>
                         <div>
                             <h3 class="text-xl font-semibold text-gray-900">{{ $user->name }}</h3>
-                            <p class="text-gray-500">@{{ $user->username }}</p>
+                            <p class="text-gray-500">{{ $user->username }}</p>
                             <span class="inline-flex mt-2 px-3 py-1 text-sm leading-5 font-semibold rounded-full 
                                 {{ $user->role === 'admin' ? 'bg-red-100 text-red-800' : 
                                    ($user->role === 'seller' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800') }}">

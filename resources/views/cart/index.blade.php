@@ -42,7 +42,7 @@
                                             @if($item->product->photo)
                                                 <img src="{{ asset('storage/' . $item->product->photo) }}" 
                                                      alt="{{ $item->product->name }}" 
-                                                     class="w-16 h-16 object-cover rounded-lg mr-3">
+                                                     class="w-16 h-16 object-cover object-center rounded-lg mr-3">
                                             @else
                                                 <div class="w-16 h-16 bg-gray-200 rounded-lg mr-3 flex items-center justify-center">
                                                     <span class="text-gray-400 text-xs">No img</span>

@@ -31,8 +31,9 @@
 
         <!-- Products Table -->
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <div class="px-8 py-6 border-b border-gray-200">
+            <div class="px-8 py-6 border-b border-gray-200 flex items-center justify-between">
                 <h2 class="text-2xl font-bold text-soft-brown font-playfair">Products ({{ $products->total() }})</h2>
+                <a href="{{ route('admin.products.create') }}" class="px-4 py-2 bg-jade-green text-white rounded-lg hover:bg-opacity-90 transition">Add Product</a>
             </div>
             
             <div class="overflow-x-auto">
@@ -53,9 +54,9 @@
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        @if($product->image)
-                                            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" 
-                                                 class="w-10 h-10 rounded-lg object-cover mr-3">
+                                        @if($product->photo_url)
+                                            <img src="{{ $product->photo_url }}" alt="{{ $product->name }}" 
+                                                 class="w-10 h-10 rounded-lg object-cover object-center mr-3">
                                         @else
                                             <div class="w-10 h-10 bg-gray-200 rounded-lg mr-3 flex items-center justify-center">
                                                 <span class="text-gray-400 text-xs">No img</span>
@@ -72,7 +73,7 @@
                                     <div class="text-sm text-gray-500">{{ $product->seller->email }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    ${{ number_format($product->price, 2) }}
+                                    ₱{{ number_format($product->price, 2) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
 <span class="text-sm {{ $product->quantity <= 10 ? 'text-red-600 font-semibold' : 'text-gray-900' }}">
@@ -97,8 +98,13 @@
                                             @csrf
                                             <button type="submit" class="text-green-600 hover:text-green-900 mr-2">Approve</button>
                                         </form>
-                                        <button onclick="showRejectForm({{ $product->id }})" class="text-red-600 hover:text-red-900">Reject</button>
-                                    @endif
+                                        <button onclick="showRejectForm({{ $product->id }})" class="text-red-600 hover:text-red-900 mr-2">Reject</button>
+                                        @endif
+                                        <form action="{{ route('admin.products.destroy', $product) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this product?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                        </form>
                                 </td>
                             </tr>
                         @empty

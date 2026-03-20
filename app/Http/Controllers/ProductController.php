@@ -113,6 +113,15 @@ class ProductController extends Controller
             abort(403, 'Only sellers and admins can create products.');
         }
 
+        // Debug: Log file upload info
+        \Log::info('Product creation attempt', [
+            'has_file' => $request->hasFile('photo'),
+            'files' => $request->allFiles(),
+            'request_data' => $request->all(),
+            'user_id' => auth()->id(),
+            'is_admin' => auth()->user()->isAdmin()
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:2000',
@@ -132,13 +141,37 @@ class ProductController extends Controller
 
         $data = $request->all();
         $data['seller_id'] = auth()->id();
-        $data['status'] = 'pending'; // All new products start as pending
+        $data['status'] = auth()->user()->isAdmin() ? 'approved' : 'pending';
 
         // Handle single photo upload (for backward compatibility)
+        \Log::info('Checking for photo upload', [
+            'hasFile_photo' => $request->hasFile('photo'),
+            'file_key_photo' => $request->file('photo'),
+            'all_files' => array_keys($request->allFiles()),
+            'request_has_photo' => $request->has('photo'),
+            'request_input_photo' => $request->input('photo'),
+            'request_files_count' => count($request->allFiles()),
+        ]);
+        
         if ($request->hasFile('photo')) {
+            \Log::info('Processing photo upload', [
+                'original_name' => $request->file('photo')->getClientOriginalName(),
+                'size' => $request->file('photo')->getSize(),
+                'mime_type' => $request->file('photo')->getMimeType(),
+                'error' => $request->file('photo')->getError(),
+                'is_valid' => $request->file('photo')->isValid(),
+            ]);
+            
             $photo = $request->file('photo');
             $photoPath = $photo->store('products', 'public');
             $data['photo'] = $photoPath;
+            
+            \Log::info('Photo stored successfully', ['path' => $photoPath]);
+        } else {
+            \Log::warning('No photo file found in request', [
+                'files_in_request' => array_keys($request->allFiles()),
+                'request_data_keys' => array_keys($request->all()),
+            ]);
         }
 
         $product = Product::create($data);
@@ -163,6 +196,11 @@ class ProductController extends Controller
                 'sort_order' => 0,
                 'is_primary' => true,
             ]);
+        }
+
+        if (auth()->user()->isAdmin()) {
+            return redirect()->route('admin.products')
+                ->with('success', 'Product created successfully!');
         }
 
         return redirect()->route('products.index')
@@ -198,7 +236,7 @@ class ProductController extends Controller
         }
 
         // Can the current user review this product?
-        $canReview = auth()->check() && auth()->user()->hasPurchasedProduct($product->id);
+        $canReview = auth()->check() && auth()->user()->hasDeliveredProduct($product->id);
 
         // Get related products
         $relatedProducts = Product::where('id', '!=', $product->id)
@@ -227,9 +265,9 @@ class ProductController extends Controller
             ->where('user_id', auth()->id())
             ->first();
 
-        if (!auth()->user()->hasPurchasedProduct($product->id)) {
+        if (!auth()->user()->hasDeliveredProduct($product->id)) {
             return redirect()->route('products.show', $product)
-                ->with('error', 'You can only review products you have purchased.');
+                ->with('error', 'You can only review products after they have been delivered.');
         }
 
         if ($existingReview) {

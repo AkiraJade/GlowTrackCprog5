@@ -158,7 +158,7 @@
                                                 @if($wishlistItem->product->photo)
                                                     <img src="{{ asset('storage/' . $wishlistItem->product->photo) }}" 
                                                          alt="{{ $wishlistItem->product->name }}" 
-                                                         class="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300">
+                                                         class="w-full h-32 object-cover object-center group-hover:scale-105 transition-transform duration-300">
                                                 @else
                                                     <div class="w-full h-32 bg-gray-200 flex items-center justify-center">
                                                         <span class="text-gray-400 text-sm">No img</span>

@@ -52,7 +52,7 @@
                     <h3 class="text-xl font-bold text-soft-brown ml-4">Total Revenue</h3>
                 </div>
                 <div class="text-3xl font-bold text-jade-green mb-2">
-                    ${{ number_format($totalRevenue, 2) }}
+                    ₱{{ number_format($totalRevenue, 2) }}
                 </div>
                 <p class="text-sm text-soft-brown opacity-75">{{ $startDate }} to {{ $endDate }}</p>
             </div>
@@ -82,7 +82,7 @@
                     <h3 class="text-xl font-bold text-soft-brown ml-4">Average Order Value</h3>
                 </div>
                 <div class="text-3xl font-bold text-jade-green mb-2">
-                    ${{ number_format($averageOrderValue, 2) }}
+                    ₱{{ number_format($averageOrderValue, 2) }}
                 </div>
                 <p class="text-sm text-soft-brown opacity-75">Per order average</p>
             </div>
@@ -114,7 +114,7 @@
                                         {{ $topProduct->total_sold }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        ${{ number_format($topProduct->total_revenue, 2) }}
+                                        ₱{{ number_format($topProduct->total_revenue, 2) }}
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $topProduct->product->seller->name }}
@@ -147,7 +147,7 @@
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-soft-brown opacity-75">{{ $order->user->name }}</span>
-                                <span class="font-bold text-jade-green">${{ number_format($order->total_amount, 2) }}</span>
+                                <span class="font-bold text-jade-green">₱{{ number_format($order->total_amount, 2) }}</span>
                             </div>
                             <div class="text-xs text-soft-brown opacity-60 mt-1">{{ $order->created_at->format('M d, Y H:i') }}</div>
                         </div>

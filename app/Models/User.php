@@ -163,6 +163,19 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user has a delivered order item for the product.
+     */
+    public function hasDeliveredProduct(int $productId): bool
+    {
+        return $this->orders()
+            ->where('status', 'delivered')
+            ->whereHas('orderItems', function ($query) use ($productId) {
+                $query->where('product_id', $productId);
+            })
+            ->exists();
+    }
+
+    /**
      * Check if a product is in user's wishlist.
      */
     public function isInWishlist($productId)

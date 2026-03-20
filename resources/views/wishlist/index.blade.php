@@ -29,7 +29,7 @@
                             <div class="relative">
                                 <img src="{{ asset('images/products/' . $wishlistItem->product->image ?? 'placeholder.jpg') }}" 
                                      alt="{{ $wishlistItem->product->name }}" 
-                                     class="w-full h-48 object-cover">
+                                     class="w-full h-48 object-cover object-center">
                                 
                                 <!-- Remove from Wishlist Button -->
                                 <form action="{{ route('wishlist.remove') }}" method="POST">

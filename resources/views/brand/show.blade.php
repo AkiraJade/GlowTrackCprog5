@@ -118,7 +118,7 @@
                                 @if($product->photo)
                                     <img src="{{ asset('storage/product_photos/' . $product->photo) }}" 
                                          alt="{{ $product->name }}" 
-                                         class="w-full h-48 object-cover">
+                                         class="w-full h-48 object-cover object-center">
                                 @else
                                     <div class="w-full h-48 bg-gradient-to-br from-jade-green to-light-sage flex items-center justify-center">
                                         <span class="text-4xl">🧴</span>
@@ -166,7 +166,7 @@
                                 @if($product->photo)
                                     <img src="{{ asset('storage/product_photos/' . $product->photo) }}" 
                                          alt="{{ $product->name }}" 
-                                         class="w-full h-40 object-cover">
+                                         class="w-full h-40 object-cover object-center">
                                 @else
                                     <div class="w-full h-40 bg-gradient-to-br from-jade-green to-light-sage flex items-center justify-center">
                                         <span class="text-3xl">🧴</span>

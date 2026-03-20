@@ -69,7 +69,7 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-600">Revenue</p>
-                        <p class="text-2xl font-bold text-gray-900">${{ number_format($stats['total_revenue'], 2) }}</p>
+                        <p class="text-2xl font-bold text-gray-900">₱{{ number_format($stats['total_revenue'], 2) }}</p>
                     </div>
                 </div>
             </div>
@@ -104,7 +104,7 @@
                                 </div>
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm text-gray-600">{{ $order->user->name }}</span>
-                                    <span class="font-bold text-jade-green">${{ number_format($order->total_amount, 2) }}</span>
+                                    <span class="font-bold text-jade-green">₱{{ number_format($order->total_amount, 2) }}</span>
                                 </div>
                                 <div class="text-xs text-gray-500 mt-1">{{ $order->created_at->format('M d, Y H:i') }}</div>
                             </div>
@@ -191,7 +191,7 @@
                                 Seller: {{ $product->seller->name }}
                             </div>
                             <div class="text-sm text-gray-600">
-                                Price: ${{ number_format($product->price, 2) }}
+                                Price: ₱{{ number_format($product->price, 2) }}
                             </div>
                             <div class="mt-3 flex gap-2">
                                 <form action="{{ route('admin.products.approve', $product) }}" method="POST" class="inline">

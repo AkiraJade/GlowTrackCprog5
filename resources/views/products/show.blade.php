@@ -22,12 +22,12 @@
                         @if($product->images->count() > 0)
                             <img id="mainImage" src="{{ $product->images->first()->image_url }}" 
                                  alt="{{ $product->name }}" 
-                                 class="w-full h-auto rounded-lg shadow-md cursor-pointer"
+                                 class="w-full h-96 object-cover object-center rounded-lg shadow-md cursor-pointer"
                                  onclick="openImageModal('{{ $product->images->first()->image_url }}')">
                         @elseif($product->photo)
                             <img id="mainImage" src="{{ asset('storage/' . $product->photo) }}" 
                                  alt="{{ $product->name }}" 
-                                 class="w-full h-auto rounded-lg shadow-md cursor-pointer"
+                                 class="w-full h-96 object-cover object-center rounded-lg shadow-md cursor-pointer"
                                  onclick="openImageModal('{{ asset('storage/' . $product->photo) }}')">
                         @else
                             <div class="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
@@ -42,7 +42,7 @@
                             @foreach($product->images as $index => $image)
                                 <img src="{{ $image->image_url }}" 
                                      alt="{{ $product->name }} - Image {{ $index + 1 }}"
-                                     class="w-full h-20 object-cover rounded cursor-pointer border-2 {{ $image->is_primary ? 'border-jade-green' : 'border-gray-200' }} hover:border-jade-green transition-colors"
+                                     class="w-full h-20 object-cover object-center rounded cursor-pointer border-2 {{ $image->is_primary ? 'border-jade-green' : 'border-gray-200' }} hover:border-jade-green transition-colors"
                                      onclick="changeMainImage('{{ $image->image_url }}')"
                                      @if($image->is_primary) title="Primary Image" @endif>
                             @endforeach

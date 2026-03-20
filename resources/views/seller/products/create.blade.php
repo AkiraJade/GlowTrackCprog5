@@ -298,7 +298,7 @@ function previewPhoto(event) {
         const reader = new FileReader();
         reader.onload = function(e) {
             preview.innerHTML = `
-                <img src="${e.target.result}" alt="Product preview" class="mx-auto h-32 w-32 object-cover rounded-lg">
+                <img src="${e.target.result}" alt="Product preview" class="mx-auto h-32 w-32 object-cover object-center rounded-lg">
             `;
         }
         reader.readAsDataURL(file);

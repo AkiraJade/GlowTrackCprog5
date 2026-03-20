@@ -153,9 +153,9 @@
                             <tr data-stock="{{ $product->quantity }}" data-name="{{ $product->name }}" data-seller="{{ $product->seller->name }}">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        @if($product->image)
-                                            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" 
-                                                 class="w-10 h-10 rounded-lg object-cover mr-3">
+                                        @if($product->photo_url)
+                                            <img src="{{ $product->photo_url }}" alt="{{ $product->name }}" 
+                                                 class="w-10 h-10 rounded-lg object-cover object-center mr-3">
                                         @else
                                             <div class="w-10 h-10 bg-gray-200 rounded-lg mr-3 flex items-center justify-center">
                                                 <span class="text-gray-400 text-xs">No img</span>
@@ -172,7 +172,7 @@
                                     <div class="text-sm text-gray-500">{{ $product->seller->email }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    ${{ number_format($product->price, 2) }}
+                                    ₱{{ number_format($product->price, 2) }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="text-sm font-medium 

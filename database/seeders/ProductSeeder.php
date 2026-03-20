@@ -23,6 +23,20 @@ class ProductSeeder extends Seeder
             $sellers = collect([$seller]);
         }
 
+        // Use actual image files from storage/app/public/products
+        $imageFiles = [
+            '7jwjq3AlvXMOMbAWb85WReZLNsOZ5zHAlcPkTvy9.jpg',
+            'aa9VePzfPrLsTDRBBjgw2xogAFQwm7ax1ehFhLlB.jpg',
+            'hwASWCoRMXhnsG5M5HcXKvHqsUeEnCGOptVmUcYW.jpg',
+            'IK4wMLL8FJOPdGS8TcybQhBMPQpgfT4zExOSbFPC.jpg',
+            'iXBA5Pn2Soqk3PAsKTKaViczW6RnyFETAoOxowK3.png',
+            'pO3EkxhaygvbTaWr1DwTTSmoFY8PiQ09JuhMLWBr.jpg',
+            'QXeE6OOqEcMTEoLGhWhX6Tg2ZWjY11ZvC1bFOQHG.jpg',
+            'upCYQ6mtFAoitnw60jhZYtZYpHsGP93qVJd1MEzY.jpg',
+            'vyFkj0DDz3adYUhi60LlCHktPlwypt2zw5nsSQcD.jpg',
+            'ZQ62c8rRtkv7Ss8bqS0kFnVQGKlxDSmNs5QR98c4.jpg',
+        ];
+
         $products = [
             [
                 'name' => 'Vitamin C Brightening Serum',
@@ -170,7 +184,7 @@ class ProductSeeder extends Seeder
             ],
         ];
 
-        foreach ($products as $productData) {
+        foreach ($products as $index => $productData) {
             $seller = $sellers->random();
             $productData['seller_id'] = $seller->id;
             $productData['status'] = 'approved'; // Make products visible
@@ -178,6 +192,7 @@ class ProductSeeder extends Seeder
             $productData['average_rating'] = rand(30, 50) / 10; // Random rating 3.0-5.0
             $productData['review_count'] = rand(0, 200); // Random review count
             $productData['slug'] = \Illuminate\Support\Str::slug($productData['name']) . '-' . uniqid();
+            $productData['photo'] = 'products/' . $imageFiles[$index % count($imageFiles)];
             
             Product::create($productData);
         }
@@ -210,7 +225,7 @@ class ProductSeeder extends Seeder
             ],
         ];
 
-        foreach ($pendingProducts as $productData) {
+        foreach ($pendingProducts as $index => $productData) {
             $seller = $sellers->random();
             $productData['seller_id'] = $seller->id;
             $productData['status'] = 'pending'; // Pending admin review
@@ -218,6 +233,7 @@ class ProductSeeder extends Seeder
             $productData['average_rating'] = 0;
             $productData['review_count'] = 0;
             $productData['slug'] = \Illuminate\Support\Str::slug($productData['name']) . '-' . uniqid();
+            $productData['photo'] = 'products/' . $imageFiles[($index + 2) % count($imageFiles)];
             
             Product::create($productData);
         }

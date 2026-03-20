@@ -310,6 +310,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     
     // Product Management
     Route::get('/products', [AdminController::class, 'products'])->name('products');
+    Route::get('/products/create', function() {
+        return view('admin.products-create');
+    })->name('products.create');
+    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
+    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
     Route::post('/products/{product}/approve', [AdminController::class, 'approveProduct'])->name('products.approve');
     Route::post('/products/{product}/reject', [AdminController::class, 'rejectProduct'])->name('products.reject');
     
