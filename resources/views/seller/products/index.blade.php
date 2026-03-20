@@ -186,7 +186,7 @@
 <div id="restockModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
     <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
         <h3 class="text-xl font-bold text-soft-brown mb-4">Restock Product</h3>
-        <form id="restockForm" action="{{ route('seller.products.restock') }}" method="POST">
+        <form id="restockForm" action="" method="POST">
             @csrf
             <input type="hidden" name="product_id" id="restockProductId">
             <div class="mb-4">
@@ -219,6 +219,7 @@ function showRestockForm(productId, currentStock, productName) {
     document.getElementById('restockProductId').value = productId;
     document.getElementById('restockProductName').textContent = productName;
     document.getElementById('restockCurrentStock').textContent = currentStock;
+    document.getElementById('restockForm').action = "{{ route('seller.products.restock', ':product_id') }}".replace(':product_id', productId);
     document.getElementById('restockModal').classList.remove('hidden');
 }
 

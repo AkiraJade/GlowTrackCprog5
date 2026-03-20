@@ -13,6 +13,7 @@ use App\Http\Controllers\SellerApplicationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\NotificationController;
 
 Route::get('/', function () {
     return view('index');
@@ -37,216 +38,234 @@ Route::get('/privacy-policy', function () {
 // Debug route for photo upload
 Route::get('/debug-photo', function () {
     $user = \Illuminate\Support\Facades\Auth::user();
-    
+
     if (!$user) {
         return response()->json(['error' => 'Not logged in']);
     }
-    
+
     return response()->json([
-        'user_id' => $user->id,
-        'name' => $user->name,
-        'photo' => $user->photo,
-        'photo_url' => $user->photo_url,
-        'file_exists' => $user->photo ? file_exists(public_path('storage/user_photos/' . $user->photo)) : null,
-        'storage_path' => $user->photo ? public_path('storage/user_photos/' . $user->photo) : null
+    'user_id' => $user->id,
+    'name' => $user->name,
+    'photo' => $user->photo,
+    'photo_url' => $user->photo_url,
+    'file_exists' => $user->photo ? file_exists(public_path('storage/user_photos/' . $user->photo)) : null,
+    'storage_path' => $user->photo ? public_path('storage/user_photos/' . $user->photo) : null
     ]);
 })->name('debug.photo');
 
 // Authentication Routes
 Route::middleware('guest')->group(function () {
-    Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
-    Route::post('login', [LoginController::class, 'login']);
-    
-    Route::get('register', [RegisterController::class, 'showRegistrationForm'])->name('register');
-    Route::post('register', [RegisterController::class, 'register']);
+    Route::get('login', [LoginController::class , 'showLoginForm'])->name('login');
+    Route::post('login', [LoginController::class , 'login']);
+
+    Route::get('register', [RegisterController::class , 'showRegistrationForm'])->name('register');
+    Route::post('register', [RegisterController::class , 'register']);
 });
 
 Route::middleware('auth')->group(function () {
-    Route::post('logout', [LoginController::class, 'logout'])->name('logout');
-    
+    Route::post('logout', [LoginController::class , 'logout'])->name('logout');
+
     // Profile Routes
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
-    
+    Route::get('/profile', [ProfileController::class , 'show'])->name('profile.show');
+    Route::put('/profile', [ProfileController::class , 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class , 'updatePassword'])->name('profile.password.update');
+
     // Support Routes
-    Route::get('/support/contact', [SupportController::class, 'contact'])->name('support.contact');
-    Route::post('/support/submit', [SupportController::class, 'submit'])->name('support.submit');
-    Route::get('/support/knowledge', [SupportController::class, 'knowledge'])->name('support.knowledge');
-    Route::get('/support/forum', [ForumController::class, 'index'])->name('support.forum');
+    Route::get('/support/contact', [SupportController::class , 'contact'])->name('support.contact');
+    Route::post('/support/submit', [SupportController::class , 'submit'])->name('support.submit');
+    Route::get('/support/knowledge', [SupportController::class , 'knowledge'])->name('support.knowledge');
+    Route::get('/support/forum', [ForumController::class , 'index'])->name('support.forum');
 
     // Forum Routes
-    Route::get('/forum/create', [ForumController::class, 'create'])->name('forum.create');
-    Route::post('/forum', [ForumController::class, 'store'])->name('forum.store');
-    Route::get('/forum/{discussion}', [ForumController::class, 'show'])->name('forum.discussion');
-    Route::get('/forum/{discussion}/edit', [ForumController::class, 'edit'])->name('forum.edit');
-    Route::put('/forum/{discussion}', [ForumController::class, 'update'])->name('forum.update');
-    Route::delete('/forum/{discussion}', [ForumController::class, 'destroy'])->name('forum.destroy');
-    Route::post('/forum/{discussion}/reply', [ForumController::class, 'reply'])->name('forum.reply');
-    Route::post('/forum/replies/{replyId}/reply', [ForumController::class, 'replyToReply'])->name('forum.reply-to-reply');
-    Route::get('/forum/replies/{reply}/edit', [ForumController::class, 'editReply'])->name('forum.edit-reply');
-    Route::put('/forum/replies/{reply}', [ForumController::class, 'updateReply'])->name('forum.update-reply');
-    Route::delete('/forum/replies/{reply}', [ForumController::class, 'deleteReply'])->name('forum.delete-reply');
+    Route::get('/forum/create', [ForumController::class , 'create'])->name('forum.create');
+    Route::post('/forum', [ForumController::class , 'store'])->name('forum.store');
+    Route::get('/forum/{discussion}', [ForumController::class , 'show'])->name('forum.discussion');
+    Route::get('/forum/{discussion}/edit', [ForumController::class , 'edit'])->name('forum.edit');
+    Route::put('/forum/{discussion}', [ForumController::class , 'update'])->name('forum.update');
+    Route::delete('/forum/{discussion}', [ForumController::class , 'destroy'])->name('forum.destroy');
+    Route::post('/forum/{discussion}/reply', [ForumController::class , 'reply'])->name('forum.reply');
+    Route::post('/forum/replies/{replyId}/reply', [ForumController::class , 'replyToReply'])->name('forum.reply-to-reply');
+    Route::get('/forum/replies/{reply}/edit', [ForumController::class , 'editReply'])->name('forum.edit-reply');
+    Route::put('/forum/replies/{reply}', [ForumController::class , 'updateReply'])->name('forum.update-reply');
+    Route::delete('/forum/replies/{reply}', [ForumController::class , 'deleteReply'])->name('forum.delete-reply');
 
     // Loyalty Program Routes
-    Route::get('/loyalty', [LoyaltyController::class, 'index'])->name('loyalty.index');
-    Route::get('/loyalty/points', function() {
-        return view('loyalty.points');
-    })->name('loyalty.points');
-    Route::post('/loyalty/redeem', [LoyaltyController::class, 'redeem'])->name('loyalty.redeem');
+    Route::get('/loyalty', [LoyaltyController::class , 'index'])->name('loyalty.index');
+    Route::get('/loyalty/points', function () {
+            return view('loyalty.points');
+        }
+        )->name('loyalty.points');
+        Route::post('/loyalty/redeem', [LoyaltyController::class , 'redeem'])->name('loyalty.redeem');
 
-    // Knowledge Base Routes
-    Route::get('/support/knowledge', function() {
-        return view('support.knowledge');
-    })->name('support.knowledge');
-    
-    // Getting Started Articles
-    Route::get('/knowledge/creating-account', function() {
-        return view('knowledge.creating-account');
-    })->name('knowledge.creating-account');
-    Route::get('/knowledge/complete-profile', function() {
-        return view('knowledge.complete-profile');
-    })->name('knowledge.complete-profile');
-    Route::get('/knowledge/first-purchase', function() {
-        return view('knowledge.first-purchase');
-    })->name('knowledge.first-purchase');
-    
-    // Orders & Shipping Articles
-    Route::get('/knowledge/track-order', function() {
-        return view('knowledge.track-order');
-    })->name('knowledge.track-order');
-    Route::get('/knowledge/shipping', function() {
-        return view('knowledge.shipping');
-    })->name('knowledge.shipping');
-    Route::get('/knowledge/returns', function() {
-        return view('knowledge.returns');
-    })->name('knowledge.returns');
-    Route::get('/knowledge/cancel-order', function() {
-        return view('knowledge.cancel-order');
-    })->name('knowledge.cancel-order');
-    
-    // Account & Settings Articles
-    Route::get('/knowledge/update-profile', function() {
-        return view('knowledge.update-profile');
-    })->name('knowledge.update-profile');
-    Route::get('/knowledge/password', function() {
-        return view('knowledge.password');
-    })->name('knowledge.password');
-    Route::get('/knowledge/addresses', function() {
-        return view('knowledge.addresses');
-    })->name('knowledge.addresses');
-    Route::get('/knowledge/privacy', function() {
-        return view('knowledge.privacy');
-    })->name('knowledge.privacy');
-    
-    // Popular Articles
-    Route::get('/knowledge/payment-security', function() {
-        return view('knowledge.payment-security');
-    })->name('knowledge.payment-security');
-    Route::get('/knowledge/loyalty-program', function() {
-        return view('knowledge.loyalty-program');
-    })->name('knowledge.loyalty-program');
-    Route::get('/knowledge/product-quality', function() {
-        return view('knowledge.product-quality');
-    })->name('knowledge.product-quality');
-    Route::get('/knowledge/become-seller', function() {
-        return view('knowledge.become-seller');
-    })->name('knowledge.become-seller');
+        // Knowledge Base Routes
+        Route::get('/support/knowledge', function () {
+            return view('support.knowledge');
+        }
+        )->name('support.knowledge');
 
-    // Cart Routes
-    Route::get('/cart', [\App\Http\Controllers\CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart/add/{product}', [\App\Http\Controllers\CartController::class, 'add'])->name('cart.add');
-    Route::put('/cart/update/{cart}', [\App\Http\Controllers\CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/remove/{cart}', [\App\Http\Controllers\CartController::class, 'remove'])->name('cart.remove');
-    Route::delete('/cart/clear', [\App\Http\Controllers\CartController::class, 'clear'])->name('cart.clear');
+        // Getting Started Articles
+        Route::get('/knowledge/creating-account', function () {
+            return view('knowledge.creating-account');
+        }
+        )->name('knowledge.creating-account');
+        Route::get('/knowledge/complete-profile', function () {
+            return view('knowledge.complete-profile');
+        }
+        )->name('knowledge.complete-profile');
+        Route::get('/knowledge/first-purchase', function () {
+            return view('knowledge.first-purchase');
+        }
+        )->name('knowledge.first-purchase');
 
-    // Checkout Routes
-    Route::get('/checkout', [\App\Http\Controllers\CheckoutController::class, 'index'])->name('checkout.index');
-    Route::post('/checkout/process', [\App\Http\Controllers\CheckoutController::class, 'process'])->name('checkout.process');
-    Route::get('/checkout/success/{order}', [\App\Http\Controllers\CheckoutController::class, 'success'])->name('checkout.success');
+        // Orders & Shipping Articles
+        Route::get('/knowledge/track-order', function () {
+            return view('knowledge.track-order');
+        }
+        )->name('knowledge.track-order');
+        Route::get('/knowledge/shipping', function () {
+            return view('knowledge.shipping');
+        }
+        )->name('knowledge.shipping');
+        Route::get('/knowledge/returns', function () {
+            return view('knowledge.returns');
+        }
+        )->name('knowledge.returns');
+        Route::get('/knowledge/cancel-order', function () {
+            return view('knowledge.cancel-order');
+        }
+        )->name('knowledge.cancel-order');
 
-    // Skin Profile Routes
-    Route::get('/skin-profile', [App\Http\Controllers\SkinProfileController::class, 'index'])->name('skin-profile.index');
-    Route::get('/skin-profile/create', [App\Http\Controllers\SkinProfileController::class, 'create'])->name('skin-profile.create');
-    Route::post('/skin-profile', [App\Http\Controllers\SkinProfileController::class, 'store'])->name('skin-profile.store');
-    Route::get('/skin-profile/timeline', [App\Http\Controllers\SkinProfileController::class, 'timeline'])->name('skin-profile.timeline');
-    Route::put('/skin-profile/{skinProfile}', [App\Http\Controllers\SkinProfileController::class, 'update'])->name('skin-profile.update');
+        // Account & Settings Articles
+        Route::get('/knowledge/update-profile', function () {
+            return view('knowledge.update-profile');
+        }
+        )->name('knowledge.update-profile');
+        Route::get('/knowledge/password', function () {
+            return view('knowledge.password');
+        }
+        )->name('knowledge.password');
+        Route::get('/knowledge/addresses', function () {
+            return view('knowledge.addresses');
+        }
+        )->name('knowledge.addresses');
+        Route::get('/knowledge/privacy', function () {
+            return view('knowledge.privacy');
+        }
+        )->name('knowledge.privacy');
 
-    // Skin Journal Routes
-    Route::post('/skin-journal', [App\Http\Controllers\SkinJournalController::class, 'store'])->name('skin-journal.store');
+        // Popular Articles
+        Route::get('/knowledge/payment-security', function () {
+            return view('knowledge.payment-security');
+        }
+        )->name('knowledge.payment-security');
+        Route::get('/knowledge/loyalty-program', function () {
+            return view('knowledge.loyalty-program');
+        }
+        )->name('knowledge.loyalty-program');
+        Route::get('/knowledge/product-quality', function () {
+            return view('knowledge.product-quality');
+        }
+        )->name('knowledge.product-quality');
+        Route::get('/knowledge/become-seller', function () {
+            return view('knowledge.become-seller');
+        }
+        )->name('knowledge.become-seller');
 
-    // Skincare Routine Routes
-    Route::get('/skincare-routines', [App\Http\Controllers\SkincareRoutineController::class, 'index'])->name('skincare-routines.index');
-    Route::get('/skincare-routines/create', [App\Http\Controllers\SkincareRoutineController::class, 'create'])->name('skincare-routines.create');
-    Route::post('/skincare-routines', [App\Http\Controllers\SkincareRoutineController::class, 'store'])->name('skincare-routines.store');
-    Route::get('/skincare-routines/{skincareRoutine}', [App\Http\Controllers\SkincareRoutineController::class, 'show'])->name('skincare-routines.show');
-    Route::get('/skincare-routines/{skincareRoutine}/edit', [App\Http\Controllers\SkincareRoutineController::class, 'edit'])->name('skincare-routines.edit');
-    Route::put('/skincare-routines/{skincareRoutine}', [App\Http\Controllers\SkincareRoutineController::class, 'update'])->name('skincare-routines.update');
-    Route::delete('/skincare-routines/{skincareRoutine}', [App\Http\Controllers\SkincareRoutineController::class, 'destroy'])->name('skincare-routines.destroy');
+        // Cart Routes
+        Route::get('/cart', [\App\Http\Controllers\CartController::class , 'index'])->name('cart.index');
+        Route::post('/cart/add/{product}', [\App\Http\Controllers\CartController::class , 'add'])->name('cart.add');
+        Route::put('/cart/update/{cart}', [\App\Http\Controllers\CartController::class , 'update'])->name('cart.update');
+        Route::delete('/cart/remove/{cart}', [\App\Http\Controllers\CartController::class , 'remove'])->name('cart.remove');
+        Route::delete('/cart/clear', [\App\Http\Controllers\CartController::class , 'clear'])->name('cart.clear');
 
-    // Public Skincare Routines
-    Route::get('/public-routines', [App\Http\Controllers\SkincareRoutineController::class, 'public'])->name('skincare-routines.public');
+        // Checkout Routes
+        Route::get('/checkout', [\App\Http\Controllers\CheckoutController::class , 'index'])->name('checkout.index');
+        Route::post('/checkout/process', [\App\Http\Controllers\CheckoutController::class , 'process'])->name('checkout.process');
+        Route::get('/checkout/success/{order}', [\App\Http\Controllers\CheckoutController::class , 'success'])->name('checkout.success');
 
-    // Orders Routes
-    Route::get('/orders', [\App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
-    Route::put('/orders/{order}/cancel', [\App\Http\Controllers\OrderController::class, 'cancel'])->name('orders.cancel');
+        // Skin Profile Routes
+        Route::get('/skin-profile', [App\Http\Controllers\SkinProfileController::class , 'index'])->name('skin-profile.index');
+        Route::get('/skin-profile/create', [App\Http\Controllers\SkinProfileController::class , 'create'])->name('skin-profile.create');
+        Route::post('/skin-profile', [App\Http\Controllers\SkinProfileController::class , 'store'])->name('skin-profile.store');
+        Route::get('/skin-profile/timeline', [App\Http\Controllers\SkinProfileController::class , 'timeline'])->name('skin-profile.timeline');
+        Route::put('/skin-profile/{skinProfile}', [App\Http\Controllers\SkinProfileController::class , 'update'])->name('skin-profile.update');
 
-    // Seller Application Routes (for customers)
-    Route::get('/seller/application', [SellerApplicationController::class, 'create'])->name('seller.application.create');
-    Route::post('/seller/application', [SellerApplicationController::class, 'store'])->name('seller.application.store');
-    Route::get('/seller/application/status', [SellerApplicationController::class, 'status'])->name('seller.application.status');
-    Route::get('/seller/application/{application}', [SellerApplicationController::class, 'show'])->name('seller.application.show');
-});
+        // Skin Journal Routes
+        Route::post('/skin-journal', [App\Http\Controllers\SkinJournalController::class , 'store'])->name('skin-journal.store');
+
+        // Skincare Routine Routes
+        Route::get('/skincare-routines', [App\Http\Controllers\SkincareRoutineController::class , 'index'])->name('skincare-routines.index');
+        Route::get('/skincare-routines/create', [App\Http\Controllers\SkincareRoutineController::class , 'create'])->name('skincare-routines.create');
+        Route::post('/skincare-routines', [App\Http\Controllers\SkincareRoutineController::class , 'store'])->name('skincare-routines.store');
+        Route::get('/skincare-routines/{skincareRoutine}', [App\Http\Controllers\SkincareRoutineController::class , 'show'])->name('skincare-routines.show');
+        Route::get('/skincare-routines/{skincareRoutine}/edit', [App\Http\Controllers\SkincareRoutineController::class , 'edit'])->name('skincare-routines.edit');
+        Route::put('/skincare-routines/{skincareRoutine}', [App\Http\Controllers\SkincareRoutineController::class , 'update'])->name('skincare-routines.update');
+        Route::delete('/skincare-routines/{skincareRoutine}', [App\Http\Controllers\SkincareRoutineController::class , 'destroy'])->name('skincare-routines.destroy');
+
+        // Public Skincare Routines
+        Route::get('/public-routines', [App\Http\Controllers\SkincareRoutineController::class , 'public'])->name('skincare-routines.public');
+
+        // Orders Routes
+        Route::get('/orders', [\App\Http\Controllers\OrderController::class , 'index'])->name('orders.index');
+        Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class , 'show'])->name('orders.show');
+        Route::put('/orders/{order}/cancel', [\App\Http\Controllers\OrderController::class , 'cancel'])->name('orders.cancel');
+
+        // Seller Application Routes (for customers)
+        Route::get('/seller/application', [SellerApplicationController::class , 'create'])->name('seller.application.create');
+        Route::post('/seller/application', [SellerApplicationController::class , 'store'])->name('seller.application.store');
+        Route::get('/seller/application/status', [SellerApplicationController::class , 'status'])->name('seller.application.status');
+        Route::get('/seller/application/{application}', [SellerApplicationController::class , 'show'])->name('seller.application.show');    });
 
 // Optional: Dashboard route
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
-        // Redirect based on user role
-        if (auth()->user()->isAdmin()) {
-            return redirect()->route('admin.dashboard');
-        } elseif (auth()->user()->isSeller()) {
-            return redirect()->route('seller.dashboard');
-        } else {
-            $user = auth()->user();
-            
-            // Get user's order statistics
-            $orders_count = $user->orders()->count();
-            $total_spent = $user->orders()->sum('total_amount');
-            $loyalty_points = $user->loyalty_points ?? 0;
-            $wishlist_count = $user->wishlistItems()->count();
-            
-            // Get recent orders
-            $recent_orders = $user->orders()
-                ->with(['orderItems.product'])
-                ->latest()
-                ->take(5)
-                ->get();
-            
-            // Get wishlist items
-            $wishlist_items = $user->wishlistItems()
-                ->with('product')
-                ->latest()
-                ->take(4) // Show latest 4 items
-                ->get();
-            
-            return view('dashboard', compact(
-                'user', 
-                'orders_count', 
-                'total_spent', 
-                'loyalty_points', 
-                'wishlist_count', 
+            // Redirect based on user role
+            if (auth()->user()->isAdmin()) {
+                return redirect()->route('admin.dashboard');
+            }
+            elseif (auth()->user()->isSeller()) {
+                return redirect()->route('seller.dashboard');
+            }
+            else {
+                $user = auth()->user();
+
+                // Get user's order statistics
+                $orders_count = $user->orders()->count();
+                $total_spent = $user->orders()->sum('total_amount');
+                $loyalty_points = $user->loyalty_points ?? 0;
+                $wishlist_count = $user->wishlistItems()->count();
+
+                // Get recent orders
+                $recent_orders = $user->orders()
+                    ->with(['orderItems.product'])
+                    ->latest()
+                    ->take(5)
+                    ->get();
+
+                // Get wishlist items
+                $wishlist_items = $user->wishlistItems()
+                    ->with('product')
+                    ->latest()
+                    ->take(4) // Show latest 4 items
+                    ->get();
+
+                return view('dashboard', compact(
+                'user',
+                'orders_count',
+                'total_spent',
+                'loyalty_points',
+                'wishlist_count',
                 'recent_orders',
                 'wishlist_items'
-            ));
+                ));
+            }
         }
-    })->name('dashboard');
-});
+        )->name('dashboard');    });
 
 // Product Routes
-Route::get('/products', [ProductController::class, 'index'])->name('products.index');
-Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
-Route::get('/brand/{seller}', [ProductController::class, 'brandPage'])->name('brand.show');
+Route::get('/products', [ProductController::class , 'index'])->name('products.index');
+Route::get('/products/{product}', [ProductController::class , 'show'])->name('products.show');
+Route::get('/brand/{seller}', [ProductController::class , 'brandPage'])->name('brand.show');
 
 // Features Route
 Route::get('/features', function () {
@@ -254,107 +273,116 @@ Route::get('/features', function () {
 })->name('features');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
-    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
-    Route::post('/products/{product}/reviews', [ProductController::class, 'storeReview'])->name('products.reviews.store');
-    Route::delete('/products/{product}/reviews', [ProductController::class, 'deleteReview'])->name('products.reviews.delete');
-    Route::get('/products/{product}/edit', [ProductController::class, 'edit'])->name('products.edit');
-    Route::put('/products/{product}', [ProductController::class, 'update'])->name('products.update');
-    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
-    Route::get('/my-products', [ProductController::class, 'myProducts'])->name('products.my');
-    
+    Route::get('/products/create', [ProductController::class , 'create'])->name('products.create');
+    Route::post('/products', [ProductController::class , 'store'])->name('products.store');
+    Route::post('/products/{product}/reviews', [ProductController::class , 'storeReview'])->name('products.reviews.store');
+    Route::delete('/products/{product}/reviews', [ProductController::class , 'deleteReview'])->name('products.reviews.delete');
+    Route::get('/products/{product}/edit', [ProductController::class , 'edit'])->name('products.edit');
+    Route::put('/products/{product}', [ProductController::class , 'update'])->name('products.update');
+    Route::delete('/products/{product}', [ProductController::class , 'destroy'])->name('products.destroy');
+    Route::get('/my-products', [ProductController::class , 'myProducts'])->name('products.my');
+
     // Wishlist Routes
-    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
-    Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
-    Route::post('/wishlist/remove', [WishlistController::class, 'remove'])->name('wishlist.remove');
-    
-    // Order Routes
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::put('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/wishlist', [WishlistController::class , 'index'])->name('wishlist.index');
+    Route::post('/wishlist/toggle', [WishlistController::class , 'toggle'])->name('wishlist.toggle');
+    Route::post('/wishlist/remove', [WishlistController::class , 'remove'])->name('wishlist.remove');
+
+    // Orders Routes
+    Route::get('/orders', [OrderController::class , 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class , 'show'])->name('orders.show');
+    Route::put('/orders/{order}/cancel', [OrderController::class , 'cancel'])->name('orders.cancel');
+
+    // Notification Routes
+    Route::get('/notifications', [NotificationController::class , 'index'])->name('notifications.index');
+    Route::get('/notifications/recent', [NotificationController::class , 'recent'])->name('notifications.recent');
+    Route::post('/notifications/{notification}/mark-as-read', [NotificationController::class , 'markAsRead'])->name('notifications.mark-read');
+    Route::post('/notifications/mark-all-as-read', [NotificationController::class , 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::delete('/notifications/{notification}', [NotificationController::class , 'destroy'])->name('notifications.destroy');
+    Route::delete('/notifications/clear-all', [NotificationController::class , 'clearAll'])->name('notifications.clear-all');
+    Route::get('/notifications/unread-count', [NotificationController::class , 'unreadCount'])->name('notifications.unread-count');
 });
 
 // Seller Routes
 Route::middleware(['auth', 'seller'])->prefix('seller')->name('seller.')->group(function () {
     Route::get('/dashboard', function () {
-        return view('seller.dashboard');
-    })->name('dashboard');
+            return view('seller.dashboard');
+        }
+        )->name('dashboard');
+
+        // Seller Order Management
+        Route::get('/orders', [OrderController::class , 'sellerOrders'])->name('orders.index');
+        Route::get('/orders/{order}', [OrderController::class , 'sellerShow'])->name('orders.show');
+        Route::put('/orders/{order}/status', [OrderController::class , 'sellerUpdateStatus'])->name('orders.update-status');
+        Route::put('/orders/{order}/prepare-shipment', [OrderController::class , 'sellerPrepareShipment'])->name('orders.prepare-shipment');
+
+        // Seller-specific application management removed here to avoid route conflicts
+        // Public/customer-facing seller application routes are defined earlier (auth guarded)
     
-    // Seller Order Management
-    Route::get('/orders', [OrderController::class, 'sellerOrders'])->name('orders.index');
-    Route::get('/orders/{order}', [OrderController::class, 'sellerShow'])->name('orders.show');
-    Route::put('/orders/{order}/status', [OrderController::class, 'sellerUpdateStatus'])->name('orders.update-status');
-    Route::put('/orders/{order}/prepare-shipment', [OrderController::class, 'sellerPrepareShipment'])->name('orders.prepare-shipment');
-    
-    // Seller-specific application management removed here to avoid route conflicts
-    // Public/customer-facing seller application routes are defined earlier (auth guarded)
-    
-    // Seller Product Management
-    Route::get('/products', [ProductController::class, 'sellerIndex'])->name('products.index');
-    Route::get('/products/create', [ProductController::class, 'sellerCreate'])->name('products.create');
-    Route::post('/products', [ProductController::class, 'sellerStore'])->name('products.store');
-    Route::get('/products/{product}/edit', [ProductController::class, 'sellerEdit'])->name('products.edit');
-    Route::put('/products/{product}', [ProductController::class, 'sellerUpdate'])->name('products.update');
-    Route::post('/products/{product}/restock', [ProductController::class, 'sellerRestock'])->name('products.restock');
-    Route::delete('/products/{product}', [ProductController::class, 'sellerDestroy'])->name('products.destroy');
-});
+        // Seller Product Management
+        Route::get('/products', [ProductController::class , 'sellerIndex'])->name('products.index');
+        Route::get('/products/create', [ProductController::class , 'sellerCreate'])->name('products.create');
+        Route::post('/products', [ProductController::class , 'sellerStore'])->name('products.store');
+        Route::get('/products/{product}/edit', [ProductController::class , 'sellerEdit'])->name('products.edit');
+        Route::put('/products/{product}', [ProductController::class , 'sellerUpdate'])->name('products.update');
+        Route::post('/products/{product}/restock', [ProductController::class , 'sellerRestock'])->name('products.restock');
+        Route::delete('/products/{product}', [ProductController::class , 'sellerDestroy'])->name('products.destroy');    });
 
 // Admin Routes
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
-    
-    // User Management
-    Route::get('/users', [AdminController::class, 'users'])->name('users');
-    Route::get('/users/{user}', [AdminController::class, 'showUser'])->name('users.show');
-    Route::put('/users/{user}/role', [AdminController::class, 'updateUserRole'])->name('users.update-role');
-    Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('users.delete');
-    
-    // Product Management
-    Route::get('/products', [AdminController::class, 'products'])->name('products');
-    Route::get('/products/create', function() {
-        return view('admin.products-create');
-    })->name('products.create');
-    Route::post('/products', [ProductController::class, 'store'])->name('products.store');
-    Route::delete('/products/{product}', [ProductController::class, 'destroy'])->name('products.destroy');
-    Route::post('/products/{product}/approve', [AdminController::class, 'approveProduct'])->name('products.approve');
-    Route::post('/products/{product}/reject', [AdminController::class, 'rejectProduct'])->name('products.reject');
-    Route::post('/products/{product}/restock', [AdminController::class, 'restockProduct'])->name('products.restock');
-    
-    // Order Management
-    Route::get('/orders', [AdminController::class, 'orders'])->name('orders');
-    Route::put('/orders/{order}/status', [AdminController::class, 'updateOrderStatus'])->name('orders.update-status');
-    
-    // Reports
-    Route::get('/reports', [AdminController::class, 'reports'])->name('reports');
-    Route::get('/reports/sales', [AdminController::class, 'salesReport'])->name('reports.sales');
-    Route::get('/reports/inventory', [AdminController::class, 'inventoryReport'])->name('reports.inventory');
-    Route::get('/reports/sales/export', [AdminController::class, 'exportSalesReport'])->name('reports.sales.export');
-    Route::get('/reports/inventory/export', [AdminController::class, 'exportInventoryReport'])->name('reports.inventory.export');
-    
-    // Seller Application Management
-    Route::get('/seller-applications', [SellerApplicationController::class, 'index'])->name('seller-applications');
-    Route::get('/seller-applications/{application}', [SellerApplicationController::class, 'show'])->name('seller-applications.show');
-    Route::put('/seller-applications/{application}/approve', [SellerApplicationController::class, 'approve'])->name('seller-applications.approve');
-    Route::put('/seller-applications/{application}/reject', [SellerApplicationController::class, 'reject'])->name('seller-applications.reject');
+    Route::get('/dashboard', [AdminController::class , 'dashboard'])->name('dashboard');
 
-    // Delivery Management
-    Route::get('/deliveries', [App\Http\Controllers\DeliveryController::class, 'index'])->name('deliveries.index');
-    Route::get('/deliveries/create', [App\Http\Controllers\DeliveryController::class, 'create'])->name('deliveries.create');
-    Route::post('/deliveries', [App\Http\Controllers\DeliveryController::class, 'store'])->name('deliveries.store');
-    Route::get('/deliveries/{delivery}', [App\Http\Controllers\DeliveryController::class, 'show'])->name('deliveries.show');
-    Route::get('/deliveries/{delivery}/edit', [App\Http\Controllers\DeliveryController::class, 'edit'])->name('deliveries.edit');
-    Route::put('/deliveries/{delivery}', [App\Http\Controllers\DeliveryController::class, 'update'])->name('deliveries.update');
-    Route::put('/deliveries/{delivery}/status', [App\Http\Controllers\DeliveryController::class, 'updateStatus'])->name('deliveries.update-status');
-    Route::delete('/deliveries/{delivery}', [App\Http\Controllers\DeliveryController::class, 'destroy'])->name('deliveries.destroy');
-    
-    // Delivery Personnel Management
-    Route::get('/delivery-personnel', [App\Http\Controllers\DeliveryController::class, 'personnelIndex'])->name('delivery-personnel.index');
-    Route::get('/delivery-personnel/create', [App\Http\Controllers\DeliveryController::class, 'personnelCreate'])->name('delivery-personnel.create');
-    Route::post('/delivery-personnel', [App\Http\Controllers\DeliveryController::class, 'personnelStore'])->name('delivery-personnel.store');
-    Route::get('/delivery-personnel/{deliveryPersonnel}/edit', [App\Http\Controllers\DeliveryController::class, 'personnelEdit'])->name('delivery-personnel.edit');
-    Route::put('/delivery-personnel/{deliveryPersonnel}', [App\Http\Controllers\DeliveryController::class, 'personnelUpdate'])->name('delivery-personnel.update');
-    Route::delete('/delivery-personnel/{deliveryPersonnel}', [App\Http\Controllers\DeliveryController::class, 'personnelDestroy'])->name('delivery-personnel.destroy');
-    
-    // Delivery Dashboard
-    Route::get('/delivery-dashboard', [App\Http\Controllers\DeliveryController::class, 'dashboard'])->name('delivery-dashboard');
-});
+    // User Management
+    Route::get('/users', [AdminController::class , 'users'])->name('users');
+    Route::get('/users/{user}', [AdminController::class , 'showUser'])->name('users.show');
+    Route::put('/users/{user}/role', [AdminController::class , 'updateUserRole'])->name('users.update-role');
+    Route::delete('/users/{user}', [AdminController::class , 'deleteUser'])->name('users.delete');
+
+    // Product Management
+    Route::get('/products', [AdminController::class , 'products'])->name('products');
+    Route::get('/products/create', function () {
+            return view('admin.products-create');
+        }
+        )->name('products.create');
+        Route::post('/products', [ProductController::class , 'store'])->name('products.store');
+        Route::delete('/products/{product}', [ProductController::class , 'destroy'])->name('products.destroy');
+        Route::post('/products/{product}/approve', [AdminController::class , 'approveProduct'])->name('products.approve');
+        Route::post('/products/{product}/reject', [AdminController::class , 'rejectProduct'])->name('products.reject');
+        Route::post('/products/{product}/restock', [AdminController::class , 'restockProduct'])->name('products.restock');
+
+        // Order Management
+        Route::get('/orders', [AdminController::class , 'orders'])->name('orders');
+        Route::put('/orders/{order}/status', [AdminController::class , 'updateOrderStatus'])->name('orders.update-status');
+
+        // Reports
+        Route::get('/reports', [AdminController::class , 'reports'])->name('reports');
+        Route::get('/reports/sales', [AdminController::class , 'salesReport'])->name('reports.sales');
+        Route::get('/reports/inventory', [AdminController::class , 'inventoryReport'])->name('reports.inventory');
+        Route::get('/reports/sales/export', [AdminController::class , 'exportSalesReport'])->name('reports.sales.export');
+        Route::get('/reports/inventory/export', [AdminController::class , 'exportInventoryReport'])->name('reports.inventory.export');
+
+        // Seller Application Management
+        Route::get('/seller-applications', [SellerApplicationController::class , 'index'])->name('seller-applications');
+        Route::get('/seller-applications/{application}', [SellerApplicationController::class , 'show'])->name('seller-applications.show');
+        Route::put('/seller-applications/{application}/approve', [SellerApplicationController::class , 'approve'])->name('seller-applications.approve');
+        Route::put('/seller-applications/{application}/reject', [SellerApplicationController::class , 'reject'])->name('seller-applications.reject');
+
+        // Delivery Management
+        Route::get('/deliveries', [App\Http\Controllers\DeliveryController::class , 'index'])->name('deliveries.index');
+        Route::get('/deliveries/create', [App\Http\Controllers\DeliveryController::class , 'create'])->name('deliveries.create');
+        Route::post('/deliveries', [App\Http\Controllers\DeliveryController::class , 'store'])->name('deliveries.store');
+        Route::get('/deliveries/{delivery}', [App\Http\Controllers\DeliveryController::class , 'show'])->name('deliveries.show');
+        Route::get('/deliveries/{delivery}/edit', [App\Http\Controllers\DeliveryController::class , 'edit'])->name('deliveries.edit');
+        Route::put('/deliveries/{delivery}', [App\Http\Controllers\DeliveryController::class , 'update'])->name('deliveries.update');
+        Route::put('/deliveries/{delivery}/status', [App\Http\Controllers\DeliveryController::class , 'updateStatus'])->name('deliveries.update-status');
+        Route::delete('/deliveries/{delivery}', [App\Http\Controllers\DeliveryController::class , 'destroy'])->name('deliveries.destroy');
+
+        // Delivery Personnel Management
+        Route::get('/delivery-personnel', [App\Http\Controllers\DeliveryController::class , 'personnelIndex'])->name('delivery-personnel.index');
+        Route::get('/delivery-personnel/create', [App\Http\Controllers\DeliveryController::class , 'personnelCreate'])->name('delivery-personnel.create');
+        Route::post('/delivery-personnel', [App\Http\Controllers\DeliveryController::class , 'personnelStore'])->name('delivery-personnel.store');
+        Route::get('/delivery-personnel/{deliveryPersonnel}/edit', [App\Http\Controllers\DeliveryController::class , 'personnelEdit'])->name('delivery-personnel.edit');
+        Route::put('/delivery-personnel/{deliveryPersonnel}', [App\Http\Controllers\DeliveryController::class , 'personnelUpdate'])->name('delivery-personnel.update');
+        Route::delete('/delivery-personnel/{deliveryPersonnel}', [App\Http\Controllers\DeliveryController::class , 'personnelDestroy'])->name('delivery-personnel.destroy');
+
+        // Delivery Dashboard
+        Route::get('/delivery-dashboard', [App\Http\Controllers\DeliveryController::class , 'dashboard'])->name('delivery-dashboard');    });

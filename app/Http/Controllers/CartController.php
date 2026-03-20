@@ -69,7 +69,7 @@ class CartController extends Controller
         }
 
         // Reduce product stock
-        $product->decrement('quantity', $request->quantity);
+        $product->adjustStock(-$request->quantity, 'cart_add', 'cart', null, 'Added to cart');
 
         return redirect()->route('cart.index')
             ->with('success', 'Product added to cart successfully!');
@@ -96,7 +96,7 @@ class CartController extends Controller
 
         if ($difference > 0) {
             // User reduced quantity - restore stock
-            $cart->product->increment('quantity', $difference);
+            $cart->product->adjustStock($difference, 'cart_update', 'cart', $cart->id, 'Cart quantity reduced');
         } else {
             // User increased quantity - check if enough stock available
             $neededStock = abs($difference);
@@ -104,7 +104,7 @@ class CartController extends Controller
                 return redirect()->back()
                     ->with('error', 'Not enough stock available.');
             }
-            $cart->product->decrement('quantity', $neededStock);
+            $cart->product->adjustStock(-$neededStock, 'cart_update', 'cart', $cart->id, 'Cart quantity increased');
         }
 
         $cart->update(['quantity' => $newQuantity]);
@@ -123,7 +123,7 @@ class CartController extends Controller
         }
 
         // Restore stock to product
-        $cart->product->increment('quantity', $cart->quantity);
+        $cart->product->adjustStock($cart->quantity, 'cart_remove', 'cart', $cart->id, 'Removed from cart');
 
         $cart->delete();
 
@@ -141,7 +141,7 @@ class CartController extends Controller
 
         // Restore stock for all items
         foreach ($cartItems as $item) {
-            $item->product->increment('quantity', $item->quantity);
+            $item->product->adjustStock($item->quantity, 'cart_clear', 'cart', $item->id, 'Cart cleared');
         }
 
         // Clear cart

@@ -136,15 +136,16 @@ class AdminController extends Controller
         ]);
 
         $oldQuantity = $product->quantity;
-        $newQuantity = $oldQuantity + $request->add_quantity;
+        $addedQuantity = $request->add_quantity;
         
-        $product->update([
-            'quantity' => $newQuantity,
-            'inventory_notes' => $request->restock_notes ? 
-                ($product->inventory_notes ? $product->inventory_notes . '; ' : '') . 
-                date('Y-m-d H:i:s') . ': Restocked +' . $request->add_quantity . ' - ' . $request->restock_notes : 
-                $product->inventory_notes
-        ]);
+        $product->adjustStock(
+            $addedQuantity,
+            'restock',
+            'manual',
+            null,
+            $request->restock_notes
+        );
+        $newQuantity = $product->quantity;
 
         // Log the restock activity
         \Log::info('Product restocked by admin', [
@@ -181,6 +182,13 @@ class AdminController extends Controller
         ]);
 
         $order->update(['status' => $request->status]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Order status updated successfully.'
+            ]);
+        }
 
         return redirect()->back()->with('success', 'Order status updated successfully.');
     }

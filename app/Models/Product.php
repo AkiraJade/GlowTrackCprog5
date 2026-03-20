@@ -22,6 +22,7 @@ class Product extends Model
         'price',
         'size_volume',
         'quantity',
+        'low_stock_threshold',
         'skin_types',
         'active_ingredients',
         'photo',
@@ -98,6 +99,53 @@ class Product extends Model
     }
 
     /**
+     * Get the inventory logs for the product.
+     */
+    public function inventoryLogs(): HasMany
+    {
+        return $this->hasMany(InventoryLog::class);
+    }
+
+    /**
+     * Adjust stock quantity directly and log the adjustment.
+     */
+    public function adjustStock(int $quantityChange, ?string $reason = null, ?string $referenceType = null, ?int $referenceId = null, ?string $notes = null): void
+    {
+        if ($quantityChange === 0) return;
+        
+        $previousStock = $this->quantity;
+        $this->quantity += $quantityChange;
+        $this->save();
+        
+        $this->inventoryLogs()->create([
+            'user_id' => auth()->check() ? auth()->id() : null,
+            'reference_type' => $referenceType,
+            'reference_id' => $referenceId,
+            'previous_stock' => $previousStock,
+            'quantity_change' => $quantityChange,
+            'new_stock' => $this->quantity,
+            'reason' => $reason,
+            'notes' => $notes,
+        ]);
+
+        // Check if product is now low stock and notify seller
+        if ($this->isLowStock() && $this->seller_id) {
+            $notificationController = new \App\Http\Controllers\NotificationController();
+            $notificationController::createNotification(
+                $this->seller_id,
+                'low_stock',
+                'Low Stock Alert',
+                "Your product '{$this->name}' is running low on stock ({$this->quantity} units remaining).",
+                [
+                    'product_id' => $this->id,
+                    'current_stock' => $this->quantity,
+                    'threshold' => $this->low_stock_threshold ?? 10
+                ]
+            );
+        }
+    }
+
+    /**
      * Check if product is in stock.
      */
     public function isInStock(): bool
@@ -110,7 +158,8 @@ class Product extends Model
      */
     public function isLowStock(): bool
     {
-        return $this->quantity > 0 && $this->quantity <= 5;
+        $threshold = $this->low_stock_threshold ?? 10;
+        return $this->quantity > 0 && $this->quantity <= $threshold;
     }
 
     /**
@@ -120,7 +169,9 @@ class Product extends Model
     {
         if ($this->quantity <= 0) {
             return 'Out of Stock';
-        } elseif ($this->quantity <= 5) {
+        }
+        $threshold = $this->low_stock_threshold ?? 10;
+        if ($this->quantity <= $threshold) {
             return 'Low Stock';
         }
         return 'In Stock';
@@ -133,7 +184,9 @@ class Product extends Model
     {
         if ($this->quantity <= 0) {
             return 'red';
-        } elseif ($this->quantity <= 5) {
+        }
+        $threshold = $this->low_stock_threshold ?? 10;
+        if ($this->quantity <= $threshold) {
             return 'yellow';
         }
         return 'green';

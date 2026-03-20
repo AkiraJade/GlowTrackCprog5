@@ -14,6 +14,7 @@ use App\Models\SellerApplication;
 use App\Models\SkinProfile;
 use App\Models\SkinJournal;
 use App\Models\SkincareRoutine;
+use App\Models\Notification;
 
 class User extends Authenticatable
 {
@@ -239,5 +240,13 @@ class User extends Authenticatable
             ->implode('');
             
         return "https://ui-avatars.com/api/?name={$initials}&color=ffffff&background=4a7c59&size=200&bold=true";
+    }
+
+    /**
+     * Get notifications for this user.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
 }

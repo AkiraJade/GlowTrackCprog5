@@ -69,7 +69,7 @@ class SkincareRoutineController extends Controller
     public function show(SkincareRoutine $skincareRoutine): View
     {
         $this->authorize('view', $skincareRoutine);
-        
+
         $routine = $skincareRoutine->load('steps.product');
 
         return view('skincare-routines.show', compact('routine'));
@@ -78,7 +78,7 @@ class SkincareRoutineController extends Controller
     public function edit(SkincareRoutine $skincareRoutine): View
     {
         $this->authorize('update', $skincareRoutine);
-        
+
         $routine = $skincareRoutine->load('steps');
         $availableSteps = $routine->getAvailableSteps();
         $products = Product::where('status', 'approved')->get();
@@ -139,7 +139,7 @@ class SkincareRoutineController extends Controller
         ]);
     }
 
-    public function public(): View
+    public function public (): View
     {
         $routines = SkincareRoutine::where('is_public', true)
             ->with(['user', 'steps.product'])

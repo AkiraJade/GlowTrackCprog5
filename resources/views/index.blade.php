@@ -46,11 +46,8 @@
 
             <!-- Right Image Placeholder -->
             <div class="relative">
-                <div class="aspect-square bg-gradient-to-br from-blush-pink to-warm-peach rounded-3xl shadow-2xl flex items-center justify-center">
-                    <div class="text-center">
-                        <p class="text-6xl mb-4">🧴</p>
-                        <p class="text-soft-brown font-semibold">Premium Skincare</p>
-                    </div>
+                <div class="aspect-square rounded-3xl shadow-2xl overflow-hidden group relative z-10">
+                    <img src="{{ asset('storage/landingPagePic/Skin-Center-of-South-Miami-Facials-and-Skin-Care.jpg') }}" alt="Premium Skincare" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                 </div>
                 <!-- Floating decorative elements -->
                 <div class="absolute -bottom-4 -left-4 w-24 h-24 bg-warm-peach rounded-2xl opacity-60"></div>

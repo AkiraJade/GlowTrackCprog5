@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\Review;
 use App\Models\User;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -636,15 +637,16 @@ class ProductController extends Controller
         ]);
 
         $oldQuantity = $product->quantity;
-        $newQuantity = $oldQuantity + $request->add_quantity;
+        $addedQuantity = $request->add_quantity;
         
-        $product->update([
-            'quantity' => $newQuantity,
-            'inventory_notes' => $request->restock_notes ? 
-                ($product->inventory_notes ? $product->inventory_notes . '; ' : '') . 
-                date('Y-m-d H:i:s') . ': Restocked +' . $request->add_quantity . ' - ' . $request->restock_notes : 
-                $product->inventory_notes
-        ]);
+        $product->adjustStock(
+            $addedQuantity,
+            'restock',
+            'manual',
+            null,
+            $request->restock_notes
+        );
+        $newQuantity = $product->quantity;
 
         // Log the restock activity
         \Log::info('Product restocked by seller', [

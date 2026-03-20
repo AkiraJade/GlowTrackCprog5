@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -123,6 +124,19 @@ class OrderController extends Controller
             'notes' => $request->notes ? $request->notes : $order->notes,
         ]);
 
+        // Create notification for the customer
+        NotificationController::createNotification(
+            $order->user_id,
+            'order_status',
+            "Order Status Updated",
+            "Your order #{$order->id} has been updated to {$newStatus}.",
+            [
+                'order_id' => $order->id,
+                'status' => $newStatus,
+                'total_amount' => $order->total_amount
+            ]
+        );
+
         return redirect()->route('seller.orders.show', $order)
             ->with('success', "Order status updated to {$newStatus}.");
     }
@@ -205,7 +219,7 @@ class OrderController extends Controller
         // Restore product quantities
         foreach ($order->orderItems as $item) {
             $product = $item->product;
-            $product->increment('quantity', $item->quantity);
+            $product->adjustStock($item->quantity, 'return', 'order', $order->id, 'Order cancelled by customer');
         }
 
         return redirect()->route('orders.index')

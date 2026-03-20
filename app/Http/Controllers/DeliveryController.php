@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Delivery;
 use App\Models\DeliveryPersonnel;
 use App\Models\Order;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\View\View;
@@ -129,6 +130,19 @@ class DeliveryController extends Controller
         }
 
         $delivery->update($updateData);
+
+        // Create notification for the customer
+        NotificationController::createNotification(
+            $delivery->order->user_id,
+            'delivery_update',
+            "Delivery Status Updated",
+            "Your delivery for order #{$delivery->order->id} has been updated to {$validated['status']}.",
+            [
+                'order_id' => $delivery->order->id,
+                'delivery_id' => $delivery->id,
+                'status' => $validated['status']
+            ]
+        );
 
         // Update order status
         if ($validated['status'] === 'Delivered') {
