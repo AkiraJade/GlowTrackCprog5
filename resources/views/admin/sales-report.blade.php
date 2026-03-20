@@ -1,21 +1,21 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Sales Report - Admin')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-mint-cream via-pastel-green to-light-sage py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8 flex items-center justify-between">
+<div class="p-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex items-center justify-between">
             <div>
-                <h1 class="text-4xl font-bold text-soft-brown font-playfair">Sales Report</h1>
-                <p class="text-soft-brown opacity-75 mt-2">Detailed sales analytics and insights</p>
+                <h1 class="text-3xl font-bold text-gray-900 font-playfair">Sales Report</h1>
+                <p class="text-gray-600 mt-2">Detailed sales analytics and insights</p>
             </div>
             <div class="flex gap-4">
-                <a href="{{ route('admin.reports') }}" class="px-6 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
+                <a href="{{ route('admin.reports') }}" class="px-6 py-2 border-2 border-admin-primary text-admin-primary rounded-full hover:bg-admin-primary hover:text-white transition font-semibold">
                     ← Back to Reports
                 </a>
-                <button onclick="window.print()" class="px-6 py-2 bg-jade-green text-white rounded-full hover:bg-jade-green-600 transition font-semibold">
+                <button onclick="window.print()" class="px-6 py-2 bg-admin-primary text-white rounded-full hover:bg-admin-primary/80 transition font-semibold">
                     🖨️ Print Report
                 </button>
             </div>
@@ -159,6 +159,5 @@
                 </div>
             @endif
         </div>
-    </div>
 </div>
 @endsection

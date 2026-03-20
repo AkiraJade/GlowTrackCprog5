@@ -1,23 +1,17 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Order Management - Admin')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-mint-cream via-pastel-green to-light-sage py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8 flex items-center justify-between">
-            <div>
-                <h1 class="text-4xl font-bold text-soft-brown font-playfair">Order Management</h1>
-                <p class="text-soft-brown opacity-75 mt-2">Manage and track customer orders</p>
-            </div>
-            <a href="{{ route('admin.dashboard') }}" class="px-6 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
-                ← Back to Dashboard
-            </a>
-        </div>
+<div class="p-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 font-playfair">Order Management</h1>
+        <p class="text-gray-600 mt-2">Manage and track customer orders</p>
+    </div>
 
         <!-- Filters -->
-        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+        <div class="bg-white rounded-xl shadow-md p-6 mb-8 border border-gray-200">
             <div class="flex flex-wrap gap-4 items-center">
                 <div class="flex-1 min-w-64">
                     <input type="text" id="searchInput" placeholder="Search by order ID or customer name..." 
@@ -201,4 +195,6 @@ document.getElementById('dateFilter').addEventListener('change', function(e) {
     });
 });
 </script>
+    </div>
+</div>
 @endsection

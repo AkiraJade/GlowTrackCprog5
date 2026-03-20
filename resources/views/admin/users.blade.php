@@ -1,21 +1,17 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Users Management - GlowTrack')
 
 @section('content')
-<div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8 flex justify-between items-center">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Users Management</h1>
-                <p class="text-gray-600 mt-2">Manage all platform users</p>
-            </div>
-            <a href="{{ route('admin.dashboard') }}" class="text-jade-green hover:text-jade-green-900 font-medium">← Back to Dashboard</a>
-        </div>
+<div class="p-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 font-playfair">Users Management</h1>
+        <p class="text-gray-600 mt-2">Manage all platform users</p>
+    </div>
 
         <!-- Users Table -->
-        <div class="bg-white rounded-lg shadow">
+        <div class="bg-white rounded-xl shadow-md border border-gray-200">
             <div class="px-6 py-4 border-b border-gray-200">
                 <div class="flex justify-between items-center">
                     <h2 class="text-lg font-semibold text-gray-900">All Users</h2>

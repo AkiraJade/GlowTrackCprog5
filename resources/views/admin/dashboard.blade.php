@@ -1,19 +1,18 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Admin Dashboard - GlowTrack')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-mint-cream via-pastel-green to-light-sage py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8">
-            <h1 class="text-4xl font-bold text-soft-brown font-playfair">Admin Dashboard</h1>
-            <p class="text-soft-brown opacity-75 mt-2">Manage your GlowTrack skincare platform</p>
-        </div>
+<div class="p-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 font-playfair">Dashboard</h1>
+        <p class="text-gray-600 mt-2">Manage your GlowTrack skincare platform</p>
+    </div>
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('admin.users') }}'">
+            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition cursor-pointer border border-gray-200" onclick="window.location.href='{{ route('admin.users') }}'">
                 <div class="flex items-center">
                     <div class="p-3 bg-jade-green rounded-full">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -21,13 +20,13 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-soft-brown opacity-75">Total Users</p>
-                        <p class="text-2xl font-bold text-soft-brown">{{ $stats['total_users'] }}</p>
+                        <p class="text-sm font-medium text-gray-600">Total Users</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ $stats['total_users'] }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('admin.products') }}'">
+            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition cursor-pointer border border-gray-200" onclick="window.location.href='{{ route('admin.products') }}'">
                 <div class="flex items-center">
                     <div class="p-3 bg-warm-peach rounded-full">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -35,8 +34,8 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-soft-brown opacity-75">Products</p>
-                        <p class="text-2xl font-bold text-soft-brown">{{ $stats['total_products'] }}</p>
+                        <p class="text-sm font-medium text-gray-600">Products</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ $stats['total_products'] }}</p>
                         @if($stats['pending_products'] > 0)
                             <p class="text-xs text-yellow-600">{{ $stats['pending_products'] }} pending</p>
                         @endif
@@ -44,7 +43,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('admin.orders') }}'">
+            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition cursor-pointer border border-gray-200" onclick="window.location.href='{{ route('admin.orders') }}'">
                 <div class="flex items-center">
                     <div class="p-3 bg-blush-pink rounded-full">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -52,8 +51,8 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-soft-brown opacity-75">Orders</p>
-                        <p class="text-2xl font-bold text-soft-brown">{{ $stats['total_orders'] }}</p>
+                        <p class="text-sm font-medium text-gray-600">Orders</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ $stats['total_orders'] }}</p>
                         @if($stats['pending_orders'] > 0)
                             <p class="text-xs text-yellow-600">{{ $stats['pending_orders'] }} pending</p>
                         @endif
@@ -61,7 +60,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('admin.reports') }}'">
+            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition cursor-pointer border border-gray-200" onclick="window.location.href='{{ route('admin.reports') }}'">
                 <div class="flex items-center">
                     <div class="p-3 bg-jade-green rounded-full">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,8 +68,8 @@
                         </svg>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-soft-brown opacity-75">Revenue</p>
-                        <p class="text-2xl font-bold text-soft-brown">${{ number_format($stats['total_revenue'], 2) }}</p>
+                        <p class="text-sm font-medium text-gray-600">Revenue</p>
+                        <p class="text-2xl font-bold text-gray-900">${{ number_format($stats['total_revenue'], 2) }}</p>
                     </div>
                 </div>
             </div>
@@ -80,18 +79,18 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             
             <!-- Recent Orders -->
-            <div class="lg:col-span-2 bg-white rounded-2xl shadow-lg p-8">
+            <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6 border border-gray-200">
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-soft-brown font-playfair">Recent Orders</h2>
-                    <a href="{{ route('admin.orders') }}" class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">View All</a>
+                    <h2 class="text-xl font-bold text-gray-900 font-playfair">Recent Orders</h2>
+                    <a href="{{ route('admin.orders') }}" class="text-jade-green hover:text-jade-green/90 transition font-semibold text-sm">View All</a>
                 </div>
                 
                 @if($recentOrders->count() > 0)
                     <div class="space-y-4">
                         @foreach($recentOrders as $order)
-                            <div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition">
+                            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
                                 <div class="flex items-center justify-between mb-2">
-                                    <span class="font-semibold text-soft-brown">#{{ $order->order_id }}</span>
+                                    <span class="font-semibold text-gray-900">#{{ $order->order_id }}</span>
                                     <span class="px-2 py-1 text-xs font-medium rounded-full
                                         {{ $order->status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                                            ($order->status === 'confirmed' ? 'bg-blue-100 text-blue-800' :
@@ -104,50 +103,50 @@
                                     </span>
                                 </div>
                                 <div class="flex items-center justify-between">
-                                    <span class="text-sm text-soft-brown opacity-75">{{ $order->user->name }}</span>
+                                    <span class="text-sm text-gray-600">{{ $order->user->name }}</span>
                                     <span class="font-bold text-jade-green">${{ number_format($order->total_amount, 2) }}</span>
                                 </div>
-                                <div class="text-xs text-soft-brown opacity-60 mt-1">{{ $order->created_at->format('M d, Y H:i') }}</div>
+                                <div class="text-xs text-gray-500 mt-1">{{ $order->created_at->format('M d, Y H:i') }}</div>
                             </div>
                         @endforeach
                     </div>
                 @else
                     <div class="text-center py-8">
-                        <p class="text-soft-brown opacity-75">No orders yet</p>
+                        <p class="text-gray-500">No orders yet</p>
                     </div>
                 @endif
             </div>
 
             <!-- Quick Actions -->
-            <div class="bg-white rounded-2xl shadow-lg p-8">
-                <h2 class="text-2xl font-bold text-soft-brown font-playfair mb-6">Quick Actions</h2>
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+                <h2 class="text-xl font-bold text-gray-900 font-playfair mb-6">Quick Actions</h2>
                 
                 <div class="space-y-3">
-                    <a href="{{ route('admin.products') }}" class="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-mint-cream to-light-sage hover:shadow-lg transition">
+                    <a href="{{ route('admin.products') }}" class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 hover:shadow-md transition border border-gray-200">
                         <span class="text-2xl">📦</span>
                         <div>
-                            <p class="font-semibold text-soft-brown">Manage Products</p>
-                            <p class="text-xs text-soft-brown opacity-60">Approve/reject listings</p>
+                            <p class="font-semibold text-gray-900">Manage Products</p>
+                            <p class="text-xs text-gray-600">Approve/reject listings</p>
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.orders') }}" class="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-blush-pink to-warm-peach hover:shadow-lg transition">
+                    <a href="{{ route('admin.orders') }}" class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 hover:shadow-md transition border border-gray-200">
                         <span class="text-2xl">🛒</span>
                         <div>
-                            <p class="font-semibold text-soft-brown">Manage Orders</p>
-                            <p class="text-xs text-soft-brown opacity-60">Update order status</p>
+                            <p class="font-semibold text-gray-900">Manage Orders</p>
+                            <p class="text-xs text-gray-600">Update order status</p>
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.users') }}" class="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-pastel-green to-light-sage hover:shadow-lg transition">
+                    <a href="{{ route('admin.users') }}" class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 hover:shadow-md transition border border-gray-200">
                         <span class="text-2xl">👥</span>
                         <div>
-                            <p class="font-semibold text-soft-brown">Manage Users</p>
-                            <p class="text-xs text-soft-brown opacity-60">Roles & permissions</p>
+                            <p class="font-semibold text-gray-900">Manage Users</p>
+                            <p class="text-xs text-gray-600">Roles & permissions</p>
                         </div>
                     </a>
 
-                    <a href="{{ route('admin.reports') }}" class="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-jade-green to-light-sage hover:shadow-lg transition text-white">
+                    <a href="{{ route('admin.reports') }}" class="flex items-center gap-3 p-3 rounded-lg bg-jade-green hover:bg-jade-green/80 hover:shadow-md transition text-white">
                         <span class="text-2xl">📊</span>
                         <div>
                             <p class="font-semibold">View Reports</p>
@@ -156,7 +155,7 @@
                     </a>
 
                     @if($stats['pending_seller_applications'] > 0)
-                    <a href="{{ route('admin.seller-applications') }}" class="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-yellow-400 to-orange-400 hover:shadow-lg transition text-white">
+                    <a href="{{ route('admin.seller-applications') }}" class="flex items-center gap-3 p-3 rounded-lg bg-yellow-500 hover:bg-yellow-600 hover:shadow-md transition text-white">
                         <span class="text-2xl">⚠️</span>
                         <div>
                             <p class="font-semibold">Seller Applications</p>
@@ -173,25 +172,25 @@
             
             <!-- Pending Products -->
             @if($pendingProducts->count() > 0)
-            <div class="bg-white rounded-2xl shadow-lg p-8">
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-soft-brown font-playfair">Pending Products</h2>
-                    <a href="{{ route('admin.products') }}" class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">View All</a>
+                    <h2 class="text-xl font-bold text-gray-900 font-playfair">Pending Products</h2>
+                    <a href="{{ route('admin.products') }}" class="text-jade-green hover:text-jade-green/90 transition font-semibold text-sm">View All</a>
                 </div>
                 
                 <div class="space-y-4">
                     @foreach($pendingProducts as $product)
-                        <div class="border border-yellow-200 rounded-xl p-4 hover:shadow-md transition bg-yellow-50">
+                        <div class="border border-yellow-200 rounded-lg p-4 hover:shadow-md transition bg-yellow-50">
                             <div class="flex items-center justify-between mb-2">
-                                <span class="font-semibold text-soft-brown">{{ $product->name }}</span>
+                                <span class="font-semibold text-gray-900">{{ $product->name }}</span>
                                 <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-800">
                                     Pending Review
                                 </span>
                             </div>
-                            <div class="text-sm text-soft-brown opacity-75">
+                            <div class="text-sm text-gray-600">
                                 Seller: {{ $product->seller->name }}
                             </div>
-                            <div class="text-sm text-soft-brown opacity-75">
+                            <div class="text-sm text-gray-600">
                                 Price: ${{ number_format($product->price, 2) }}
                             </div>
                             <div class="mt-3 flex gap-2">
@@ -212,27 +211,27 @@
             @endif
 
             <!-- Recent Users -->
-            <div class="bg-white rounded-2xl shadow-lg p-8">
+            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
                 <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-2xl font-bold text-soft-brown font-playfair">Recent Users</h2>
-                    <a href="{{ route('admin.users') }}" class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">View All</a>
+                    <h2 class="text-xl font-bold text-gray-900 font-playfair">Recent Users</h2>
+                    <a href="{{ route('admin.users') }}" class="text-jade-green hover:text-jade-green/90 transition font-semibold text-sm">View All</a>
                 </div>
                 
                 <div class="space-y-4">
                     @foreach($recentUsers as $user)
-                        <div class="border border-gray-200 rounded-xl p-4 hover:shadow-md transition">
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
                             <div class="flex items-center justify-between mb-2">
-                                <span class="font-semibold text-soft-brown">{{ $user->name }}</span>
+                                <span class="font-semibold text-gray-900">{{ $user->name }}</span>
                                 <span class="px-2 py-1 text-xs font-medium rounded-full 
                                     {{ $user->role === 'admin' ? 'bg-red-100 text-red-800' : 
                                        ($user->role === 'seller' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800') }}">
                                     {{ ucfirst($user->role) }}
                                 </span>
                             </div>
-                            <div class="text-sm text-soft-brown opacity-75">{{ $user->email }}</div>
-                            <div class="text-xs text-soft-brown opacity-60 mt-1">Joined {{ $user->created_at->format('M d, Y') }}</div>
+                            <div class="text-sm text-gray-600">{{ $user->email }}</div>
+                            <div class="text-xs text-gray-500 mt-1">Joined {{ $user->created_at->format('M d, Y') }}</div>
                             <div class="mt-3">
-                                <a href="{{ route('admin.users.show', $user) }}" class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">
+                                <a href="{{ route('admin.users.show', $user) }}" class="text-jade-green hover:text-jade-green/90 transition font-semibold text-sm">
                                     View Details →
                                 </a>
                             </div>
@@ -243,39 +242,4 @@
         </div>
     </div>
 </div>
-
-<!-- Reject Product Modal -->
-<div id="rejectModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-    <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
-        <h3 class="text-xl font-bold text-soft-brown mb-4">Reject Product</h3>
-        <form id="rejectForm" action="" method="POST">
-            @csrf
-            <input type="hidden" name="product_id" id="rejectProductId">
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-soft-brown mb-2">Reason for Rejection</label>
-                <textarea name="rejection_reason" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-jade-green" required></textarea>
-            </div>
-            <div class="flex gap-3">
-                <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
-                    Reject Product
-                </button>
-                <button type="button" onclick="hideRejectForm()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">
-                    Cancel
-                </button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script>
-function showRejectForm(productId) {
-    document.getElementById('rejectProductId').value = productId;
-    document.getElementById('rejectForm').action = `/admin/products/${productId}/reject`;
-    document.getElementById('rejectModal').classList.remove('hidden');
-}
-
-function hideRejectForm() {
-    document.getElementById('rejectModal').classList.add('hidden');
-}
-</script>
 @endsection

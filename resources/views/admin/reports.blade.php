@@ -1,20 +1,14 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'Reports & Analytics - Admin')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-mint-cream via-pastel-green to-light-sage py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8 flex items-center justify-between">
-            <div>
-                <h1 class="text-4xl font-bold text-soft-brown font-playfair">Reports & Analytics</h1>
-                <p class="text-soft-brown opacity-75 mt-2">Generate insights and reports for your business</p>
-            </div>
-            <a href="{{ route('admin.dashboard') }}" class="px-6 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
-                ← Back to Dashboard
-            </a>
-        </div>
+<div class="p-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 font-playfair">Reports & Analytics</h1>
+        <p class="text-gray-600 mt-2">Generate insights and reports for your business</p>
+    </div>
 
         <!-- Report Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
@@ -164,6 +158,5 @@
                 </div>
             </div>
         </div>
-    </div>
 </div>
 @endsection

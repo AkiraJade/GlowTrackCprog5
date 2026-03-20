@@ -1,21 +1,22 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('title', 'User Details - GlowTrack')
 
 @section('content')
-<div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-8 flex justify-between items-center">
+<div class="p-6">
+    <!-- Page Header -->
+    <div class="mb-8">
+        <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">User Details</h1>
+                <h1 class="text-3xl font-bold text-gray-900 font-playfair">User Details</h1>
                 <p class="text-gray-600 mt-2">View and manage user information</p>
             </div>
-            <a href="{{ route('admin.users') }}" class="text-jade-green hover:text-jade-green-900 font-medium">← Back to Users</a>
+            <a href="{{ route('admin.users') }}" class="text-admin-primary hover:text-admin-primary/80 font-medium">← Back to Users</a>
         </div>
+    </div>
 
         <!-- User Info Card -->
-        <div class="bg-white rounded-lg shadow mb-8">
+        <div class="bg-white rounded-xl shadow-md border border-gray-200 mb-8">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h2 class="text-lg font-semibold text-gray-900">User Information</h2>
             </div>
@@ -142,6 +143,5 @@
                 <p class="text-center text-gray-500 mt-6 text-sm">Detailed activity tracking will be available in future updates.</p>
             </div>
         </div>
-    </div>
 </div>
 @endsection
