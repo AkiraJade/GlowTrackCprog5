@@ -165,6 +165,28 @@ Route::middleware('auth')->group(function () {
     Route::post('/checkout/process', [\App\Http\Controllers\CheckoutController::class, 'process'])->name('checkout.process');
     Route::get('/checkout/success/{order}', [\App\Http\Controllers\CheckoutController::class, 'success'])->name('checkout.success');
 
+    // Skin Profile Routes
+    Route::get('/skin-profile', [App\Http\Controllers\SkinProfileController::class, 'index'])->name('skin-profile.index');
+    Route::get('/skin-profile/create', [App\Http\Controllers\SkinProfileController::class, 'create'])->name('skin-profile.create');
+    Route::post('/skin-profile', [App\Http\Controllers\SkinProfileController::class, 'store'])->name('skin-profile.store');
+    Route::get('/skin-profile/timeline', [App\Http\Controllers\SkinProfileController::class, 'timeline'])->name('skin-profile.timeline');
+    Route::put('/skin-profile/{skinProfile}', [App\Http\Controllers\SkinProfileController::class, 'update'])->name('skin-profile.update');
+
+    // Skin Journal Routes
+    Route::post('/skin-journal', [App\Http\Controllers\SkinJournalController::class, 'store'])->name('skin-journal.store');
+
+    // Skincare Routine Routes
+    Route::get('/skincare-routines', [App\Http\Controllers\SkincareRoutineController::class, 'index'])->name('skincare-routines.index');
+    Route::get('/skincare-routines/create', [App\Http\Controllers\SkincareRoutineController::class, 'create'])->name('skincare-routines.create');
+    Route::post('/skincare-routines', [App\Http\Controllers\SkincareRoutineController::class, 'store'])->name('skincare-routines.store');
+    Route::get('/skincare-routines/{skincareRoutine}', [App\Http\Controllers\SkincareRoutineController::class, 'show'])->name('skincare-routines.show');
+    Route::get('/skincare-routines/{skincareRoutine}/edit', [App\Http\Controllers\SkincareRoutineController::class, 'edit'])->name('skincare-routines.edit');
+    Route::put('/skincare-routines/{skincareRoutine}', [App\Http\Controllers\SkincareRoutineController::class, 'update'])->name('skincare-routines.update');
+    Route::delete('/skincare-routines/{skincareRoutine}', [App\Http\Controllers\SkincareRoutineController::class, 'destroy'])->name('skincare-routines.destroy');
+
+    // Public Skincare Routines
+    Route::get('/public-routines', [App\Http\Controllers\SkincareRoutineController::class, 'public'])->name('skincare-routines.public');
+
     // Orders Routes
     Route::get('/orders', [\App\Http\Controllers\OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class, 'show'])->name('orders.show');
@@ -307,4 +329,25 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/seller-applications/{application}', [SellerApplicationController::class, 'show'])->name('seller-applications.show');
     Route::put('/seller-applications/{application}/approve', [SellerApplicationController::class, 'approve'])->name('seller-applications.approve');
     Route::put('/seller-applications/{application}/reject', [SellerApplicationController::class, 'reject'])->name('seller-applications.reject');
+
+    // Delivery Management
+    Route::get('/deliveries', [App\Http\Controllers\DeliveryController::class, 'index'])->name('deliveries.index');
+    Route::get('/deliveries/create', [App\Http\Controllers\DeliveryController::class, 'create'])->name('deliveries.create');
+    Route::post('/deliveries', [App\Http\Controllers\DeliveryController::class, 'store'])->name('deliveries.store');
+    Route::get('/deliveries/{delivery}', [App\Http\Controllers\DeliveryController::class, 'show'])->name('deliveries.show');
+    Route::get('/deliveries/{delivery}/edit', [App\Http\Controllers\DeliveryController::class, 'edit'])->name('deliveries.edit');
+    Route::put('/deliveries/{delivery}', [App\Http\Controllers\DeliveryController::class, 'update'])->name('deliveries.update');
+    Route::put('/deliveries/{delivery}/status', [App\Http\Controllers\DeliveryController::class, 'updateStatus'])->name('deliveries.update-status');
+    Route::delete('/deliveries/{delivery}', [App\Http\Controllers\DeliveryController::class, 'destroy'])->name('deliveries.destroy');
+    
+    // Delivery Personnel Management
+    Route::get('/delivery-personnel', [App\Http\Controllers\DeliveryController::class, 'personnelIndex'])->name('delivery-personnel.index');
+    Route::get('/delivery-personnel/create', [App\Http\Controllers\DeliveryController::class, 'personnelCreate'])->name('delivery-personnel.create');
+    Route::post('/delivery-personnel', [App\Http\Controllers\DeliveryController::class, 'personnelStore'])->name('delivery-personnel.store');
+    Route::get('/delivery-personnel/{deliveryPersonnel}/edit', [App\Http\Controllers\DeliveryController::class, 'personnelEdit'])->name('delivery-personnel.edit');
+    Route::put('/delivery-personnel/{deliveryPersonnel}', [App\Http\Controllers\DeliveryController::class, 'personnelUpdate'])->name('delivery-personnel.update');
+    Route::delete('/delivery-personnel/{deliveryPersonnel}', [App\Http\Controllers\DeliveryController::class, 'personnelDestroy'])->name('delivery-personnel.destroy');
+    
+    // Delivery Dashboard
+    Route::get('/delivery-dashboard', [App\Http\Controllers\DeliveryController::class, 'dashboard'])->name('delivery-dashboard');
 });

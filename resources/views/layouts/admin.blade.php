@@ -151,7 +151,7 @@
                             <li>
                                 <a href="{{ route('admin.dashboard') }}" class="sidebar-menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }} flex items-center px-4 py-3 text-gray-300 rounded-lg {{ request()->routeIs('admin.dashboard') ? 'text-white' : 'hover:text-white' }}">
                                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l-2-2m4 4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     Dashboard
                                 </a>
@@ -166,7 +166,7 @@
                             <li>
                                 <a href="{{ route('admin.products') }}" class="sidebar-menu-item {{ request()->routeIs('admin.products') ? 'active' : '' }} flex items-center px-4 py-3 text-gray-300 rounded-lg {{ request()->routeIs('admin.products') ? 'text-white' : 'hover:text-white' }}">
                                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-4-4m0 0l8 4v14m-8-4h-4l-4 4v6m0 0v-6m0 0h6l4-4"></path>
                                     </svg>
                                     Products
                                 </a>
@@ -174,14 +174,14 @@
                             <li>
                                 <a href="{{ route('admin.reports.inventory') }}" class="sidebar-menu-item {{ request()->routeIs('admin.reports.inventory') ? 'active' : '' }} flex items-center px-4 py-3 text-gray-300 rounded-lg {{ request()->routeIs('admin.reports.inventory') ? 'text-white' : 'hover:text-white' }}">
                                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 012 2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                     </svg>
                                     Inventory
                                 </a>
                             </li>
                         </ul>
                     </div>
-                    
+
                     <!-- Order Management -->
                     <div class="p-4">
                         <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wider mb-3">Order Management</h3>
@@ -194,17 +194,9 @@
                                     Orders
                                 </a>
                             </li>
-                            <li>
-                                <a href="#" class="sidebar-menu-item flex items-center px-4 py-3 text-gray-300 rounded-lg hover:text-white">
-                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                    Delivery
-                                </a>
-                            </li>
                         </ul>
                     </div>
-                    
+
                     <!-- User Management -->
                     <div class="p-4">
                         <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wider mb-3">User Management</h3>
@@ -220,14 +212,14 @@
                             <li>
                                 <a href="#" class="sidebar-menu-item flex items-center px-4 py-3 text-gray-300 rounded-lg hover:text-white">
                                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     Verification
                                 </a>
                             </li>
                         </ul>
                     </div>
-                    
+
                     <!-- Reports & Analytics -->
                     <div class="p-4">
                         <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wider mb-3">Reports & Analytics</h3>
@@ -243,22 +235,45 @@
                             <li>
                                 <a href="{{ route('admin.reports.sales') }}" class="sidebar-menu-item {{ request()->routeIs('admin.reports.sales') ? 'active' : '' }} flex items-center px-4 py-3 text-gray-300 rounded-lg {{ request()->routeIs('admin.reports.sales') ? 'text-white' : 'hover:text-white' }}">
                                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
                                     Sales Report
                                 </a>
                             </li>
+                        </ul>
+                    </div>
+
+                    <!-- Delivery Management -->
+                    <div class="p-4">
+                        <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wider mb-3">Delivery Management</h3>
+                        <ul class="space-y-2">
                             <li>
-                                <a href="#" class="sidebar-menu-item flex items-center px-4 py-3 text-gray-300 rounded-lg hover:text-white">
+                                <a href="{{ route('admin.delivery-dashboard') }}" class="sidebar-menu-item {{ request()->routeIs('admin.delivery-dashboard') ? 'active' : '' }} flex items-center px-4 py-3 text-gray-300 rounded-lg {{ request()->routeIs('admin.delivery-dashboard') ? 'text-white' : 'hover:text-white' }}">
                                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                     </svg>
-                                    Skin Trends
+                                    Delivery Dashboard
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.deliveries.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.deliveries*') ? 'active' : '' }} flex items-center px-4 py-3 text-gray-300 rounded-lg {{ request()->routeIs('admin.deliveries*') ? 'text-white' : 'hover:text-white' }}">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 104 0m6 0a2 2 0 104 0m-4 0a2 2 0 104 0"></path>
+                                    </svg>
+                                    Manage Deliveries
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('admin.delivery-personnel.index') }}" class="sidebar-menu-item {{ request()->routeIs('admin.delivery-personnel*') ? 'active' : '' }} flex items-center px-4 py-3 text-gray-300 rounded-lg {{ request()->routeIs('admin.delivery-personnel*') ? 'text-white' : 'hover:text-white' }}">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                                    </svg>
+                                    Delivery Personnel
                                 </a>
                             </li>
                         </ul>
                     </div>
-                    
+
                     <!-- Settings -->
                     <div class="p-4">
                         <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wider mb-3">Settings</h3>
@@ -266,7 +281,7 @@
                             <li>
                                 <a href="#" class="sidebar-menu-item flex items-center px-4 py-3 text-gray-300 rounded-lg hover:text-white">
                                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-1.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-2.572 1.065c-.94 1.543.826 3.31 2.37 2.37.996.608 2.296.07 2.572-1.065z"></path>
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                     </svg>
                                     Settings
@@ -288,8 +303,7 @@
                         </button>
                     </form>
                 </div>
-            </div>
-        </aside>
+            </aside>
         
         <!-- Main Content -->
         <div class="flex-1 flex flex-col overflow-hidden">
@@ -326,7 +340,7 @@
                         <!-- User Avatar -->
                         <div class="flex items-center space-x-2 lg:space-x-3">
                             <div class="w-8 h-8 bg-admin-primary rounded-full flex items-center justify-center">
-                                <span class="text-white font-semibold text-sm">{{ auth()->user()->name[0] ?? 'A' }}</span>
+                                <span class="text-white font-semibold text-sm">{{ substr(auth()->user()->name, 0, 1) ?? 'A' }}</span>
                             </div>
                             <div class="hidden md:block">
                                 <p class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</p>

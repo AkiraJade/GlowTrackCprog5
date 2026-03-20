@@ -10,6 +10,9 @@ use App\Models\Order;
 use App\Models\Cart;
 use App\Models\Wishlist;
 use App\Models\SellerApplication;
+use App\Models\SkinProfile;
+use App\Models\SkinJournal;
+use App\Models\SkincareRoutine;
 
 class User extends Authenticatable
 {
@@ -120,6 +123,30 @@ class User extends Authenticatable
     public function products()
     {
         return $this->hasMany(Product::class, 'seller_id');
+    }
+
+    /**
+     * Get skin profile for this user.
+     */
+    public function skinProfile()
+    {
+        return $this->hasOne(SkinProfile::class);
+    }
+
+    /**
+     * Get skin journals for this user.
+     */
+    public function skinJournals()
+    {
+        return $this->hasMany(SkinJournal::class);
+    }
+
+    /**
+     * Get skincare routines for this user.
+     */
+    public function skincareRoutines()
+    {
+        return $this->hasMany(SkincareRoutine::class);
     }
 
     /**
