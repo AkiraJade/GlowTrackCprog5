@@ -102,6 +102,15 @@
                                 </div>
                             </form>
 
+                            <!-- Warn User Button -->
+                            <form method="POST" action="{{ route('admin.forum-moderation.users.warn', $user) }}" class="inline" onsubmit="return confirm('Send a warning notification to this user?');">
+                                @csrf
+                                <input type="hidden" name="message" value="Your account was issued a warning for moderation review. Please follow community guidelines.">
+                                <button type="submit" class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition">
+                                    Warn User
+                                </button>
+                            </form>
+
                             <!-- Delete Button -->
                             <form method="POST" action="{{ route('admin.users.delete', $user) }}" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
                                 @csrf
@@ -141,6 +150,27 @@
                     </div>
                 </div>
                 <p class="text-center text-gray-500 mt-6 text-sm">Detailed activity tracking will be available in future updates.</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md border border-gray-200 mt-8">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-lg font-semibold text-gray-900">Moderation / Warning History</h2>
+            </div>
+            <div class="p-6">
+                @if($warningLogs->isEmpty())
+                    <p class="text-gray-500">No warnings have been issued to this user yet.</p>
+                @else
+                    <div class="space-y-3">
+                        @foreach($warningLogs as $warning)
+                            <div class="p-4 border border-gray-100 rounded-lg bg-gray-50">
+                                <p class="text-sm font-semibold text-gray-900">{{ $warning->title }}</p>
+                                <p class="text-sm text-gray-700 mt-1">{{ $warning->message }}</p>
+                                <p class="text-xs text-gray-500 mt-1">Issued {{ $warning->created_at->diffForHumans() }}</p>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </div>
         </div>
 </div>

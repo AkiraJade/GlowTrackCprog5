@@ -210,7 +210,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="#" class="sidebar-menu-item flex items-center px-4 py-3 text-gray-300 rounded-lg hover:text-white">
+                                <a href="{{ route('admin.seller-applications') }}" class="sidebar-menu-item {{ request()->routeIs('admin.seller-applications*') ? 'active' : '' }} flex items-center px-4 py-3 text-gray-300 rounded-lg {{ request()->routeIs('admin.seller-applications*') ? 'text-white' : 'hover:text-white' }}">
                                     <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                                     </svg>
@@ -323,13 +323,14 @@
                     <!-- Right Side Icons -->
                     <div class="flex items-center space-x-2 lg:space-x-4 ml-2 lg:ml-6">
                         <!-- Notifications -->
-                        <button class="relative p-2 text-gray-600 hover:text-gray-900 transition-colors">
-                            <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                            </svg>
+                    <a href="{{ route('admin.notifications') }}" class="relative p-2 text-gray-600 hover:text-gray-900 transition-colors">
+                        <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        @if(($unreadCount ?? 0) > 0)
                             <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                        </button>
-                        
+                        @endif
+                    </a>
                         <!-- Messages -->
                         <button class="relative p-2 text-gray-600 hover:text-gray-900 transition-colors">
                             <svg class="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

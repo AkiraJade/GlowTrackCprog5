@@ -25,7 +25,50 @@ class SkincareRoutine extends Model
 
     public function steps(): HasMany
     {
-        return $this->hasMany(RoutineStep::class)->orderBy('step_order');
+        return $this->hasMany(RoutineStep::class, 'routine_id')->orderBy('step_order');
+    }
+
+    public function favorites(): HasMany
+    {
+        return $this->hasMany(RoutineFavorite::class);
+    }
+
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(RoutineRating::class);
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(RoutineReview::class);
+    }
+
+    public function getAverageRating(): float
+    {
+        return $this->ratings()->avg('rating') ?? 0;
+    }
+
+    public function getRatingCount(): int
+    {
+        return $this->ratings()->count();
+    }
+
+    public function isFavoritedBy(?User $user): bool
+    {
+        if (!$user) return false;
+        return $this->favorites()->where('user_id', $user->id)->exists();
+    }
+
+    public function getUserRating(?User $user): ?int
+    {
+        if (!$user) return null;
+        return $this->ratings()->where('user_id', $user->id)->value('rating');
+    }
+
+    public function getUserReview(?User $user): ?RoutineReview
+    {
+        if (!$user) return null;
+        return $this->reviews()->where('user_id', $user->id)->first();
     }
 
     public function getAvailableSteps(): array

@@ -213,10 +213,10 @@ class IngredientConflictController extends Controller
 
         // Extract ingredients from routine steps
         if ($request->filled('routine_id')) {
-            $routine = SkincareRoutine::with('routineSteps')->find($request->routine_id);
+            $routine = SkincareRoutine::with('steps')->find($request->routine_id);
             
             if ($routine) {
-                foreach ($routine->routineSteps as $step) {
+                foreach ($routine->steps as $step) {
                     // Get ingredients from product if linked
                     if ($step->product_id) {
                         $product = Product::find($step->product_id);
@@ -224,10 +224,10 @@ class IngredientConflictController extends Controller
                             $ingredients = $ingredients->merge($product->active_ingredients);
                         }
                     }
-                    
-                    // Get ingredients from custom product name
-                    if ($step->custom_product_name && !empty($step->ingredients)) {
-                        $ingredients = $ingredients->merge($step->ingredients);
+
+                    // As a fallback, extract from product_name if non-empty
+                    if (!$step->product_id && !empty($step->product_name)) {
+                        $ingredients = $ingredients->merge([$step->product_name]);
                     }
                 }
             }

@@ -208,6 +208,12 @@ Route::middleware('auth')->group(function () {
         // Public Skincare Routines
         Route::get('/public-routines', [App\Http\Controllers\SkincareRoutineController::class , 'public'])->name('skincare-routines.public');
 
+        // Routine Favorites, Ratings, and Reviews
+        Route::post('/skincare-routines/{skincareRoutine}/favorite', [App\Http\Controllers\SkincareRoutineController::class , 'toggleFavorite'])->name('skincare-routines.favorite');
+        Route::post('/skincare-routines/{skincareRoutine}/rate', [App\Http\Controllers\SkincareRoutineController::class , 'rate'])->name('skincare-routines.rate');
+        Route::post('/skincare-routines/{skincareRoutine}/review', [App\Http\Controllers\SkincareRoutineController::class , 'review'])->name('skincare-routines.review');
+        Route::delete('/skincare-routines/{skincareRoutine}/review', [App\Http\Controllers\SkincareRoutineController::class , 'deleteReview'])->name('skincare-routines.review.delete');
+
         // Orders Routes
         Route::get('/orders', [\App\Http\Controllers\OrderController::class , 'index'])->name('orders.index');
         Route::get('/orders/{order}', [\App\Http\Controllers\OrderController::class , 'show'])->name('orders.show');
@@ -391,6 +397,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/seller-applications/{application}', [SellerApplicationController::class , 'show'])->name('seller-applications.show');
         Route::put('/seller-applications/{application}/approve', [SellerApplicationController::class , 'approve'])->name('seller-applications.approve');
         Route::put('/seller-applications/{application}/reject', [SellerApplicationController::class , 'reject'])->name('seller-applications.reject');
+
+        // Forum Moderation (Admin)
+        Route::get('/forum-moderation', [AdminController::class, 'forumModeration'])->name('forum-moderation');
+        Route::delete('/forum-moderation/discussions/{discussion}', [AdminController::class, 'deleteForumDiscussion'])->name('forum-moderation.discussions.delete');
+        Route::delete('/forum-moderation/replies/{reply}', [AdminController::class, 'deleteForumReply'])->name('forum-moderation.replies.delete');
+        Route::post('/forum-moderation/users/{user}/warn', [AdminController::class, 'warnUser'])->name('forum-moderation.users.warn');
+
+        // Admin Notifications
+        Route::get('/notifications', [AdminController::class, 'notifications'])->name('notifications');
 
         // Delivery Management
         Route::get('/deliveries', [App\Http\Controllers\DeliveryController::class , 'index'])->name('deliveries.index');

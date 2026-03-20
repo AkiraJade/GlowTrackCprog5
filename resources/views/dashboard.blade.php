@@ -85,6 +85,16 @@
                 <p class="text-4xl font-bold text-jade-green mb-2">{{ $wishlist_count ?? 0 }}</p>
                 <p class="text-sm text-soft-brown opacity-75">Your favorites</p>
             </div>
+
+            <!-- Skincare Routines -->
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('skincare-routines.index') }}'">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-soft-brown">My Routines</h3>
+                    <span class="text-4xl">🧴</span>
+                </div>
+                <p class="text-4xl font-bold text-jade-green mb-2">{{ auth()->user()->skincareRoutines()->count() }}</p>
+                <p class="text-sm text-soft-brown opacity-75">Build or edit skincare routines</p>
+            </div>
         </div>
 
         <!-- Main Content Grid -->

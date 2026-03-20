@@ -15,6 +15,9 @@ use App\Models\SkinProfile;
 use App\Models\SkinJournal;
 use App\Models\SkincareRoutine;
 use App\Models\Notification;
+use App\Models\RoutineFavorite;
+use App\Models\RoutineRating;
+use App\Models\RoutineReview;
 
 class User extends Authenticatable
 {
@@ -149,6 +152,38 @@ class User extends Authenticatable
     public function skincareRoutines()
     {
         return $this->hasMany(SkincareRoutine::class);
+    }
+
+    /**
+     * Get routine favorites for this user.
+     */
+    public function routineFavorites()
+    {
+        return $this->hasMany(RoutineFavorite::class);
+    }
+
+    /**
+     * Get routine ratings for this user.
+     */
+    public function routineRatings()
+    {
+        return $this->hasMany(RoutineRating::class);
+    }
+
+    /**
+     * Get routine reviews for this user.
+     */
+    public function routineReviews()
+    {
+        return $this->hasMany(RoutineReview::class);
+    }
+
+    /**
+     * Get notifications for this user.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
 
     /**
@@ -464,11 +499,4 @@ class User extends Authenticatable
         return "https://ui-avatars.com/api/?name={$initials}&color=ffffff&background=4a7c59&size=200&bold=true";
     }
 
-    /**
-     * Get notifications for this user.
-     */
-    public function notifications()
-    {
-        return $this->hasMany(Notification::class);
-    }
 }

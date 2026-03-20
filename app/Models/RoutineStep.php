@@ -16,7 +16,7 @@ class RoutineStep extends Model
 
     public function routine(): BelongsTo
     {
-        return $this->belongsTo(SkincareRoutine::class);
+        return $this->belongsTo(SkincareRoutine::class, 'routine_id');
     }
 
     public function product(): BelongsTo

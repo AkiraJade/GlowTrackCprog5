@@ -7,6 +7,9 @@ use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\SellerApplication;
+use App\Models\ForumDiscussion;
+use App\Models\ForumReply;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SalesReportExport;
@@ -59,7 +62,9 @@ class AdminController extends Controller
      */
     public function showUser(User $user)
     {
-        return view('admin.user-details', compact('user'));
+        $warningLogs = $user->notifications()->where('type', 'user_warning')->latest()->get();
+
+        return view('admin.user-details', compact('user', 'warningLogs'));
     }
 
     /**
@@ -199,6 +204,79 @@ class AdminController extends Controller
     public function reports()
     {
         return view('admin.reports');
+    }
+
+    /**
+     * Display forum moderation for admins
+     */
+    public function forumModeration(Request $request)
+    {
+        $query = ForumDiscussion::with(['user', 'replies.user'])->orderBy('is_pinned', 'desc')->orderBy('last_reply_at', 'desc');
+
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        if ($request->filled('status')) {
+            $query->where('is_locked', $request->status === 'locked');
+        }
+
+        $discussions = $query->paginate(10);
+
+        return view('admin.forum-moderation', compact('discussions'));
+    }
+
+    /**
+     * Delete a forum discussion (admin)
+     */
+    public function deleteForumDiscussion(ForumDiscussion $discussion)
+    {
+        $discussion->delete();
+
+        return redirect()->route('admin.forum-moderation')->with('success', 'Discussion deleted successfully.');
+    }
+
+    /**
+     * Delete a forum reply (admin)
+     */
+    public function deleteForumReply(ForumReply $reply)
+    {
+        $discussion = $reply->discussion;
+        $reply->delete();
+
+        if ($discussion) {
+            $discussion->decrement('reply_count');
+        }
+
+        return back()->with('success', 'Reply deleted successfully.');
+    }
+
+    /**
+     * Warn a forum user (admin) with notification
+     */
+    public function warnUser(Request $request, User $user)
+    {
+        $data = $request->validate([
+            'message' => 'required|string|max:500',
+        ]);
+
+        Notification::create([
+            'user_id' => $user->id,
+            'type' => 'user_warning',
+            'title' => 'Community Guideline Warning',
+            'message' => $data['message'],
+        ]);
+
+        return back()->with('success', 'Warning sent to user and notification created.');
+    }
+
+    /**
+     * List admin viewing of notifications
+     */
+    public function notifications()
+    {
+        $notifications = auth()->user()->notifications()->latest()->paginate(15);
+        return view('admin.notifications', compact('notifications'));
     }
 
     /**

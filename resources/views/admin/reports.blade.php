@@ -69,19 +69,19 @@
                 </div>
             </div>
 
-            <!-- Financial Report -->
-            <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition cursor-pointer">
+            <!-- Forum Review -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('admin.forum-moderation') }}'">
                 <div class="flex items-center mb-6">
                     <div class="p-3 bg-jade-green rounded-full">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M9 16h6M7 8h10a2 2 0 012 2v8a2 2 0 01-2 2H7a2 2 0 01-2-2V10a2 2 0 012-2z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-bold text-soft-brown ml-4">Financial Report</h3>
+                    <h3 class="text-xl font-bold text-soft-brown ml-4">Forum Review</h3>
                 </div>
-                <p class="text-soft-brown opacity-75 mb-4">Revenue analysis, profit margins, and financial summaries</p>
+                <p class="text-soft-brown opacity-75 mb-4">Monitor forum discussions, remove inappropriate content, and warn users.</p>
                 <div class="flex items-center text-jade-green font-semibold">
-                    <span>Coming Soon</span>
+                    <span>Go to Forum Moderation</span>
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>
@@ -107,8 +107,8 @@
                 </div>
             </div>
 
-            <!-- Skin Trends Report -->
-            <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition cursor-pointer">
+            <!-- Skin Trends Insights -->
+            <div class="bg-white rounded-2xl shadow-lg p-8 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('admin.skin-trends') }}'">
                 <div class="flex items-center mb-6">
                     <div class="p-3 bg-light-sage rounded-full">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,7 +119,7 @@
                 </div>
                 <p class="text-soft-brown opacity-75 mb-4">Skin type analysis, concern trends, and product preferences</p>
                 <div class="flex items-center text-jade-green font-semibold">
-                    <span>Coming Soon</span>
+                    <span>View Trends</span>
                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                     </svg>

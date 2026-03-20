@@ -254,34 +254,27 @@
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{{ asset('js/skin-trend-charts.js') }}"></script>
+<!-- Phase 3 Charts DISABLED for performance -->
+@if(false)
+    <script src="{{ asset('js/chart.min.js') }}"></script>
+    <script src="{{ asset('js/skin-trend-charts.js') }}"></script>
+@endif
 <script>
-let charts = {};
+// Phase 3 Skin Trends - CHARTS DISABLED
+// Charts have been disabled for better performance
+// To re-enable: Change @if(false) to @if(true) above
 
-// Initialize charts on page load
 document.addEventListener('DOMContentLoaded', function() {
-    initializeCharts();
+    console.log('Phase 3 Skin Trends - Charts disabled for performance');
+    
+    // Show simple static data instead of charts
+    const chartContainers = document.querySelectorAll('[id$="Chart"]');
+    chartContainers.forEach(container => {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">Charts disabled for performance</div>';
+    });
 });
-
-function initializeCharts() {
-    // Skin Type Distribution Chart
-    const skinTypeCtx = document.getElementById('skinTypeChart').getContext('2d');
-    charts.skinType = new Chart(skinTypeCtx, {
-        type: 'doughnut',
-        data: {
-            labels: @json($skinTypeDistribution['chart_data']->pluck('label')),
-            datasets: [{
-                data: @json($skinTypeDistribution['chart_data']->pluck('value')),
-                backgroundColor: [
-                    '#7EC8B3', '#F6C1CC', '#FFD6A5', '#A8D5C2', '#6B4F4F'
-                ],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
+</script>
+@endsection
             plugins: {
                 legend: {
                     position: 'bottom'

@@ -318,119 +318,49 @@
 </div>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="{{ asset('js/seller-performance-charts.js') }}"></script>
+<!-- Phase 4 Charts DISABLED for performance -->
+@if(false)
+    <script src="{{ asset('js/chart.min.js') }}"></script>
+    <script src="{{ asset('js/seller-performance-charts.js') }}"></script>
+@endif
 <script>
-let sellerPerformanceCharts;
+// Phase 4 Seller Performance - CHARTS DISABLED
+// Charts have been disabled for better performance
+// To re-enable: Change @if(false) to @if(true) above
 
-// Initialize charts when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
-    sellerPerformanceCharts = new SellerPerformanceCharts();
-    sellerPerformanceCharts.initializeCharts();
+    console.log('Phase 4 Seller Performance - Charts disabled for performance');
+    
+    // Show simple static data instead of charts
+    const chartContainers = document.querySelectorAll('[id$="Chart"]');
+    chartContainers.forEach(container => {
+        container.innerHTML = '<div class="text-center text-gray-500 py-8">Charts disabled for performance</div>';
+    });
 });
 
-function updateFilters() {
-    const period = document.getElementById('periodFilter').value;
-    const sellerStatus = document.getElementById('sellerStatusFilter').value;
-    const minRevenue = document.getElementById('minRevenueFilter').value || 0;
-    const minOrders = document.getElementById('minOrdersFilter').value || 0;
+// Simplified data refresh (no charts)
+function refreshSellerData() {
+    console.log('Data refresh - Charts disabled');
+    showNotification('Data refreshed (charts disabled)', 'info');
+}
 
-    // Update URL and reload page with new filters
-    const url = new URL(window.location);
-    url.searchParams.set('period', period);
-    url.searchParams.set('seller_status', sellerStatus);
-    url.searchParams.set('min_revenue', minRevenue);
-    url.searchParams.set('min_orders', minOrders);
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500 text-white' : 
+        type === 'error' ? 'bg-red-500 text-white' : 
+        'bg-blue-500 text-white'
+    }`;
+    notification.textContent = message;
     
-    window.location.href = url.toString();
-}
-
-function resetFilters() {
-    document.getElementById('periodFilter').value = '30days';
-    document.getElementById('sellerStatusFilter').value = 'all';
-    document.getElementById('minRevenueFilter').value = 0;
-    document.getElementById('minOrdersFilter').value = 0;
+    document.body.appendChild(notification);
     
-    window.location.href = '{{ route("admin.seller-performance") }}';
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
 }
-
-function refreshAllData() {
-    // Show loading state
-    const charts = document.querySelectorAll('canvas');
-    charts.forEach(chart => {
-        chart.style.opacity = '0.5';
-    });
-
-    // Reload page data
-    fetch(window.location.href, {
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.text())
-    .then(html => {
-        // Parse and update the data sections
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        
-        // Update overview stats
-        updateOverviewStats(doc);
-        
-        // Update charts with new data
-        updateChartsData(doc);
-        
-        // Restore chart opacity
-        charts.forEach(chart => {
-            chart.style.opacity = '1';
-        });
-    })
-    .catch(error => {
-        console.error('Error refreshing data:', error);
-        charts.forEach(chart => {
-            chart.style.opacity = '1';
-        });
-    });
-}
-
-function updateOverviewStats(doc) {
-    // Update overview statistics
-    const stats = ['total_sellers', 'active_sellers', 'total_revenue', 'total_orders', 'avg_revenue_per_seller', 'avg_fulfillment_rate', 'avg_satisfaction_score'];
-    
-    stats.forEach(stat => {
-        const element = document.querySelector(`[data-stat="${stat}"]`);
-        if (element) {
-            const newValue = doc.querySelector(`[data-stat="${stat}"]`);
-            if (newValue) {
-                element.textContent = newValue.textContent;
-            }
-        }
-    });
-}
-
-function updateChartsData(doc) {
-    // Update each chart with new data
-    if (window.sellerPerformanceCharts) {
-        window.sellerPerformanceCharts.updateChartsData(doc);
-    }
-}
-
-function exportSellerPerformance() {
-    fetch('{{ route("admin.seller-performance.export") }}', {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-            period: document.getElementById('periodFilter').value,
-            seller_status: document.getElementById('sellerStatusFilter').value,
-            min_revenue: document.getElementById('minRevenueFilter').value || 0,
-            min_orders: document.getElementById('minOrdersFilter').value || 0
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
+</script>
+@endsection
         if (data.download_url) {
             // Create download link
             const link = document.createElement('a');
