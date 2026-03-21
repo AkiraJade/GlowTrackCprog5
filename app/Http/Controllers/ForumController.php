@@ -212,7 +212,7 @@ class ForumController extends Controller
         }
 
         $validated = $request->validate([
-            'content' => 'required|string|min:3',
+            'content' => 'required|string|min:10',
         ]);
 
         \Log::info('Validation passed. Content: ' . $validated['content']);
@@ -276,7 +276,7 @@ class ForumController extends Controller
         }
 
         $validated = $request->validate([
-            'content' => 'required|string|min:3',
+            'content' => 'required|string|min:10',
         ]);
 
         \Log::info('Reply to reply validation passed. Content: ' . $validated['content']);
@@ -337,7 +337,7 @@ class ForumController extends Controller
         }
 
         $validated = $request->validate([
-            'content' => 'required|string|min:3',
+            'content' => 'required|string|min:10',
         ]);
 
         $reply->update($validated);

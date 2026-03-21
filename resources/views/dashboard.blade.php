@@ -289,7 +289,7 @@
                         </div>
                     </div>
 
-                    <button onclick="window.location.href='{{ route('profile.show') }}#loyalty'" class="w-full py-2 bg-white text-jade-green rounded-full font-semibold hover:bg-opacity-90 transition cursor-pointer">
+                    <button onclick="window.location.href='{{ route('loyalty.index') }}'" class="w-full py-2 bg-white text-jade-green rounded-full font-semibold hover:bg-opacity-90 transition cursor-pointer">
                         Learn More
                     </button>
                 </div>

@@ -70,46 +70,52 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($rewards as $reward)
-                <div class="border border-light-sage rounded-xl p-6 hover:border-jade-green hover:shadow-lg transition {{ !$reward['available'] ? 'opacity-50' : '' }}">
+                @php
+                    $category = $reward['category'];
+                    $name = $reward['name'];
+                    $description = $reward['description'];
+                    $pointsCost = $reward['points_cost'];
+                    $rewardId = $reward['id'];
+                    $isAvailable = isset($reward['available']) && $reward['available'];
+                @endphp
+                <div class="border border-light-sage rounded-xl p-6 hover:border-jade-green hover:shadow-lg transition">
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <span class="px-2 py-1 bg-jade-green text-white text-xs font-medium rounded-full mb-2 inline-block">
-                                {{ $reward['category'] }}
+                                {{ $category }}
                             </span>
-                            <h3 class="font-bold text-soft-brown mb-2">{{ $reward['name'] }}</h3>
-                            <p class="text-sm text-soft-brown opacity-75 mb-4">{{ $reward['description'] }}</p>
+                            <h3 class="font-bold text-soft-brown mb-2">{{ $name }}</h3>
+                            <p class="text-sm text-soft-brown opacity-75 mb-4">{{ $description }}</p>
                         </div>
                         <div class="text-center">
                             <div class="w-16 h-16 bg-jade-green rounded-full flex items-center justify-center mb-2">
-                                <span class="text-lg font-bold text-white">{{ $reward['points_cost'] }}</span>
+                                <span class="text-lg font-bold text-white">{{ $pointsCost }}</span>
                             </div>
                             <p class="text-xs text-soft-brown opacity-75">points</p>
                         </div>
                     </div>
                     
-                    @if($reward['available'])
-                        @if($loyaltyData['current_points'] >= $reward['points_cost'])
+                    @if($isAvailable && $loyaltyData['current_points'] >= $pointsCost)
                             <form method="POST" action="{{ route('loyalty.redeem') }}">
                                 @csrf
-                                <input type="hidden" name="reward_id" value="{{ $reward['id'] }}">
+                                <input type="hidden" name="reward_id" value="{{ $rewardId }}">
                                 <button type="submit" 
                                         class="w-full py-2 bg-jade-green text-white rounded-full hover:shadow-lg transition font-semibold"
-                                        onclick="return confirm('Are you sure you want to redeem {{ $reward['name'] }} for {{ $reward['points_cost'] }} points?')">
+                                        onclick="return confirm('Are you sure you want to redeem {{ $name }} for {{ $pointsCost }} points?')">
                                     Redeem Reward
                                 </button>
                             </form>
+                        @elseif($isAvailable)
+                            <button disabled 
+                                    class="w-full py-2 bg-gray-300 text-gray-500 rounded-full font-semibold cursor-not-allowed">
+                                Need {{ $pointsCost - $loyaltyData['current_points'] }} more points
+                            </button>
                         @else
                             <button disabled 
                                     class="w-full py-2 bg-gray-300 text-gray-500 rounded-full font-semibold cursor-not-allowed">
-                                Need {{ $reward['points_cost'] - $loyaltyData['current_points'] }} more points
+                                Currently Unavailable
                             </button>
                         @endif
-                    @else
-                        <button disabled 
-                                class="w-full py-2 bg-gray-300 text-gray-500 rounded-full font-semibold cursor-not-allowed">
-                            Currently Unavailable
-                        </button>
-                    @endif
                 </div>
                 @endforeach
             </div>

@@ -45,8 +45,15 @@
                     <label for="content" class="block text-sm font-medium text-soft-brown mb-2">Message</label>
                     <textarea id="content" name="content" rows="8" required
                               placeholder="Share your thoughts, ask questions, or provide details about your topic..."
-                              class="w-full px-4 py-3 border border-light-sage rounded-xl focus:ring-2 focus:ring-jade-green focus:border-transparent transition resize-none"></textarea>
-                    <p class="text-sm text-soft-brown opacity-60 mt-2">Minimum 10 characters</p>
+                              class="w-full px-4 py-3 border border-light-sage rounded-xl focus:ring-2 focus:ring-jade-green focus:border-transparent transition resize-none"
+                              oninput="validateContent(this)"></textarea>
+                    <div class="flex justify-between items-center mt-2">
+                        <p class="text-sm text-soft-brown opacity-60">Minimum 10 characters</p>
+                        <span id="charCount" class="text-sm text-soft-brown opacity-60">0 / 10</span>
+                    </div>
+                    <div id="contentWarning" class="hidden mt-2 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                        <p class="text-sm font-medium">⚠️ Message must be at least 10 characters long</p>
+                    </div>
                 </div>
 
                 <!-- Guidelines -->
@@ -63,8 +70,9 @@
 
                 <!-- Buttons -->
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <button type="submit" 
-                            class="flex-1 px-6 py-3 bg-jade-green text-white rounded-full hover:shadow-lg transition font-semibold">
+                    <button type="submit" id="submitBtn"
+                            class="flex-1 px-6 py-3 bg-jade-green text-white rounded-full hover:shadow-lg transition font-semibold"
+                            onclick="return validateForm(event)">
                         Create Discussion
                     </button>
                     <a href="{{ route('support.forum') }}" 
@@ -76,4 +84,63 @@
         </div>
     </div>
 </div>
+
+<script>
+function validateContent(textarea) {
+    const content = textarea.value.trim();
+    const charCount = content.length;
+    const charCountElement = document.getElementById('charCount');
+    const warningElement = document.getElementById('contentWarning');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    // Update character count
+    charCountElement.textContent = `${charCount} / 10`;
+    
+    // Update character count color
+    if (charCount < 10) {
+        charCountElement.classList.add('text-red-500');
+        charCountElement.classList.remove('text-soft-brown');
+    } else {
+        charCountElement.classList.remove('text-red-500');
+        charCountElement.classList.add('text-soft-brown');
+    }
+    
+    // Show/hide warning
+    if (charCount > 0 && charCount < 10) {
+        warningElement.classList.remove('hidden');
+    } else {
+        warningElement.classList.add('hidden');
+    }
+    
+    // Enable/disable submit button
+    if (charCount >= 10) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+}
+
+function validateForm(event) {
+    const content = document.getElementById('content').value.trim();
+    
+    if (content.length < 10) {
+        event.preventDefault();
+        document.getElementById('contentWarning').classList.remove('hidden');
+        document.getElementById('content').focus();
+        return false;
+    }
+    
+    return true;
+}
+
+// Initialize validation on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const contentTextarea = document.getElementById('content');
+    if (contentTextarea) {
+        validateContent(contentTextarea);
+    }
+});
+</script>
 @endsection

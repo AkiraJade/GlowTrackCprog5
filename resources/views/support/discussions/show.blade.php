@@ -79,12 +79,21 @@
                     <form method="POST" action="{{ route('forum.reply', $discussion) }}">
                         @csrf
                         <div class="mb-4">
-                            <textarea name="content" rows="4" required
+                            <textarea name="content" id="replyContent" rows="4" required
                                       placeholder="Share your thoughts on this discussion..."
-                                      class="w-full px-4 py-3 border border-light-sage rounded-xl focus:ring-2 focus:ring-jade-green focus:border-transparent transition resize-none"></textarea>
+                                      class="w-full px-4 py-3 border border-light-sage rounded-xl focus:ring-2 focus:ring-jade-green focus:border-transparent transition resize-none"
+                                      oninput="validateReplyContent(this)"></textarea>
+                            <div class="flex justify-between items-center mt-2">
+                                <p class="text-sm text-soft-brown opacity-60">Minimum 10 characters</p>
+                                <span id="replyCharCount" class="text-sm text-soft-brown opacity-60">0 / 10</span>
+                            </div>
+                            <div id="replyWarning" class="hidden mt-2 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                                <p class="text-sm font-medium">⚠️ Reply must be at least 10 characters long</p>
+                            </div>
                         </div>
-                        <button type="submit" 
-                                class="px-6 py-2 bg-jade-green text-white rounded-full hover:shadow-lg transition font-semibold">
+                        <button type="submit" id="replySubmitBtn"
+                                class="px-6 py-2 bg-jade-green text-white rounded-full hover:shadow-lg transition font-semibold"
+                                onclick="return validateReplyForm(event)">
                             Post Reply
                         </button>
                     </form>
@@ -229,6 +238,63 @@ function toggleReplyForm(replyId) {
         }
     }
 }
+
+function validateReplyContent(textarea) {
+    const content = textarea.value.trim();
+    const charCount = content.length;
+    const charCountElement = document.getElementById('replyCharCount');
+    const warningElement = document.getElementById('replyWarning');
+    const submitBtn = document.getElementById('replySubmitBtn');
+    
+    // Update character count
+    charCountElement.textContent = `${charCount} / 10`;
+    
+    // Update character count color
+    if (charCount < 10) {
+        charCountElement.classList.add('text-red-500');
+        charCountElement.classList.remove('text-soft-brown');
+    } else {
+        charCountElement.classList.remove('text-red-500');
+        charCountElement.classList.add('text-soft-brown');
+    }
+    
+    // Show/hide warning
+    if (charCount > 0 && charCount < 10) {
+        warningElement.classList.remove('hidden');
+    } else {
+        warningElement.classList.add('hidden');
+    }
+    
+    // Enable/disable submit button
+    if (charCount >= 10) {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    } else {
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+}
+
+function validateReplyForm(event) {
+    const content = document.getElementById('replyContent').value.trim();
+    
+    if (content.length < 10) {
+        event.preventDefault();
+        document.getElementById('replyWarning').classList.remove('hidden');
+        document.getElementById('replyContent').focus();
+        return false;
+    }
+    
+    return true;
+}
+
+// Initialize validation on page load
+document.addEventListener('DOMContentLoaded', function() {
+    const replyTextarea = document.getElementById('replyContent');
+    if (replyTextarea) {
+        validateReplyContent(replyTextarea);
+    }
+});
 </script>
 
 @endsection
