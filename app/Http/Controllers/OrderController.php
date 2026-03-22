@@ -6,6 +6,8 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\OrderStatusNotification;
 
 class OrderController extends Controller
 {
@@ -124,6 +126,22 @@ class OrderController extends Controller
             'notes' => $request->notes ? $request->notes : $order->notes,
         ]);
 
+        // Send email notification to customer
+        try {
+            Mail::to($order->user->email)->send(new OrderStatusNotification($order->user, $order, $newStatus));
+            \Log::info('Order status email sent', [
+                'order_id' => $order->id,
+                'status' => $newStatus,
+                'email' => $order->user->email
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send order status email', [
+                'order_id' => $order->id,
+                'status' => $newStatus,
+                'error' => $e->getMessage()
+            ]);
+        }
+
         // Create notification for the customer
         NotificationController::createNotification(
             $order->user_id,
@@ -215,6 +233,20 @@ class OrderController extends Controller
             'status' => 'cancelled',
             'notes' => 'Cancelled by customer: ' . $request->reason,
         ]);
+
+        // Send email notification to customer
+        try {
+            Mail::to($order->user->email)->send(new OrderStatusNotification($order->user, $order, 'cancelled'));
+            \Log::info('Order cancellation email sent', [
+                'order_id' => $order->id,
+                'email' => $order->user->email
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to send order cancellation email', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage()
+            ]);
+        }
 
         // Restore product quantities
         foreach ($order->orderItems as $item) {

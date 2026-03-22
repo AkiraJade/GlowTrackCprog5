@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\AdminController;
@@ -427,3 +428,45 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
         // Delivery Dashboard
         Route::get('/delivery-dashboard', [App\Http\Controllers\DeliveryController::class , 'dashboard'])->name('delivery-dashboard');    });
+
+// Test Email Route for Mailtrap
+Route::get('/test-email', function () {
+    $data = [
+        'name' => 'Test User',
+        'message' => 'This is a test email from GlowTrack to verify Mailtrap is working!',
+        'app_name' => config('app.name')
+    ];
+    
+    try {
+        Mail::raw('Hello ' . $data['name'] . ',\n\n' . $data['message'] . '\n\nBest regards,\n' . $data['app_name'], function ($message) use ($data) {
+            $message->to('test@example.com')
+                    ->subject('Mailtrap Test Email from ' . $data['app_name'])
+                    ->from(config('mail.from.address'), config('mail.from.name'));
+        });
+        
+        return 'Test email sent successfully! Check your Mailtrap inbox.';
+    } catch (\Exception $e) {
+        return 'Error sending email: ' . $e->getMessage();
+    }
+})->name('test.email');
+
+// Test Asset Route
+Route::get('/test-asset', function () {
+    return view('test-asset');
+})->name('test.asset');
+
+// Test Welcome Email Route
+Route::get('/test-welcome-email', function () {
+    $testUser = new \App\Models\User([
+        'name' => 'Test User',
+        'email' => 'test@example.com',
+        'username' => 'testuser'
+    ]);
+    
+    try {
+        Mail::to('test@example.com')->send(new \App\Mail\WelcomeEmail($testUser));
+        return 'Welcome email test sent successfully! Check your Mailtrap inbox.';
+    } catch (\Exception $e) {
+        return 'Error sending welcome email: ' . $e->getMessage();
+    }
+})->name('test.welcome-email');
