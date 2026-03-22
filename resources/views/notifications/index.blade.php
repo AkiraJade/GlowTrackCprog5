@@ -55,7 +55,65 @@
 
         <!-- Notifications List -->
         <div id="notifications-container" class="divide-y divide-gray-200">
-            <!-- Notifications will be loaded here -->
+            @if(isset($notifications) && $notifications->count() > 0)
+                @foreach($notifications as $notification)
+                    <div class="notification-item px-6 py-4 hover:bg-gray-50 transition-colors {{ $notification->is_read ? '' : 'bg-blue-50' }}"
+                         data-notification-id="{{ $notification->id }}"
+                         onclick="handleNotificationClick({{ $notification->id }})">
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0">
+                                <span class="text-2xl">{{ $notification->icon }}</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center justify-between">
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ $notification->title }}
+                                    </p>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs text-gray-500">{{ $notification->formatted_created_at }}</span>
+                                        @if(!$notification->is_read)
+                                            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                        @endif
+                                    </div>
+                                </div>
+                                <p class="text-sm text-gray-600 mt-1">{{ $notification->message }}</p>
+                                @if($notification->data && isset($notification->data['order_id']))
+                                    <div class="mt-2">
+                                        <a href="/orders/{{ $notification->data['order_id'] }}" 
+                                           class="text-xs text-jade-green hover:text-jade-green-dark font-medium inline-flex items-center">
+                                            View Order
+                                            <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                            </svg>
+                                        </a>
+                                    </div>
+                                @endif
+                                <div class="mt-3 flex items-center space-x-3">
+                                    <button onclick="event.stopPropagation(); markAsRead({{ $notification->id }})" 
+                                            class="text-xs text-gray-500 hover:text-gray-700 {{ $notification->is_read ? 'hidden' : ''}}">
+                                        Mark as read
+                                    </button>
+                                    <button onclick="event.stopPropagation(); deleteNotification({{ $notification->id }})" 
+                                            class="text-xs text-red-500 hover:text-red-700">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+            @else
+                <!-- Empty State -->
+                <div class="px-6 py-12 text-center">
+                    <div class="text-gray-400 mb-4">
+                        <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
+                    <p class="text-gray-500">You're all caught up! We'll notify you when something important happens.</p>
+                </div>
+            @endif
         </div>
 
         <!-- Loading State -->
@@ -79,7 +137,35 @@
 
         <!-- Pagination -->
         <div id="pagination-container" class="px-6 py-4 border-t border-gray-200">
-            <!-- Pagination will be loaded here -->
+            @if(isset($notifications) && $notifications->lastPage() > 1)
+                <div class="flex items-center justify-between">
+                    <!-- Previous button -->
+                    <button onclick="loadNotifications({{ $notifications->previousPage() ?: 1 }}, '{{ request->get('filter', 'all') }}')" 
+                            class="px-3 py-1 text-sm {{ $notifications->previousPage() ? 'text-jade-green hover:text-jade-green-dark' : 'text-gray-400 cursor-not-allowed' }} font-medium">
+                        Previous
+                    </button>
+
+                    <!-- Page numbers -->
+                    <div class="flex items-center space-x-2">
+                        @for($i = 1; $i <= $notifications->lastPage(); $i++)
+                            @if($i == 1 || $i == $notifications->lastPage() || ($i >= $notifications->currentPage() - 2 && $i <= $notifications->currentPage() + 2))
+                                <button onclick="loadNotifications({{ $i }}, '{{ request->get('filter', 'all') }}')" 
+                                        class="px-3 py-1 text-sm {{ $i == $notifications->currentPage() ? 'bg-jade-green text-white' : 'text-gray-700 hover:bg-gray-100' }} rounded">
+                                    {{ $i }}
+                                </button>
+                            @elseif($i == $notifications->currentPage() - 3 || $i == $notifications->currentPage() + 3)
+                                <span class="text-gray-400">...</span>
+                            @endif
+                        @endfor
+                    </div>
+
+                    <!-- Next button -->
+                    <button onclick="loadNotifications({{ $notifications->nextPage() ?: $notifications->lastPage() }}, '{{ request->get('filter', 'all') }}')" 
+                            class="px-3 py-1 text-sm {{ $notifications->nextPage() ? 'text-jade-green hover:text-jade-green-dark' : 'text-gray-400 cursor-not-allowed' }} font-medium">
+                        Next
+                    </button>
+                </div>
+            @endif
         </div>
     </div>
 </div>
@@ -93,7 +179,11 @@ let notifications = [];
 
 // Load notifications on page load
 document.addEventListener('DOMContentLoaded', function() {
-    loadNotifications();
+    // Hide loading state initially since we have server-rendered content
+    document.getElementById('loading-state').classList.add('hidden');
+    
+    // Only load via AJAX if we need to filter or refresh
+    // loadNotifications();
 });
 
 async function loadNotifications(page = 1, filter = 'all') {
@@ -269,10 +359,49 @@ async function markAsRead(notificationId) {
         });
 
         if (response.ok) {
-            loadNotifications(currentPage, currentFilter);
+            const data = await response.json();
+            
+            // Update the specific notification item
+            const notificationItem = document.querySelector(`[data-notification-id="${notificationId}"]`);
+            if (notificationItem) {
+                // Remove unread styling
+                notificationItem.classList.remove('bg-blue-50');
+                
+                // Hide the mark as read button
+                const markAsReadBtn = notificationItem.querySelector('button[onclick*="markAsRead"]');
+                if (markAsReadBtn) {
+                    markAsReadBtn.classList.add('hidden');
+                }
+                
+                // Remove the unread indicator dot
+                const unreadDot = notificationItem.querySelector('.bg-blue-500.rounded-full');
+                if (unreadDot) {
+                    unreadDot.remove();
+                }
+            }
+            
+            // Update unread count in the UI
+            updateUnreadCount(data.unread_count);
+            
+            console.log('Notification marked as read successfully');
+        } else {
+            console.error('Failed to mark notification as read');
         }
     } catch (error) {
         console.error('Error marking notification as read:', error);
+    }
+}
+
+function updateUnreadCount(count) {
+    // Update notification badge in header
+    const badge = document.querySelector('#notification-btn .bg-red-500');
+    if (badge) {
+        if (count > 0) {
+            badge.textContent = count;
+            badge.style.display = 'flex';
+        } else {
+            badge.style.display = 'none';
+        }
     }
 }
 
@@ -300,9 +429,14 @@ async function deleteNotification(notificationId) {
 }
 
 async function clearAllNotifications() {
+    console.log('Clear all notifications clicked');
+    
     if (!confirm('Are you sure you want to clear all notifications? This action cannot be undone.')) {
+        console.log('User cancelled clear all');
         return;
     }
+
+    console.log('User confirmed, proceeding with clear all');
 
     try {
         const response = await fetch('/notifications/clear-all', {
@@ -314,11 +448,66 @@ async function clearAllNotifications() {
             }
         });
 
+        console.log('Clear all response status:', response.status);
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('Clear all response data:', data);
+            
+            // Clear all notification items from the container
+            const container = document.getElementById('notifications-container');
+            if (container) {
+                console.log('Updating notification container');
+                container.innerHTML = `
+                    <div class="px-6 py-12 text-center">
+                        <div class="text-gray-400 mb-4">
+                            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No notifications</h3>
+                        <p class="text-gray-500">You're all caught up! We'll notify you when something important happens.</p>
+                    </div>
+                `;
+            }
+            
+            // Clear pagination
+            const paginationContainer = document.getElementById('pagination-container');
+            if (paginationContainer) {
+                console.log('Clearing pagination');
+                paginationContainer.innerHTML = '';
+            }
+            
+            // Update unread count in the UI
+            updateUnreadCount(0);
+            
+            console.log('All notifications cleared successfully');
+        } else {
+            console.error('Failed to clear notifications. Status:', response.status);
+            const errorText = await response.text();
+            console.error('Error response:', errorText);
+        }
+    } catch (error) {
+        console.error('Error clearing notifications:', error);
+    }
+}
+
+async function markAllNotificationsAsRead() {
+    try {
+        const response = await fetch('/notifications/mark-all-as-read', {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        });
+
         if (response.ok) {
             loadNotifications(currentPage, currentFilter);
         }
     } catch (error) {
-        console.error('Error clearing notifications:', error);
+        console.error('Error marking all notifications as read:', error);
     }
 }
 
