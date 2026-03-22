@@ -16,6 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'seller' => \App\Http\Middleware\SellerMiddleware::class,
             'guest.redirect' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         ]);
+        $middleware->web([
+            // Removed EmailRateLimitMiddleware - deleted file
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

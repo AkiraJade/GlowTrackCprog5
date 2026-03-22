@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use App\Models\Order;
 use App\Models\Cart;
 use App\Models\Wishlist;
@@ -19,7 +20,7 @@ use App\Models\RoutineFavorite;
 use App\Models\RoutineRating;
 use App\Models\RoutineReview;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -36,6 +37,7 @@ class User extends Authenticatable
         'phone',
         'address',
         'role',
+        'status',
         'loyalty_points',
         'password',
         'last_seen_at',
@@ -62,7 +64,24 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'status' => 'string',
         ];
+    }
+
+    /**
+     * Check if user is active
+     */
+    public function isActive(): bool
+    {
+        return $this->status === 'active';
+    }
+
+    /**
+     * Check if user is inactive
+     */
+    public function isInactive(): bool
+    {
+        return $this->status === 'inactive';
     }
 
     /**
@@ -408,7 +427,7 @@ class User extends Authenticatable
     /**
      * Check if seller is active based on recent activity.
      */
-    public function isActive(): bool
+    public function isSellerActive(): bool
     {
         return $this->seller_status === 'active' && 
                $this->calculateOrders(now()->subDays(30), now()) > 0;

@@ -18,6 +18,8 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\IngredientConflictController;
 use App\Http\Controllers\SkinTrendReportController;
 use App\Http\Controllers\SellerPerformanceReportController;
+use App\Http\Controllers\EmailVerificationController;
+use App\Http\Controllers\TestRateLimitController;
 
 Route::get('/', function () {
     return view('index');
@@ -64,6 +66,16 @@ Route::middleware('guest')->group(function () {
 
     Route::get('register', [RegisterController::class , 'showRegistrationForm'])->name('register');
     Route::post('register', [RegisterController::class , 'register']);
+    
+    // Verification Pending Page (accessible without auth)
+    Route::get('verify-pending', function () {
+        $email = session('verification_email');
+        if (!$email) {
+            // If no email in session, redirect to register
+            return redirect()->route('register');
+        }
+        return view('auth.verify-pending', ['email' => $email]);
+    })->name('verification.pending');
 });
 
 Route::middleware('auth')->group(function () {
@@ -272,8 +284,21 @@ Route::middleware('auth')->group(function () {
         }
         )->name('dashboard');    });
 
+// Email Verification Routes (accessible without auth to fix catch-22)
+Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])->name('verification.verify');
+Route::post('/email/verification-notification', [EmailVerificationController::class, 'sendVerificationNotification'])->name('verification.send');
+
+// Test route for debugging
+Route::get('/test-import', function() {
+    return 'Import route test - working!';
+});
+
 // Product Routes
 Route::get('/products', [ProductController::class , 'index'])->name('products.index');
+Route::get('/products/import', [ProductController::class , 'showImportForm'])->name('products.import')->middleware('auth');
+Route::post('/products/import', [ProductController::class , 'import'])->name('products.import.store')->middleware('auth');
+Route::get('/products/export', [ProductController::class , 'export'])->name('products.export')->middleware('auth');
+Route::get('/products/download-template', [ProductController::class , 'downloadSampleTemplate'])->name('products.download-template')->middleware('auth');
 Route::get('/products/{product}', [ProductController::class , 'show'])->name('products.show');
 Route::get('/brand/{seller}', [ProductController::class , 'brandPage'])->name('brand.show');
 
@@ -408,6 +433,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         // Admin Notifications
         Route::get('/notifications', [AdminController::class, 'notifications'])->name('notifications');
 
+        // Charts & Analytics
+        Route::get('/charts', [AdminController::class, 'charts'])->name('charts');
+
         // Delivery Management
         Route::get('/deliveries', [App\Http\Controllers\DeliveryController::class , 'index'])->name('deliveries.index');
         Route::get('/deliveries/create', [App\Http\Controllers\DeliveryController::class , 'create'])->name('deliveries.create');
@@ -431,21 +459,23 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
 // Test Email Route for Mailtrap
 Route::get('/test-email', function () {
-    $data = [
-        'name' => 'Test User',
-        'message' => 'This is a test email from GlowTrack to verify Mailtrap is working!',
-        'app_name' => config('app.name')
-    ];
-    
     try {
-        Mail::raw('Hello ' . $data['name'] . ',\n\n' . $data['message'] . '\n\nBest regards,\n' . $data['app_name'], function ($message) use ($data) {
-            $message->to('test@example.com')
-                    ->subject('Mailtrap Test Email from ' . $data['app_name'])
-                    ->from(config('mail.from.address'), config('mail.from.name'));
-        });
+        \Log::info('Test email route accessed');
+        
+        \Mail::to('test@example.com')->send(
+            new class extends \Illuminate\Mail\Mailable {
+                public function envelope() { 
+                    return new \Illuminate\Mail\Mailables\Envelope(subject: 'Test Email from GlowTrack'); 
+                }
+                public function content() { 
+                    return new \Illuminate\Mail\Mailables\Content(view: 'emails.test'); 
+                }
+            }
+        );
         
         return 'Test email sent successfully! Check your Mailtrap inbox.';
     } catch (\Exception $e) {
+        \Log::error('Test email failed: ' . $e->getMessage());
         return 'Error sending email: ' . $e->getMessage();
     }
 })->name('test.email');
@@ -470,3 +500,25 @@ Route::get('/test-welcome-email', function () {
         return 'Error sending welcome email: ' . $e->getMessage();
     }
 })->name('test.welcome-email');
+
+// Test Rate Limiting
+Route::get('/test-rate-limit', [TestRateLimitController::class, 'testMultipleEmails'])->name('test.rate-limit');
+
+// Test Order Confirmation Email
+Route::get('/test-order-email', function () {
+    try {
+        $order = \App\Models\Order::find(1);
+        if (!$order) {
+            return 'Order not found';
+        }
+        
+        $pdfService = new \App\Services\PDFReceiptService();
+        $pdfReceipt = $pdfService->generateReceipt($order);
+        
+        \Illuminate\Support\Facades\Mail::to('test@example.com')->send(new \App\Mail\OrderConfirmationEmail($order, $pdfReceipt));
+        
+        return 'Order confirmation email sent successfully! Check your Mailtrap inbox.';
+    } catch (\Exception $e) {
+        return 'Error sending order confirmation email: ' . $e->getMessage();
+    }
+})->name('test.order-email');

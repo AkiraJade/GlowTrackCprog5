@@ -7,8 +7,6 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\WelcomeEmail;
 
 class RegisterController extends Controller
 {
@@ -113,23 +111,27 @@ class RegisterController extends Controller
             return back()->withErrors(['error' => 'Registration failed. Please try again.'])->withInput();
         }
 
+        // Fire Registered event (triggers verification email)
+        // Welcome email will be sent after verification
         event(new Registered($user));
 
-        // Send welcome email
+        // Do NOT auto-login after registration - user must verify email first
+        // \Illuminate\Support\Facades\Auth::login($user);
+
+        // Store email in session and redirect to verification pending page
+        \Log::info('Registration successful, redirecting to verification pending', [
+            'user_id' => $user->id,
+            'email' => $user->email,
+            'redirect_to' => route('verification.pending')
+        ]);
+        
         try {
-            Mail::to($user->email)->send(new WelcomeEmail($user));
-            \Log::info('Welcome email sent successfully', ['user_id' => $user->id, 'email' => $user->email]);
+            return redirect()->route('verification.pending')
+                ->with('verification_email', $user->email);
         } catch (\Exception $e) {
-            \Log::error('Failed to send welcome email', [
-                'user_id' => $user->id,
-                'email' => $user->email,
-                'error' => $e->getMessage()
-            ]);
+            \Log::error('Redirect failed: ' . $e->getMessage());
+            return redirect()->route('login')
+                ->with('success', 'Your account has been created! Please check your email for verification link.');
         }
-
-        // Auto-login after successful registration
-        \Illuminate\Support\Facades\Auth::login($user);
-
-        return redirect('/')->with('success', 'Your account has been created successfully!');
     }
 }

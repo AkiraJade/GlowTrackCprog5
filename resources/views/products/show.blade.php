@@ -127,7 +127,7 @@
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-2">Suitable for Skin Types</h3>
                         <div class="flex flex-wrap gap-2">
-                            @foreach($product->skin_types as $skinType)
+                            @foreach((array) $product->skin_types as $skinType)
                                 <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
                                     {{ $skinType }}
                                 </span>
@@ -139,7 +139,7 @@
                     <div class="mb-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-2">Active Ingredients</h3>
                         <div class="flex flex-wrap gap-2">
-                            @foreach($product->active_ingredients as $ingredient)
+                            @foreach((array) $product->active_ingredients as $ingredient)
                                 <span class="bg-jade-green text-white px-3 py-1 rounded-full text-sm">
                                     {{ $ingredient }}
                                 </span>

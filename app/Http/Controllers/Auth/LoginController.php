@@ -29,8 +29,21 @@ class LoginController extends Controller
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
             
-            // Redirect based on user role
+            // Check if user has verified their email
             $user = Auth::user();
+            if (!$user->hasVerifiedEmail()) {
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                
+                return back()
+                    ->withInput($request->only('email'))
+                    ->withErrors([
+                        'email' => 'Please verify your email address before logging in. Check your inbox for the verification link.',
+                    ]);
+            }
+            
+            // Redirect based on user role
             if ($user->isAdmin()) {
                 return redirect()->intended(url('/admin/dashboard'));
             } elseif ($user->isSeller()) {

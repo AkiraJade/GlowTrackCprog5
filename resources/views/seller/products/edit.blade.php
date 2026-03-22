@@ -144,10 +144,13 @@
                     
                     <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                         @foreach($skinTypes as $skinType)
+                            @php
+                                $currentSkinTypes = is_array($product->skin_types) ? $product->skin_types : json_decode($product->skin_types ?? '[]', true);
+                            @endphp
                             <label class="flex items-center p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
                                 <input type="checkbox" name="skin_types[]" value="{{ $skinType }}"
                                        class="mr-3 text-jade-green focus:ring-jade-green"
-                                       {{ in_array($skinType, old('skin_types', json_decode($product->skin_types, true) ?? [])) ? 'checked' : '' }}>
+                                       {{ in_array($skinType, old('skin_types', $currentSkinTypes)) ? 'checked' : '' }}>
                                 <span class="text-sm font-medium text-soft-brown">{{ $skinType }}</span>
                             </label>
                         @endforeach
@@ -165,8 +168,9 @@
                     
                     <div id="ingredients-container" class="space-y-3">
                         @php
-                            $ingredients = old('active_ingredients', json_decode($product->active_ingredients, true) ?? []);
-                            if(empty($ingredients)) $ingredients = [''];
+                            $currentIngredients = is_array($product->active_ingredients) ? $product->active_ingredients : json_decode($product->active_ingredients ?? '[]', true);
+                            $ingredients = old('active_ingredients', $currentIngredients);
+                            if(empty($ingredients)) $ingredients = ['Vitamin C']; // Default ingredient instead of empty string
                         @endphp
                         @foreach($ingredients as $index => $ingredient)
                             <div class="ingredient-input-group flex gap-3">
@@ -271,5 +275,36 @@ function previewPhoto(event) {
         reader.readAsDataURL(file);
     }
 }
+
+// Add form submission debugging
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[action*="update"]');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            console.log('Form submitted!');
+            
+            // Check ingredients
+            const ingredients = document.querySelectorAll('input[name="active_ingredients[]"]');
+            const ingredientValues = Array.from(ingredients).map(input => input.value.trim()).filter(val => val !== '');
+            console.log('Ingredients found:', ingredientValues);
+            
+            if (ingredientValues.length === 0) {
+                alert('Please add at least one active ingredient.');
+                e.preventDefault();
+                return false;
+            }
+            
+            // Check skin types
+            const skinTypes = document.querySelectorAll('input[name="skin_types[]"]:checked');
+            if (skinTypes.length === 0) {
+                alert('Please select at least one skin type.');
+                e.preventDefault();
+                return false;
+            }
+            
+            console.log('Form validation passed, submitting...');
+        });
+    }
+});
 </script>
 @endsection

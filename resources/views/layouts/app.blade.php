@@ -86,6 +86,8 @@
 
                         @if(auth()->user()->isAdmin())
                             <a href="{{ route('admin.dashboard') }}" class="text-soft-brown hover:text-jade-green transition font-medium">Admin Panel</a>
+                            <a href="{{ route('products.import') }}" class="text-soft-brown hover:text-jade-green transition">Import Products</a>
+                            <a href="{{ route('products.export') }}" class="text-soft-brown hover:text-jade-green transition">Export Products</a>
                         @endif
 @if(auth()->user()->isCustomer())
                             <a href="{{ route('cart.index') }}" class="text-soft-brown hover:text-jade-green transition">Cart ({{ Auth::user()->cartItems()->count() }})</a>
@@ -94,6 +96,8 @@
                         @if(auth()->user()->isSeller())
                             <a href="{{ route('seller.dashboard') }}" class="text-soft-brown hover:text-jade-green transition">Seller Dashboard</a>
                             <a href="{{ route('seller.products.index') }}" class="text-soft-brown hover:text-jade-green transition">My Products</a>
+                            <a href="{{ route('products.import') }}" class="text-soft-brown hover:text-jade-green transition">Import Products</a>
+                            <a href="{{ route('products.export') }}" class="text-soft-brown hover:text-jade-green transition">Export Products</a>
                         @endif
                         
                         <a href="{{ route('dashboard') }}" class="text-soft-brown hover:text-jade-green transition">Dashboard</a>
@@ -167,13 +171,46 @@
         });
     </script>
     
-    <!-- Phase 1-4 JavaScript (DISABLED for performance) -->
-    @if(auth()->check() && false)
-        <!-- Notifications and Conflict Detection disabled -->
-        @if(false)
-            <script src="{{ asset('js/notifications.js') }}"></script>
-            <script src="{{ asset('js/conflict-detector.js') }}"></script>
-        @endif
+    <!-- Notifications JavaScript -->
+    @if(auth()->check())
+        <script>
+            // Auto-refresh notifications every 30 seconds
+            setInterval(() => {
+                fetch('{{ route("notifications.unread-count") }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        const badge = document.querySelector('#notification-btn .bg-red-500');
+                        if (badge) {
+                            if (data.unread_count > 0) {
+                                badge.textContent = data.unread_count;
+                                badge.style.display = 'flex';
+                            } else {
+                                badge.style.display = 'none';
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error fetching notifications:', error));
+            }, 30000);
+
+            // Mark notification as read when clicked
+            document.addEventListener('DOMContentLoaded', function() {
+                const notificationLinks = document.querySelectorAll('[data-notification-id]');
+                notificationLinks.forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        const notificationId = this.dataset.notificationId;
+                        if (notificationId) {
+                            fetch(`{{ route("notifications.mark-read", ":id") }}`.replace(':id', notificationId), {
+                                method: 'POST',
+                                headers: {
+                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                    'Content-Type': 'application/json'
+                                }
+                            }).catch(error => console.error('Error marking notification as read:', error));
+                        }
+                    });
+                });
+            });
+        </script>
     @endif
     
     @stack('scripts')

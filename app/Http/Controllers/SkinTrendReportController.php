@@ -22,8 +22,6 @@ class SkinTrendReportController extends Controller
      */
     public function index(Request $request): View
     {
-        $this->authorize('viewReports', User::class);
-
         $filters = [
             'period' => $request->get('period', '30days'),
             'skin_type' => $request->get('skin_type', 'all'),

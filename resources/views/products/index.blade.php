@@ -183,7 +183,7 @@
                                 <div class="text-sm text-gray-600 mb-3">
                                     <div>{{ $product->size_volume }}</div>
                                     <div class="text-xs">
-                                        @foreach($product->skin_types as $skinType)
+                                        @foreach((array) $product->skin_types as $skinType)
                                             <span class="bg-gray-100 px-1 py-0.5 rounded">{{ $skinType }}</span>
                                         @endforeach
                                     </div>
@@ -192,9 +192,9 @@
                                 <!-- Key Ingredients -->
                                 @if($product->active_ingredients)
                                     <div class="text-xs text-gray-500 mb-3">
-                                        <strong>Key ingredients:</strong> {{ implode(', ', array_slice($product->active_ingredients, 0, 2)) }}
-                                        @if(count($product->active_ingredients) > 2)
-                                            +{{ count($product->active_ingredients) - 2 }} more
+                                        <strong>Key ingredients:</strong> {{ implode(', ', array_slice((array) $product->active_ingredients, 0, 2)) }}
+                                        @if(count((array) $product->active_ingredients) > 2)
+                                            +{{ count((array) $product->active_ingredients) - 2 }} more
                                         @endif
                                     </div>
                                 @endif

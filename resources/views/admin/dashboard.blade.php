@@ -130,6 +130,22 @@
                         </div>
                     </a>
 
+                    <a href="{{ route('products.import') }}" class="flex items-center gap-3 p-3 rounded-lg bg-blue-50 hover:bg-blue-100 hover:shadow-md transition border border-blue-200">
+                        <span class="text-2xl">📥</span>
+                        <div>
+                            <p class="font-semibold text-gray-900">Import Products</p>
+                            <p class="text-xs text-gray-600">Bulk import from Excel</p>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('products.export') }}" class="flex items-center gap-3 p-3 rounded-lg bg-purple-50 hover:bg-purple-100 hover:shadow-md transition border border-purple-200">
+                        <span class="text-2xl">📤</span>
+                        <div>
+                            <p class="font-semibold text-gray-900">Export Products</p>
+                            <p class="text-xs text-gray-600">Download Excel data</p>
+                        </div>
+                    </a>
+
                     <a href="{{ route('admin.orders') }}" class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 hover:shadow-md transition border border-gray-200">
                         <span class="text-2xl">🛒</span>
                         <div>
@@ -151,6 +167,14 @@
                         <div>
                             <p class="font-semibold">View Reports</p>
                             <p class="text-xs opacity-80">Sales & analytics</p>
+                        </div>
+                    </a>
+
+                    <a href="{{ route('admin.charts') }}" class="flex items-center gap-3 p-3 rounded-lg bg-indigo-500 hover:bg-indigo-600 hover:shadow-md transition text-white">
+                        <span class="text-2xl">📈</span>
+                        <div>
+                            <p class="font-semibold">Analytics & Charts</p>
+                            <p class="text-xs opacity-80">View detailed analytics</p>
                         </div>
                     </a>
 

@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use App\Services\PDFReceiptService;
 
 class CheckoutController extends Controller
 {
@@ -99,6 +101,24 @@ class CheckoutController extends Controller
             ]);
 
             Log::info('Order created', ['order_id' => $order->id]);
+
+            // Send order confirmation email with PDF receipt
+            try {
+                $pdfService = new PDFReceiptService();
+                $pdfReceipt = $pdfService->generateReceipt($order);
+                
+                Mail::to($order->user->email)->send(new \App\Mail\OrderConfirmationEmail($order, $pdfReceipt));
+                
+                Log::info('Order confirmation email sent', [
+                    'order_id' => $order->id,
+                    'user_email' => $order->user->email,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('Failed to send order confirmation email', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
 
             // Create order items
             foreach ($cartItems as $cartItem) {

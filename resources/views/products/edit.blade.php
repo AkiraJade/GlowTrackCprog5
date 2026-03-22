@@ -111,6 +111,60 @@
                         </div>
                     </div>
 
+                    <!-- Skin Types -->
+                    <div class="mb-8">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Suitable Skin Types</h2>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                            @foreach(['Oily', 'Dry', 'Combination', 'Sensitive', 'Normal'] as $skinType)
+                                @php
+                                    $currentSkinTypes = is_array($product->skin_types) ? $product->skin_types : json_decode($product->skin_types ?? '[]', true);
+                                @endphp
+                                <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50">
+                                    <input type="checkbox" name="skin_types[]" value="{{ $skinType }}"
+                                           class="mr-3 text-jade-green focus:ring-jade-green"
+                                           {{ in_array($skinType, old('skin_types', $currentSkinTypes)) ? 'checked' : '' }}>
+                                    <span class="text-sm font-medium text-gray-700">{{ $skinType }}</span>
+                                </label>
+                            @endforeach
+                        </div>
+                        @error('skin_types')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <!-- Active Ingredients -->
+                    <div class="mb-8">
+                        <h2 class="text-lg font-semibold text-gray-900 mb-4">Active Ingredients</h2>
+                        
+                        <div id="ingredients-container" class="space-y-3">
+                            @php
+                                $currentIngredients = is_array($product->active_ingredients) ? $product->active_ingredients : json_decode($product->active_ingredients ?? '[]', true);
+                                $ingredients = old('active_ingredients', $currentIngredients);
+                                if(empty($ingredients)) $ingredients = ['Vitamin C'];
+                            @endphp
+                            @foreach($ingredients as $index => $ingredient)
+                                <div class="ingredient-input-group flex gap-3">
+                                    <input type="text" name="active_ingredients[]" 
+                                           class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
+                                           placeholder="e.g., Hyaluronic Acid" value="{{ $ingredient }}">
+                                    <button type="button" onclick="removeIngredient(this)" 
+                                            class="p-2 text-red-600 hover:bg-red-50 rounded-md" title="Remove ingredient">
+                                        ×
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
+                        
+                        <button type="button" onclick="addIngredient()" 
+                                class="mt-4 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition">
+                            + Add Another Ingredient
+                        </button>
+                        @error('active_ingredients')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
                     <!-- Product Photos -->
                     <div class="mb-8">
                         <h2 class="text-lg font-semibold text-gray-900 mb-4">Product Photos</h2>
@@ -319,5 +373,114 @@ function setPrimaryImage(imageId) {
         }
     });
 }
+
+// Add ingredient management functions
+function addIngredient() {
+    const container = document.getElementById('ingredients-container');
+    const newGroup = document.createElement('div');
+    newGroup.className = 'ingredient-input-group flex gap-3';
+    newGroup.innerHTML = `
+        <input type="text" name="active_ingredients[]" 
+               class="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
+               placeholder="e.g., Hyaluronic Acid">
+        <button type="button" onclick="removeIngredient(this)" 
+                class="p-2 text-red-600 hover:bg-red-50 rounded-md" title="Remove ingredient">
+            ×
+        </button>
+    `;
+    container.appendChild(newGroup);
+}
+
+function removeIngredient(button) {
+    const container = document.getElementById('ingredients-container');
+    if (container.children.length > 1) {
+        button.parentElement.remove();
+    }
+}
+
+// Add comprehensive form debugging
+document.addEventListener('DOMContentLoaded', function() {
+    // Try multiple selectors to find the form
+    const form = document.querySelector('form[method="POST"]') || 
+                   document.querySelector('form[enctype="multipart/form-data"]') ||
+                   document.querySelector('form');
+                   
+    if (form) {
+        console.log('✅ Form found:', form.action);
+        console.log('✅ Form method:', form.method);
+        console.log('✅ Form enctype:', form.enctype);
+        
+        form.addEventListener('submit', function(e) {
+            console.log('🚀 Form submit triggered!');
+            e.preventDefault(); // Prevent actual submission for debugging
+            
+            try {
+                // Get all form data
+                const formData = new FormData(form);
+                const data = {};
+                
+                // Convert FormData to object
+                for (let [key, value] of formData.entries()) {
+                    if (data[key]) {
+                        // Convert to array if multiple values
+                        if (!Array.isArray(data[key])) {
+                            data[key] = [data[key]];
+                        }
+                        data[key].push(value);
+                    } else {
+                        data[key] = value;
+                    }
+                }
+                
+                console.log('📊 Form data being submitted:', data);
+                
+                // Check required fields
+                const requiredFields = ['name', 'description', 'brand', 'classification', 'price', 'size_volume', 'quantity'];
+                const missingFields = requiredFields.filter(field => !data[field] || data[field] === '');
+                
+                if (missingFields.length > 0) {
+                    console.error('❌ Missing required fields:', missingFields);
+                    alert('Please fill in all required fields: ' + missingFields.join(', '));
+                    return false;
+                }
+                
+                // Check arrays
+                const skinTypes = Array.isArray(data['skin_types']) ? data['skin_types'] : [data['skin_types']];
+                const ingredients = Array.isArray(data['active_ingredients']) ? data['active_ingredients'] : [data['active_ingredients']];
+                
+                const cleanSkinTypes = skinTypes.filter(val => val && val.trim() !== '');
+                const cleanIngredients = ingredients.filter(val => val && val.trim() !== '');
+                
+                console.log('🧑 Skin types:', cleanSkinTypes);
+                console.log('🌿 Ingredients:', cleanIngredients);
+                
+                if (cleanSkinTypes.length === 0) {
+                    console.error('❌ No skin types selected');
+                    alert('Please select at least one skin type');
+                    return false;
+                }
+                
+                if (cleanIngredients.length === 0) {
+                    console.error('❌ No ingredients provided');
+                    alert('Please add at least one active ingredient');
+                    return false;
+                }
+                
+                console.log('✅ Validation passed, submitting form...');
+                
+                // Remove the preventDefault and submit
+                e.target.removeEventListener('submit', arguments.callee);
+                e.target.submit();
+                
+            } catch (error) {
+                console.error('❌ Form submission error:', error);
+                alert('Error submitting form: ' + error.message);
+                return false;
+            }
+        });
+    } else {
+        console.error('❌ Form not found!');
+    }
+});
 </script>
 @endsection

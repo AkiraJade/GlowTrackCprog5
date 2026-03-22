@@ -24,6 +24,12 @@
                             <a href="{{ route('seller.orders.index') }}" class="px-6 py-2 bg-jade-green text-white rounded-full hover:shadow-lg transition font-semibold">
                                 My Orders
                             </a>
+                            <a href="{{ route('products.import') }}" class="px-6 py-2 bg-blue-600 text-white rounded-full hover:shadow-lg transition font-semibold">
+                                📥 Import Products
+                            </a>
+                            <a href="{{ route('products.export') }}" class="px-6 py-2 bg-purple-600 text-white rounded-full hover:shadow-lg transition font-semibold">
+                                📤 Export Products
+                            </a>
                             <a href="{{ route('seller.products.create') }}" class="px-6 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
                                 Add New Product
                             </a>

@@ -10,6 +10,9 @@ use App\Http\Controllers\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ProductsImport;
+use App\Exports\ProductsExport;
 
 class ProductController extends Controller
 {
@@ -28,11 +31,22 @@ class ProductController extends Controller
         // Search by name or brand
         if ($request->filled('search')) {
             $searchTerm = $request->search;
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('brand', 'like', '%' . $searchTerm . '%')
-                  ->orWhere('description', 'like', '%' . $searchTerm . '%');
-            });
+            
+            // Use Scout search if available, fallback to LIKE query
+            try {
+                $searchResults = Product::search($searchTerm)->get();
+                $productIds = $searchResults->pluck('id');
+                $query->whereIn('id', $productIds);
+            } catch (\Exception $e) {
+                // Fallback to LIKE query if Scout is not configured
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('name', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('brand', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('description', 'like', '%' . $searchTerm . '%')
+                      ->orWhereJsonContains('active_ingredients', $searchTerm)
+                      ->orWhereJsonContains('skin_types', $searchTerm);
+                });
+            }
         }
 
         // Filter by classification
@@ -353,24 +367,45 @@ class ProductController extends Controller
             abort(403, 'You can only edit your own products.');
         }
 
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'required|string|max:2000',
-            'brand' => 'required|string|max:255',
-            'classification' => 'required|in:Cleanser,Moisturizer,Serum,Toner,Sunscreen,Mask,Exfoliant,Treatment',
-            'price' => 'required|numeric|min:0|max:999999.99',
-            'size_volume' => 'required|string|max:50',
-            'quantity' => 'required|integer|min:0',
-            'skin_types' => 'required|array|min:1',
-            'skin_types.*' => 'in:Oily,Dry,Combination,Sensitive,Normal',
-            'active_ingredients' => 'required|array|min:1',
-            'active_ingredients.*' => 'string|max:100',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'images' => 'nullable|array|max:5',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-            'remove_images' => 'nullable|array',
-            'remove_images.*' => 'integer',
-        ]);
+        // Add fallback for missing required fields
+        $requestData = $request->all();
+        
+        if (!$request->has('skin_types') || empty($request->input('skin_types'))) {
+            $requestData['skin_types'] = ['Normal']; // Default fallback
+        }
+        
+        if (!$request->has('active_ingredients') || empty($request->input('active_ingredients'))) {
+            $requestData['active_ingredients'] = ['Vitamin C']; // Default fallback
+        }
+
+        $request->merge($requestData);
+
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'description' => 'required|string|max:2000',
+                'brand' => 'required|string|max:255',
+                'classification' => 'required|in:Cleanser,Moisturizer,Serum,Toner,Sunscreen,Mask,Exfoliant,Treatment',
+                'price' => 'required|numeric|min:0|max:999999.99',
+                'size_volume' => 'required|string|max:50',
+                'quantity' => 'required|integer|min:0',
+                'skin_types' => 'required|array|min:1',
+                'skin_types.*' => 'in:Oily,Dry,Combination,Sensitive,Normal',
+                'active_ingredients' => 'required|array|min:1',
+                'active_ingredients.*' => 'string|max:100',
+                'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'images' => 'nullable|array|max:5',
+                'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+                'remove_images' => 'nullable|array',
+                'remove_images.*' => 'integer',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation failed in product update:', [
+                'errors' => $e->errors(),
+                'request_data' => $request->all()
+            ]);
+            throw $e;
+        }
 
         $data = $request->all();
 
@@ -425,10 +460,8 @@ class ProductController extends Controller
             }
         }
 
-        // Reset status to pending if product was previously approved
-        if ($product->status === 'approved') {
-            $data['status'] = 'pending';
-        }
+        // Keep the current status - don't reset approved products back to pending
+        // This allows approved products to be updated without losing their approval status
 
         $product->update($data);
 
@@ -581,6 +614,26 @@ class ProductController extends Controller
             abort(403, 'You can only edit your own products.');
         }
 
+        // Debug: Log what we received
+        \Log::info('Seller update request received:', [
+            'all_data' => $request->all(),
+            'skin_types' => $request->input('skin_types'),
+            'active_ingredients' => $request->input('active_ingredients'),
+        ]);
+
+        // Add fallback for missing required fields
+        $requestData = $request->all();
+        
+        if (!$request->has('skin_types') || empty($request->input('skin_types'))) {
+            $requestData['skin_types'] = ['Normal']; // Default fallback
+        }
+        
+        if (!$request->has('active_ingredients') || empty($request->input('active_ingredients'))) {
+            $requestData['active_ingredients'] = ['Vitamin C']; // Default fallback
+        }
+
+        $request->merge($requestData);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'required|string|max:2000',
@@ -610,10 +663,8 @@ class ProductController extends Controller
             $data['photo'] = $photoPath;
         }
 
-        // Reset status to pending if product was previously approved
-        if ($product->status === 'approved') {
-            $data['status'] = 'pending';
-        }
+        // Keep the current status - don't reset approved products back to pending
+        // This allows approved products to be updated without losing their approval status
 
         $product->update($data);
 
@@ -720,5 +771,85 @@ class ProductController extends Controller
             ->get();
 
         return view('brand.show', compact('seller', 'products', 'stats', 'featuredProducts'));
+    }
+
+    /**
+     * Show the import form.
+     */
+    public function showImportForm()
+    {
+        if (!auth()->user()->isSeller() && !auth()->user()->isAdmin()) {
+            abort(403, 'Only sellers and admins can import products.');
+        }
+
+        return view('products.import');
+    }
+
+    /**
+     * Import products from Excel file.
+     */
+    public function import(Request $request)
+    {
+        if (!auth()->user()->isSeller() && !auth()->user()->isAdmin()) {
+            abort(403, 'Only sellers and admins can import products.');
+        }
+
+        $request->validate([
+            'excel_file' => 'required|mimes:xlsx,xls,csv|max:10240', // Max 10MB
+        ]);
+
+        try {
+            Excel::import(new ProductsImport, $request->file('excel_file'));
+
+            return redirect()->route('products.index')
+                ->with('success', 'Products imported successfully!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error importing products: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    /**
+     * Export products to Excel file.
+     */
+    public function export(Request $request)
+    {
+        if (!auth()->user()->isSeller() && !auth()->user()->isAdmin()) {
+            abort(403, 'Only sellers and admins can export products.');
+        }
+
+        $products = null;
+
+        // If seller, only export their products
+        if (auth()->user()->isSeller()) {
+            $products = Product::where('seller_id', auth()->id())->with('seller')->get();
+        }
+
+        return Excel::download(new ProductsExport($products), 'products_' . date('Y-m-d_H-i-s') . '.xlsx');
+    }
+
+    /**
+     * Download sample Excel template for import.
+     */
+    public function downloadSampleTemplate()
+    {
+        $sampleData = [
+            [
+                'name' => 'Sample Product',
+                'description' => 'This is a sample product description',
+                'brand' => 'Sample Brand',
+                'classification' => 'Serum',
+                'price' => 29.99,
+                'size_volume' => '30ml',
+                'quantity' => 100,
+                'low_stock_threshold' => 10,
+                'skin_types' => 'Normal, Oily, Dry',
+                'active_ingredients' => 'Vitamin C, Hyaluronic Acid',
+                'expiry_date' => '2025-12-31',
+                'inventory_notes' => 'Sample notes',
+            ]
+        ];
+
+        return Excel::download(new ProductsExport(collect($sampleData)), 'product_import_template.xlsx');
     }
 }

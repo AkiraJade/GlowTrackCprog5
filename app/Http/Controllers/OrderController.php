@@ -234,9 +234,22 @@ class OrderController extends Controller
             'notes' => 'Cancelled by customer: ' . $request->reason,
         ]);
 
+        // Create notification for the customer
+        \App\Http\Controllers\NotificationController::createNotification(
+            $order->user_id,
+            'order_status',
+            "Order Cancelled",
+            "Your order #{$order->id} has been cancelled.",
+            [
+                'order_id' => $order->id,
+                'status' => 'cancelled',
+                'reason' => $request->reason
+            ]
+        );
+
         // Send email notification to customer
         try {
-            Mail::to($order->user->email)->send(new OrderStatusNotification($order->user, $order, 'cancelled'));
+            Mail::to($order->user->email)->send(new \App\Mail\OrderCancellationEmail($order->user, $order, $request->reason));
             \Log::info('Order cancellation email sent', [
                 'order_id' => $order->id,
                 'email' => $order->user->email

@@ -68,6 +68,20 @@ class AdminController extends Controller
     }
 
     /**
+     * Update user status (active/inactive)
+     */
+    public function updateUserStatus(Request $request, User $user)
+    {
+        $request->validate([
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $user->update(['status' => $request->status]);
+
+        return redirect()->back()->with('success', 'User status updated successfully.');
+    }
+
+    /**
      * Update user role
      */
     public function updateUserRole(Request $request, User $user)
@@ -186,16 +200,34 @@ class AdminController extends Controller
             'status' => 'required|in:pending,confirmed,processing,shipped,delivered,cancelled'
         ]);
 
+        $previousStatus = $order->status;
         $order->update(['status' => $request->status]);
+
+        // Create notification for the customer
+        \App\Http\Controllers\NotificationController::createNotification(
+            $order->user_id,
+            'order_status',
+            "Order Status Updated",
+            "Your order #{$order->id} has been updated to {$request->status}.",
+            [
+                'order_id' => $order->id,
+                'status' => $request->status,
+                'previous_status' => $previousStatus
+            ]
+        );
+
+        // Send email notification about status update
+        $pdfService = new \App\Services\PDFReceiptService();
+        $pdfService->sendOrderStatusUpdateEmail($order, $previousStatus);
 
         if ($request->expectsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Order status updated successfully.'
+                'message' => 'Order status updated successfully and customer notified.'
             ]);
         }
 
-        return redirect()->back()->with('success', 'Order status updated successfully.');
+        return redirect()->back()->with('success', 'Order status updated successfully and customer notified.');
     }
 
     /**
@@ -585,5 +617,57 @@ class AdminController extends Controller
         return Excel::download(new InventoryReportExport(
             $stockFilter, $expiryFilter, $sellerId, $category
         ), $filename . '.xlsx');
+    }
+
+    /**
+     * Display charts and analytics dashboard
+     */
+    public function charts()
+    {
+        // Get yearly sales data for charts
+        $yearlySales = Order::selectRaw('YEAR(created_at) as year, SUM(total_amount) as total')
+            ->groupBy('year')
+            ->orderBy('year', 'desc')
+            ->get();
+
+        // Get monthly sales for current year
+        $monthlySales = Order::selectRaw('MONTH(created_at) as month, SUM(total_amount) as total')
+            ->whereYear('created_at', now()->year)
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        // Get top selling products
+        $topProducts = OrderItem::selectRaw('product_id, SUM(quantity) as total_sold')
+            ->with('product')
+            ->groupBy('product_id')
+            ->orderBy('total_sold', 'desc')
+            ->limit(10)
+            ->get();
+
+        // Get user registration trends
+        $userRegistrations = User::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->whereYear('created_at', now()->year)
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+
+        // Get dashboard stats
+        $stats = [
+            'total_revenue' => Order::sum('total_amount'),
+            'monthly_revenue' => Order::whereMonth('created_at', now()->month)->sum('total_amount'),
+            'total_orders' => Order::count(),
+            'completed_orders' => Order::where('status', 'completed')->count(),
+            'total_users' => User::count(),
+            'total_products' => Product::count(),
+        ];
+
+        return view('admin.charts', compact(
+            'yearlySales',
+            'monthlySales', 
+            'topProducts',
+            'userRegistrations',
+            'stats'
+        ));
     }
 }
