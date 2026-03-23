@@ -191,8 +191,10 @@ Route::middleware('auth')->group(function () {
         )->name('knowledge.product-quality');
         Route::get('/knowledge/become-seller', function () {
             return view('knowledge.become-seller');
-        }
-        )->name('knowledge.become-seller');
+        })->name('knowledge.become-seller');
+        Route::get('/knowledge/faq', function () {
+            return view('knowledge.faq');
+        })->name('knowledge.faq');
 
         // Cart Routes
         Route::get('/cart', [\App\Http\Controllers\CartController::class , 'index'])->name('cart.index');

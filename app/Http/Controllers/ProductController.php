@@ -44,8 +44,8 @@ class ProductController extends Controller
                     $q->where('name', 'like', '%' . $searchTerm . '%')
                         ->orWhere('brand', 'like', '%' . $searchTerm . '%')
                         ->orWhere('description', 'like', '%' . $searchTerm . '%')
-                        ->orWhereJsonContains('active_ingredients', $searchTerm)
-                        ->orWhereJsonContains('skin_types', $searchTerm);
+                        ->orWhereRaw('json_extract(active_ingredients, \'$\') LIKE ?', ['%' . $searchTerm . '%'])
+                        ->orWhereRaw('json_extract(skin_types, \'$\') LIKE ?', ['%' . $searchTerm . '%']);
                 });
             }
         }
@@ -306,9 +306,15 @@ class ProductController extends Controller
         $relatedProducts = Product::where('id', '!=', $product->id)
             ->approved()
             ->where(function ($query) use ($product) {
-            $query->where('classification', $product->classification)
-                ->orWhereJsonContains('skin_types', $product->skin_types);
-        })
+                $query->where('classification', $product->classification);
+                
+                // Add skin type filtering if product has skin types
+                if ($product->skin_types && is_array($product->skin_types)) {
+                    foreach ($product->skin_types as $skinType) {
+                        $query->orWhereRaw('json_extract(skin_types, \'$\') LIKE ?', ['%' . $skinType . '%']);
+                    }
+                }
+            })
             ->inStock()
             ->take(4)
             ->get();

@@ -3,355 +3,311 @@
 @section('title', 'Products - GlowTrack')
 
 @section('content')
-<div class="min-h-screen bg-gray-50 py-8">
+<div class="min-h-screen bg-gradient-to-br from-mint-cream via-pastel-green to-light-sage py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
         <!-- Header -->
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Skincare Products</h1>
-            <p class="text-gray-600 mt-2">Discover the perfect products for your skin type</p>
-        </div>
-
-        <!-- Filters Section -->
-        <div class="bg-white rounded-lg shadow mb-8">
-            <div class="p-6">
-                <form method="GET" action="{{ route('products.index') }}" class="space-y-4">
-                    <!-- Search Bar -->
+            <div class="bg-white rounded-3xl shadow-xl p-8">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div>
-                        <input type="text" name="search" value="{{ request('search') }}" 
-                               placeholder="Search products, brands, or ingredients..." 
-                               class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
+                        <h1 class="text-4xl font-bold text-soft-brown font-playfair mb-3">Skincare Products 🧴</h1>
+                        <p class="text-lg text-soft-brown opacity-75">Discover perfect products for your skin type</p>
                     </div>
-
-                    <!-- Filter Options -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <!-- Classification -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Product Type</label>
-                            <select name="classification" class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
-                                <option value="">All Types</option>
-                                @foreach($classifications as $classification)
-                                    <option value="{{ $classification }}" {{ request('classification') == $classification ? 'selected' : '' }}>
-                                        {{ $classification }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Skin Type -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Skin Type</label>
-                            <select name="skin_type" class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
-                                <option value="">All Skin Types</option>
-                                <option value="Oily" {{ request('skin_type') == 'Oily' ? 'selected' : '' }}>Oily</option>
-                                <option value="Dry" {{ request('skin_type') == 'Dry' ? 'selected' : '' }}>Dry</option>
-                                <option value="Combination" {{ request('skin_type') == 'Combination' ? 'selected' : '' }}>Combination</option>
-                                <option value="Sensitive" {{ request('skin_type') == 'Sensitive' ? 'selected' : '' }}>Sensitive</option>
-                                <option value="Normal" {{ request('skin_type') == 'Normal' ? 'selected' : '' }}>Normal</option>
-                            </select>
-                        </div>
-
-                        <!-- Min Price -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Min Price</label>
-                            <input type="number" name="min_price" value="{{ request('min_price') }}" 
-                                   placeholder="Min price" min="0" step="0.01"
-                                   class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
-                        </div>
-
-                        <!-- Max Price -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Max Price</label>
-                            <input type="number" name="max_price" value="{{ request('max_price') }}" 
-                                   placeholder="Max price" min="0" step="0.01"
-                                   class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
-                        </div>
-
-                        <!-- Stock Status -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Stock Status</label>
-                            <select name="stock_filter" class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
-                                <option value="all" {{ request('stock_filter', 'all') === 'all' ? 'selected' : '' }}>All Stock Levels</option>
-                                <option value="in_stock" {{ request('stock_filter') === 'in_stock' ? 'selected' : '' }}>In Stock</option>
-                                <option value="low_stock" {{ request('stock_filter') === 'low_stock' ? 'selected' : '' }}>Low Stock</option>
-                                <option value="out_of_stock" {{ request('stock_filter') === 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
-                            </select>
-                        </div>
-
-                        <!-- Min Rating -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Min Rating</label>
-                            <select name="min_rating" class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
-                                <option value="">Any Rating</option>
-                                @foreach([1,2,3,4,5] as $rating)
-                                    <option value="{{ $rating }}" {{ request('min_rating') == $rating ? 'selected' : '' }}>{{ $rating }}+</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Ingredients -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Key Ingredient</label>
-                            <select name="ingredient" class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
-                                <option value="">All Ingredients</option>
-                                @foreach($ingredients as $ingredient)
-                                    <option value="{{ $ingredient }}" {{ request('ingredient') == $ingredient ? 'selected' : '' }}>
-                                        {{ $ingredient }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Additional Filters -->
-                    <div class="flex flex-wrap items-center gap-4">
-                        <label class="flex items-center">
-                            <input type="checkbox" name="verified_only" value="1" 
-                                   {{ request('verified_only') ? 'checked' : '' }}
-                                   class="mr-2 border-gray-300 rounded text-jade-green focus:ring-jade-green">
-                            <span class="text-sm text-gray-700">Verified sellers only</span>
-                        </label>
-
-                        <!-- Sort Options -->
-                        <div class="flex items-center space-x-2">
-                            <label class="text-sm font-medium text-gray-700">Sort by:</label>
-                            <select name="sort_by" class="border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
-                                <option value="created_at" {{ request('sort_by') == 'created_at' ? 'selected' : '' }}>Latest</option>
-                                <option value="name" {{ request('sort_by') == 'name' ? 'selected' : '' }}>Name</option>
-                                <option value="price" {{ request('sort_by') == 'price' ? 'selected' : '' }}>Price</option>
-                                <option value="average_rating" {{ request('sort_by') == 'average_rating' ? 'selected' : '' }}>Rating</option>
-                            </select>
-                            <select name="sort_order" class="border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
-                                <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Desc</option>
-                                <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Asc</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Submit Buttons -->
-                    <div class="flex space-x-4">
-                        <button type="submit" class="px-4 py-2 bg-jade-green text-white rounded-md hover:bg-opacity-90 transition">
-                            Apply Filters
-                        </button>
-                        <a href="{{ route('products.index') }}" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition">
-                            Clear Filters
+                    <div class="flex gap-4">
+                        <a href="{{ route('cart.index') }}" class="px-6 py-3 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
+                            🛒 Cart ({{ Auth::user()?->cartItems()->count() ?? 0 }})
+                        </a>
+                        <a href="{{ route('dashboard') }}" class="px-6 py-3 border-2 border-soft-brown text-soft-brown rounded-full hover:bg-soft-brown hover:text-white transition font-semibold">
+                            ← Dashboard
                         </a>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
 
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center">
+                <div class="text-3xl mb-2">🧴</div>
+                <div class="text-2xl font-bold text-jade-green">{{ $products->count() }}</div>
+                <div class="text-sm text-soft-brown opacity-75">Total Products</div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center">
+                <div class="text-3xl mb-2">⭐</div>
+                <div class="text-2xl font-bold text-jade-green">{{ $products->where('status', 'approved')->count() }}</div>
+                <div class="text-sm text-soft-brown opacity-75">Available</div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center">
+                <div class="text-3xl mb-2">🏷️</div>
+                <div class="text-2xl font-bold text-jade-green">{{ $products->avg('price') > 0 ? '₱' . number_format($products->avg('price'), 0) : 'N/A' }}</div>
+                <div class="text-sm text-soft-brown opacity-75">Avg Price</div>
+            </div>
+            <div class="bg-white rounded-2xl shadow-lg p-6 text-center">
+                <div class="text-3xl mb-2">🏪</div>
+                <div class="text-2xl font-bold text-jade-green">{{ $products->pluck('seller_id')->unique()->count() }}</div>
+                <div class="text-sm text-soft-brown opacity-75">Sellers</div>
+            </div>
+        </div>
+
+        <!-- Filters Section -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-soft-brown font-playfair mb-2">Find Your Perfect Product 🔍</h2>
+                <p class="text-soft-brown opacity-75">Filter by type, skin type, price, and more</p>
+            </div>
+            <form method="GET" action="{{ route('products.index') }}" class="space-y-6">
+                <!-- Search Bar -->
+                <div>
+                    <label class="block text-sm font-semibold text-soft-brown mb-2">Search Products</label>
+                    <div class="relative">
+                        <input type="text" name="search" value="{{ request('search') }}" 
+                               placeholder="Search products, brands, or ingredients..." 
+                               class="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-jade-green focus:border-jade-green text-lg">
+                        <span class="absolute left-4 top-3.5 text-2xl">🔍</span>
+                    </div>
+                </div>
+
+                <!-- Filter Options -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <!-- Classification -->
+                    <div>
+                        <label class="block text-sm font-semibold text-soft-brown mb-2">Product Type</label>
+                        <select name="classification" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-jade-green focus:border-jade-green">
+                            <option value="">All Types</option>
+                            @foreach($classifications as $classification)
+                                <option value="{{ $classification }}" {{ request('classification') == $classification ? 'selected' : '' }}>
+                                    {{ $classification }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Skin Type -->
+                    <div>
+                        <label class="block text-sm font-semibold text-soft-brown mb-2">Skin Type</label>
+                        <select name="skin_type" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-jade-green focus:border-jade-green">
+                            <option value="">All Skin Types</option>
+                            <option value="Oily" {{ request('skin_type') == 'Oily' ? 'selected' : '' }}>Oily</option>
+                            <option value="Dry" {{ request('skin_type') == 'Dry' ? 'selected' : '' }}>Dry</option>
+                            <option value="Combination" {{ request('skin_type') == 'Combination' ? 'selected' : '' }}>Combination</option>
+                            <option value="Sensitive" {{ request('skin_type') == 'Sensitive' ? 'selected' : '' }}>Sensitive</option>
+                            <option value="Normal" {{ request('skin_type') == 'Normal' ? 'selected' : '' }}>Normal</option>
+                        </select>
+                    </div>
+
+                    <!-- Min Price -->
+                    <div>
+                        <label class="block text-sm font-semibold text-soft-brown mb-2">Min Price</label>
+                        <div class="relative">
+                            <input type="number" name="min_price" value="{{ request('min_price') }}" 
+                                   placeholder="Min price" min="0" step="0.01"
+                                   class="w-full pl-8 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-jade-green focus:border-jade-green">
+                            <span class="absolute left-3 top-3.5 text-lg">💰</span>
+                        </div>
+                    </div>
+
+                    <!-- Max Price -->
+                    <div>
+                        <label class="block text-sm font-semibold text-soft-brown mb-2">Max Price</label>
+                        <div class="relative">
+                            <input type="number" name="max_price" value="{{ request('max_price') }}" 
+                                   placeholder="Max price" min="0" step="0.01"
+                                   class="w-full pl-8 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-jade-green focus:border-jade-green">
+                            <span class="absolute left-3 top-3.5 text-lg">💵</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Actions -->
+                <div class="flex gap-4">
+                    <button type="submit" class="px-6 py-3 bg-jade-green text-white rounded-full hover:bg-opacity-90 transition font-semibold">
+                        Apply Filters
+                    </button>
+                    <a href="{{ route('products.index') }}" class="px-6 py-3 border-2 border-soft-brown text-soft-brown rounded-full hover:bg-soft-brown hover:text-white transition font-semibold">
+                        Clear Filters
+                    </a>
+                </div>
+            </form>
+        </div>
+
         <!-- Products Grid -->
-        <div class="mb-8">
-            @if($products->count() > 0)
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    @foreach($products as $product)
-                        <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
-                            <!-- Product Image -->
-                            <div class="relative">
-                                @if($product->photo)
-                                    <img src="{{ $product->photo_url }}" 
-                                         alt="{{ $product->name }}" 
-                                         class="w-full h-48 object-cover object-center rounded-t-lg">
+        @if($products->count() > 0)
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                @foreach($products as $product)
+                    <div class="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden group">
+                        <!-- Product Image -->
+                        <div class="relative overflow-hidden h-64">
+                            @if($product->photo)
+                                <img src="{{ $product->photo_url }}" 
+                                     alt="{{ $product->name }}" 
+                                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            @else
+                                <div class="w-full h-full bg-gradient-to-br from-mint-cream to-light-sage flex items-center justify-center">
+                                    <span class="text-6xl opacity-50">🧴</span>
+                                </div>
+                            @endif
+                            
+                            <!-- Status Badges -->
+                            <div class="absolute top-4 left-4 flex flex-col gap-2">
+                                @if($product->status === 'approved')
+                                    <span class="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">
+                                        Available
+                                    </span>
                                 @else
-                                    <div class="w-full h-48 bg-gray-200 rounded-t-lg flex items-center justify-center">
-                                        <span class="text-gray-400">No Image</span>
-                                    </div>
+                                    <span class="px-3 py-1 bg-red-500 text-white text-xs font-semibold rounded-full">
+                                        Unavailable
+                                    </span>
                                 @endif
                                 
-                                <!-- Verified Badge -->
-                                @if($product->is_verified)
-                                    <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                                        ✓ Verified
-                                    </div>
+                                @if($product->quantity <= 10 && $product->quantity > 0)
+                                    <span class="px-3 py-1 bg-yellow-500 text-white text-xs font-semibold rounded-full">
+                                        Only {{ $product->quantity }} left
+                                    </span>
+                                @elseif($product->quantity === 0)
+                                    <span class="px-3 py-1 bg-red-500 text-white text-xs font-semibold rounded-full">
+                                        Out of Stock
+                                    </span>
                                 @endif
-
-                                <!-- Stock Status -->
-                                <div class="absolute bottom-2 left-2">
-                                    @if($product->isInStock())
-                                        <span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                                            In Stock
-                                        </span>
-                                    @else
-                                        <span class="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
-                                            Out of Stock
-                                        </span>
-                                    @endif
-                                </div>
                             </div>
 
-                            <!-- Product Info -->
-                            <div class="p-4">
-                                <!-- Brand and Classification -->
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-xs text-gray-500">{{ $product->brand }}</span>
-                                    <span class="text-xs bg-jade-green text-white px-2 py-1 rounded-full">
-                                        {{ $product->classification }}
-                                    </span>
-                                </div>
-
-                                <!-- Product Name -->
-                                <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2">
-                                    <a href="{{ route('products.show', $product) }}" class="hover:text-jade-green transition">
-                                        {{ $product->name }}
-                                    </a>
-                                </h3>
-
-                                <!-- Price and Rating -->
-                                <div class="flex items-center justify-between mb-2">
-                                    <span class="text-lg font-bold text-gray-900">₱{{ number_format($product->price, 2) }}</span>
-                                    @if($product->review_count > 0)
-                                        <div class="flex items-center">
-                                            <span class="text-yellow-400">★</span>
-                                            <span class="text-sm text-gray-600">{{ number_format($product->average_rating, 1) }} ({{ $product->review_count }})</span>
-                                        </div>
-                                    @else
-                                        <span class="text-sm text-gray-500">No reviews</span>
-                                    @endif
-                                </div>
-
-                                <!-- Size and Skin Types -->
-                                <div class="text-sm text-gray-600 mb-3">
-                                    <div>{{ $product->size_volume }}</div>
-                                    <div class="text-xs">
-                                        @foreach((array) $product->skin_types as $skinType)
-                                            <span class="bg-gray-100 px-1 py-0.5 rounded">{{ $skinType }}</span>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                <!-- Key Ingredients -->
-                                @if($product->active_ingredients)
-                                    <div class="text-xs text-gray-500 mb-3">
-                                        <strong>Key ingredients:</strong> {{ implode(', ', array_slice((array) $product->active_ingredients, 0, 2)) }}
-                                        @if(count((array) $product->active_ingredients) > 2)
-                                            +{{ count((array) $product->active_ingredients) - 2 }} more
-                                        @endif
-                                    </div>
-                                @endif
-
-                                <!-- Action Buttons -->
-                                <div class="flex gap-2">
-                                    @auth
-                                        <form method="POST" action="{{ route('wishlist.toggle') }}" class="flex-1">
-                                            @csrf
-                                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                            <button type="button" 
-                                                    onclick="toggleWishlist(this, {{ $product->id }})"
-                                                    class="w-full px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition flex items-center justify-center gap-2 wishlist-btn"
-                                                    data-in-wishlist="{{ in_array($product->id, $wishlistProductIds) ? 'true' : 'false' }}">
-                                                <span class="wishlist-icon">
-                                                    @if(in_array($product->id, $wishlistProductIds))
-                                                        ❤️
-                                                    @else
-                                                        🤍
-                                                    @endif
-                                                </span>
-                                                <span class="wishlist-text">
-                                                    @if(in_array($product->id, $wishlistProductIds))
-                                                        In Wishlist
-                                                    @else
-                                                        Wishlist
-                                                    @endif
-                                                </span>
-                                            </button>
-                                        </form>
-                                        @if($product->isInStock())
-                                            <form method="POST" action="{{ route('cart.add', $product->id) }}" class="flex-1">
-                                                @csrf
-                                                <input type="hidden" name="quantity" value="1">
-                                                <button type="submit" class="w-full px-3 py-2 bg-jade-green text-white rounded-md hover:bg-opacity-90 transition">
-                                                    Add to Cart
-                                                </button>
-                                            </form>
-                                        @endif
-                                    @else
-                                        <a href="{{ route('login') }}" class="flex-1 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition flex items-center justify-center gap-2">
-                                            🤍 Wishlist
-                                        </a>
-                                        @if($product->isInStock())
-                                            <a href="{{ route('login') }}" class="flex-1 px-3 py-2 bg-jade-green text-white rounded-md hover:bg-opacity-90 transition text-center">
-                                                Add to Cart
-                                            </a>
-                                        @endif
-                                    @endauth
-                                </div>
+                            <!-- Quick Actions -->
+                            <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <button onclick="event.stopPropagation(); toggleWishlist({{ $product->id }})" 
+                                        class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-red-50 transition">
+                                    <span class="text-red-500">{{ in_array($product->id, $wishlistProductIds ?? []) ? '❤️' : '🤍' }}</span>
+                                </button>
                             </div>
                         </div>
-                    @endforeach
-                </div>
 
-                <!-- Pagination -->
-                <div class="mt-8">
-                    {{ $products->links() }}
-                </div>
-            @else
-                <div class="text-center py-12">
-                    <div class="text-gray-400 mb-4">
-                        <svg class="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
-                        </svg>
+                        <!-- Product Info -->
+                        <div class="p-6">
+                            <div class="mb-4">
+                                <h3 class="text-lg font-bold text-soft-brown mb-1 line-clamp-2 group-hover:text-jade-green transition">
+                                    {{ $product->name }}
+                                </h3>
+                                <p class="text-sm text-soft-brown opacity-75">{{ $product->brand }}</p>
+                            </div>
+
+                            <!-- Rating -->
+                            @if($product->average_rating > 0)
+                                <div class="flex items-center mb-4">
+                                    <div class="flex text-yellow-400">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            @if($i <= floor($product->average_rating))
+                                                ⭐
+                                            @elseif($i - 0.5 <= $product->average_rating)
+                                                ⭐
+                                            @else
+                                                ⭐
+                                            @endif
+                                        @endfor
+                                    </div>
+                                    <span class="text-sm text-soft-brown opacity-75 ml-2">
+                                        ({{ $product->review_count }} reviews)
+                                    </span>
+                                </div>
+                            @else
+                                <div class="text-sm text-soft-brown opacity-75 mb-4">No reviews yet</div>
+                            @endif
+
+                            <!-- Price and Actions -->
+                            <div class="flex items-center justify-between mb-4">
+                                <div>
+                                    <div class="text-2xl font-bold text-jade-green">
+                                        ₱{{ number_format($product->price, 2) }}
+                                    </div>
+                                    <div class="text-sm text-soft-brown opacity-75">
+                                        {{ $product->size_volume ?? '30ml' }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Skin Types -->
+                            @if($product->skin_types)
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    @foreach($product->skin_types as $skinType)
+                                        <span class="px-2 py-1 bg-gradient-to-r from-mint-cream to-light-sage text-xs font-medium rounded-full text-soft-brown">
+                                            {{ $skinType }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
+
+                            <!-- Action Buttons -->
+                            <div class="flex gap-3">
+                                <a href="{{ route('products.show', $product) }}" 
+                                   class="flex-1 text-center px-4 py-2 border-2 border-jade-green text-jade-green rounded-full hover:bg-jade-green hover:text-white transition font-semibold">
+                                    View Details
+                                </a>
+                                @if($product->quantity > 0)
+                                    <form action="{{ route('cart.add', $product->id) }}" method="POST" class="flex-1">
+                                        @csrf
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" 
+                                                class="w-full px-4 py-2 bg-jade-green text-white rounded-full hover:bg-opacity-90 transition font-semibold">
+                                            Add to Cart
+                                        </button>
+                                    </form>
+                                @else
+                                    <button disabled 
+                                            class="flex-1 px-4 py-2 bg-gray-300 text-gray-500 rounded-full cursor-not-allowed font-semibold">
+                                        Out of Stock
+                                    </button>
+                                @endif
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">No products found</h3>
-                    <p class="text-gray-500">Try adjusting your filters or search terms</p>
+                @endforeach
+            </div>
+
+            <!-- Pagination -->
+            <div class="mt-12 flex justify-center">
+                {{ $products->links() }}
+            </div>
+        @else
+            <!-- Empty State -->
+            <div class="bg-white rounded-3xl shadow-xl p-16 text-center">
+                <div class="text-8xl mb-6 opacity-50">🔍</div>
+                <h3 class="text-3xl font-bold text-soft-brown font-playfair mb-4">No Products Found</h3>
+                <p class="text-lg text-soft-brown opacity-75 mb-8">Try adjusting your filters or search terms</p>
+                <div class="flex justify-center gap-4">
+                    <a href="{{ route('products.index') }}" 
+                       class="inline-flex items-center px-8 py-3 bg-jade-green text-white font-semibold rounded-full hover:bg-opacity-90 transition">
+                        Clear Filters
+                    </a>
+                    <a href="{{ route('dashboard') }}" 
+                       class="inline-flex items-center px-8 py-3 border-2 border-soft-brown text-soft-brown font-semibold rounded-full hover:bg-soft-brown hover:text-white transition">
+                        ← Dashboard
+                    </a>
                 </div>
-            @endif
-        </div>
+            </div>
+        @endif
     </div>
 </div>
 
 <script>
-function toggleWishlist(button, productId) {
-    const form = button.closest('form');
-    const formData = new FormData(form);
-    
-    fetch('{{ route("wishlist.toggle") }}', {
+function toggleWishlist(productId) {
+    fetch(`/wishlist/toggle/${productId}`, {
         method: 'POST',
         headers: {
-            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-            'Accept': 'application/json',
-        },
-        body: formData
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Content-Type': 'application/json'
+        }
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            const icon = button.querySelector('.wishlist-icon');
-            const text = button.querySelector('.wishlist-text');
-            const isInWishlist = button.dataset.inWishlist === 'true';
-            
-            if (data.action === 'added') {
-                icon.textContent = '❤️';
-                text.textContent = 'In Wishlist';
-                button.dataset.inWishlist = 'true';
-                button.classList.add('border-red-300', 'bg-red-50');
+            // Update UI to show wishlist status
+            const button = event.currentTarget;
+            if (data.added) {
+                button.innerHTML = '<span class="text-red-500">❤️</span>';
             } else {
-                icon.textContent = '🤍';
-                text.textContent = 'Wishlist';
-                button.dataset.inWishlist = 'false';
-                button.classList.remove('border-red-300', 'bg-red-50');
+                button.innerHTML = '<span class="text-gray-400">🤍</span>';
             }
-            
-            // Show toast notification
-            showToast(data.message);
         }
     })
-    .catch(error => {
-        console.error('Error:', error);
-        showToast('An error occurred. Please try again.', 'error');
-    });
-}
-
-function showToast(message, type = 'success') {
-    const toast = document.createElement('div');
-    toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg text-white z-50 ${
-        type === 'success' ? 'bg-green-500' : 'bg-red-500'
-    }`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.remove();
-    }, 3000);
+    .catch(error => console.error('Error:', error));
 }
 </script>
 @endsection

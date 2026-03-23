@@ -40,6 +40,8 @@ class Product extends Model
         'is_verified' => 'boolean',
         'average_rating' => 'decimal:2',
         'expiry_date' => 'date',
+        'skin_types' => 'array',
+        'active_ingredients' => 'array',
     ];
 
     /**
@@ -305,15 +307,7 @@ class Product extends Model
      */
     public function scopeBySkinType($query, $skinType)
     {
-        return $query->whereJsonContains('skin_types', $skinType);
-    }
-
-    /**
-     * Scope a query to filter by price range.
-     */
-    public function scopeByPriceRange($query, $min, $max)
-    {
-        return $query->whereBetween('price', [$min, $max]);
+        return $query->whereRaw('json_extract(skin_types, \'$\') LIKE ?', ['%' . $skinType . '%']);
     }
 
     /**
@@ -321,7 +315,7 @@ class Product extends Model
      */
     public function scopeByIngredient($query, $ingredient)
     {
-        return $query->whereJsonContains('active_ingredients', $ingredient);
+        return $query->whereRaw('json_extract(active_ingredients, \'$\') LIKE ?', ['%' . $ingredient . '%']);
     }
 
     /**

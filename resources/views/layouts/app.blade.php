@@ -99,19 +99,46 @@
                         </div>
 
                         @if(auth()->user()->isAdmin())
-                            <a href="{{ route('admin.dashboard') }}" class="text-soft-brown hover:text-jade-green transition font-medium">Admin Panel</a>
-                            <a href="{{ route('products.import') }}" class="text-soft-brown hover:text-jade-green transition">Import Products</a>
-                            <a href="{{ route('products.export') }}" class="text-soft-brown hover:text-jade-green transition">Export Products</a>
+                            <div class="relative group">
+                                <button class="text-soft-brown hover:text-jade-green transition font-medium flex items-center space-x-1">
+                                    <span>Admin Panel</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                    <a href="{{ route('admin.dashboard') }}" class="block px-4 py-2 text-sm text-soft-brown hover:bg-jade-green hover:text-white transition">Dashboard</a>
+                                    <a href="{{ route('admin.users') }}" class="block px-4 py-2 text-sm text-soft-brown hover:bg-jade-green hover:text-white transition">Users</a>
+                                    <a href="{{ route('admin.products') }}" class="block px-4 py-2 text-sm text-soft-brown hover:bg-jade-green hover:text-white transition">Products</a>
+                                    <a href="{{ route('admin.orders') }}" class="block px-4 py-2 text-sm text-soft-brown hover:bg-jade-green hover:text-white transition">Orders</a>
+                                    <a href="{{ route('admin.reports.inventory') }}" class="block px-4 py-2 text-sm text-soft-brown hover:bg-jade-green hover:text-white transition">Reports</a>
+                                    <div class="border-t border-gray-200"></div>
+                                    <a href="{{ route('products.import') }}" class="block px-4 py-2 text-sm text-soft-brown hover:bg-jade-green hover:text-white transition">Import Products</a>
+                                    <a href="{{ route('products.export') }}" class="block px-4 py-2 text-sm text-soft-brown hover:bg-jade-green hover:text-white transition">Export Products</a>
+                                </div>
+                            </div>
                         @endif
 @if(auth()->user()->isCustomer())
                             <a href="{{ route('cart.index') }}" class="text-soft-brown hover:text-jade-green transition">Cart ({{ Auth::user()->cartItems()->count() }})</a>
                         @endif
 
                         @if(auth()->user()->isSeller())
-                            <a href="{{ route('seller.dashboard') }}" class="text-soft-brown hover:text-jade-green transition">Seller Dashboard</a>
-                            <a href="{{ route('seller.products.index') }}" class="text-soft-brown hover:text-jade-green transition">My Products</a>
-                            <a href="{{ route('products.import') }}" class="text-soft-brown hover:text-jade-green transition">Import Products</a>
-                            <a href="{{ route('products.export') }}" class="text-soft-brown hover:text-jade-green transition">Export Products</a>
+                            <div class="relative group">
+                                <button class="text-soft-brown hover:text-jade-green transition font-medium flex items-center space-x-1">
+                                    <span>Seller Panel</span>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                                <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                    <a href="{{ route('seller.dashboard') }}" class="block px-4 py-2 text-sm text-soft-brown hover:bg-jade-green hover:text-white transition">Dashboard</a>
+                                    <a href="{{ route('seller.products.index') }}" class="block px-4 py-2 text-sm text-soft-brown hover:bg-jade-green hover:text-white transition">My Products</a>
+                                    <a href="{{ route('seller.orders.index') }}" class="block px-4 py-2 text-sm text-soft-brown hover:bg-jade-green hover:text-white transition">Orders</a>
+                                    <div class="border-t border-gray-200"></div>
+                                    <a href="{{ route('products.import') }}" class="block px-4 py-2 text-sm text-soft-brown hover:bg-jade-green hover:text-white transition">Import Products</a>
+                                    <a href="{{ route('products.export') }}" class="block px-4 py-2 text-sm text-soft-brown hover:bg-jade-green hover:text-white transition">Export Products</a>
+                                </div>
+                            </div>
                         @endif
 
                         <a href="{{ route('dashboard') }}" class="text-soft-brown hover:text-jade-green transition">Dashboard</a>

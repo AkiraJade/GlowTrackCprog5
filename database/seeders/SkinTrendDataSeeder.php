@@ -334,7 +334,7 @@ class SkinTrendDataSeeder extends Seeder
         $comment = $templates[array_rand($templates)];
         
         // Add ingredient-specific comments
-        if ($product->active_ingredients && rand(1, 2) === 1) {
+        if ($product->active_ingredients && is_array($product->active_ingredients) && rand(1, 2) === 1) {
             $ingredient = $product->active_ingredients[array_rand($product->active_ingredients)];
             $comment .= " The {$ingredient} really makes a difference.";
         }
