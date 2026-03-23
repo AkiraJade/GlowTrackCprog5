@@ -20,7 +20,6 @@ class SellerApplication extends Model
         'contact_phone',
         'business_address',
         'website_url',
-        'product_categories',
         'status',
         'admin_notes',
         'reviewed_at',
@@ -28,7 +27,6 @@ class SellerApplication extends Model
     ];
 
     protected $casts = [
-        'product_categories' => 'array',
         'reviewed_at' => 'datetime',
     ];
 

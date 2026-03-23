@@ -9,15 +9,13 @@ use Illuminate\Support\Facades\DB;
 class SkinProfile extends Model
 {
     protected $fillable = [
+        'user_id',
         'skin_type',
-        'skin_concerns',
-        'ingredient_allergies',
         'notes',
     ];
 
     protected $casts = [
-        'skin_concerns' => 'array',
-        'ingredient_allergies' => 'array',
+        'user_id' => 'integer',
     ];
 
     public function user(): BelongsTo

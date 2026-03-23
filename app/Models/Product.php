@@ -24,8 +24,6 @@ class Product extends Model
         'size_volume',
         'quantity',
         'low_stock_threshold',
-        'skin_types',
-        'active_ingredients',
         'photo',
         'expiry_date',
         'inventory_notes',
@@ -38,8 +36,6 @@ class Product extends Model
 
     protected $casts = [
         'price' => 'decimal:2',
-        'skin_types' => 'array',
-        'active_ingredients' => 'array',
         'is_verified' => 'boolean',
         'average_rating' => 'decimal:2',
         'expiry_date' => 'date',

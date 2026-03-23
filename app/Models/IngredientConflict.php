@@ -16,12 +16,10 @@ class IngredientConflict extends Model
         'severity',
         'description',
         'recommendation',
-        'alternatives',
         'is_active',
     ];
 
     protected $casts = [
-        'alternatives' => 'array',
         'is_active' => 'boolean',
     ];
 
