@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Wishlist;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,31 +17,56 @@ class WishlistController extends Controller
     /**
      * Toggle product in wishlist (add if not present, remove if present).
      */
-    public function toggle(Request $request)
+    public function toggle(Request $request, $product)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-        ]);
+        try {
+            $productId = $product;
+            
+            // Validate product exists
+            $productExists = Product::find($productId);
+            if (!$productExists) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Product not found'
+                ], 404);
+            }
 
-        $user = Auth::user();
-        $productId = $request->product_id;
+            $user = Auth::user();
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'User not authenticated'
+                ], 401);
+            }
 
-        if ($user->isInWishlist($productId)) {
-            // Remove from wishlist
-            $user->removeFromWishlist($productId);
-            return response()->json([
-                'success' => true,
-                'action' => 'removed',
-                'message' => 'Product removed from wishlist'
+            if ($user->isInWishlist($productId)) {
+                // Remove from wishlist
+                $user->removeFromWishlist($productId);
+                return response()->json([
+                    'success' => true,
+                    'action' => 'removed',
+                    'message' => 'Product removed from wishlist'
+                ]);
+            } else {
+                // Add to wishlist
+                $wishlistItem = $user->addToWishlist($productId);
+                return response()->json([
+                    'success' => true,
+                    'action' => 'added',
+                    'message' => 'Product added to wishlist'
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Wishlist toggle error: ' . $e->getMessage(), [
+                'product_id' => $product,
+                'user_id' => Auth::id(),
+                'trace' => $e->getTraceAsString()
             ]);
-        } else {
-            // Add to wishlist
-            $wishlistItem = $user->addToWishlist($productId);
+            
             return response()->json([
-                'success' => true,
-                'action' => 'added',
-                'message' => 'Product added to wishlist'
-            ]);
+                'success' => false,
+                'message' => 'Error updating wishlist: ' . $e->getMessage()
+            ], 500);
         }
     }
 

@@ -186,4 +186,39 @@ class LoyaltyController extends Controller
         // For demo, we'll just show success message
         return back()->with('success', "Successfully redeemed {$reward['name']}! Check your email for details.");
     }
+
+    /**
+     * Show user's loyalty points details.
+     */
+    public function points()
+    {
+        $user = Auth::user();
+        
+        // Get user's loyalty points history
+        $pointsHistory = [
+            [
+                'type' => 'Earned',
+                'description' => 'Purchase - Order #1234',
+                'points' => 50,
+                'date' => now()->subDays(30)->format('M d, Y'),
+                'balance' => 450
+            ],
+            [
+                'type' => 'Redeemed', 
+                'description' => 'Free Shipping',
+                'points' => -50,
+                'date' => now()->subDays(15)->format('M d, Y'),
+                'balance' => 400
+            ],
+            [
+                'type' => 'Earned',
+                'description' => 'Review - Product XYZ',
+                'points' => 10,
+                'date' => now()->subDays(7)->format('M d, Y'),
+                'balance' => 410
+            ],
+        ];
+
+        return view('loyalty.points', compact('user', 'pointsHistory'));
+    }
 }

@@ -196,6 +196,15 @@
             </div>
         </div>
 
+        <!-- Recently Viewed Section -->
+        <div class="mt-12 bg-white rounded-3xl shadow-xl p-8">
+            <h3 class="text-2xl font-bold text-soft-brown font-playfair mb-6">Recently Viewed</h3>
+            <div id="recentlyViewedProducts" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Recently viewed products will be loaded here by JavaScript -->
+                <p id="noRecentlyViewed" class="text-soft-brown opacity-75">No items viewed yet. <a href="{{ route('products.index') }}" class="text-teal-600 hover:underline">Browse Products</a></p>
+            </div>
+        </div>
+
         <!-- Reviews Section -->
         <div id="reviews" class="mt-12">
             <!-- Review Form Section - Always Visible at Top -->
@@ -320,6 +329,18 @@
                                         @if($review->skin_type)
                                             <div class="text-sm text-soft-brown opacity-75">
                                                 Skin Type: {{ $review->skin_type }}
+                                            </div>
+                                        @endif
+                                        @if(auth()->check() && $review->user_id == auth()->id())
+                                            <div class="flex gap-2 mt-3">
+                                                <button onclick="editReview({{ $review->id }}, '{{ $review->rating }}', '{{ $review->comment }}')" 
+                                                        class="text-sm px-3 py-1 bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-full transition font-medium">
+                                                    ✏️ Edit
+                                                </button>
+                                                <button onclick="deleteReview({{ $review->id }})" 
+                                                        class="text-sm px-3 py-1 bg-red-100 text-red-600 hover:bg-red-200 rounded-full transition font-medium">
+                                                    🗑️ Delete
+                                                </button>
                                             </div>
                                         @endif
                                     </div>
@@ -543,5 +564,147 @@ document.getElementById('reviewForm').addEventListener('submit', function(e) {
         alert('Error submitting review');
     });
 });
+
+// Edit review function
+function editReview(reviewId, rating, comment) {
+    // Set the form values for editing
+    document.getElementById('reviewProductId').value = document.getElementById('reviewProductId').value;
+    setRating(rating);
+    document.querySelector('textarea[name="comment"]').value = comment;
+    
+    // Change submit button text
+    const submitBtn = document.querySelector('button[type="submit"]');
+    submitBtn.textContent = 'Update Review';
+    submitBtn.onclick = function(e) {
+        e.preventDefault();
+        updateReview(reviewId);
+    };
+    
+    // Scroll to form
+    document.getElementById('reviewForm').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Update review function
+function updateReview(reviewId) {
+    const formData = new FormData(document.getElementById('reviewForm'));
+    
+    fetch('/products/' + document.getElementById('reviewProductId').value + '/reviews', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Review updated successfully!');
+            location.reload();
+        } else {
+            alert('Error updating review: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating review');
+    });
+}
+
+// Delete review function
+function deleteReview(reviewId) {
+    if (!confirm('Are you sure you want to delete this review?')) {
+        return;
+    }
+    
+    fetch('/products/' + document.getElementById('reviewProductId').value + '/reviews', {
+        method: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Review deleted successfully!');
+            location.reload();
+        } else {
+            alert('Error deleting review: ' + (data.message || 'Unknown error'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error deleting review');
+    });
+}
+
+// Recently Viewed Products functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // Track current product as recently viewed
+    const productId = {{ $product->id }};
+    const productName = '{{ $product->name }}';
+    const productImage = '{{ $product->image ?? 'placeholder.jpg' }}';
+    const productPrice = '{{ $product->price }}';
+    
+    // Get recently viewed products from localStorage
+    let recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+    
+    // Remove current product if it already exists (to move it to the top)
+    recentlyViewed = recentlyViewed.filter(item => item.id !== productId);
+    
+    // Add current product to the beginning
+    recentlyViewed.unshift({
+        id: productId,
+        name: productName,
+        image: productImage,
+        price: productPrice
+    });
+    
+    // Keep only the most recent product (as requested)
+    recentlyViewed = recentlyViewed.slice(0, 1);
+    
+    // Save back to localStorage
+    localStorage.setItem('recentlyViewed', JSON.stringify(recentlyViewed));
+    
+    // Display recently viewed products
+    displayRecentlyViewed();
+});
+
+function displayRecentlyViewed() {
+    const recentlyViewed = JSON.parse(localStorage.getItem('recentlyViewed') || '[]');
+    const container = document.getElementById('recentlyViewedProducts');
+    const noItemsMsg = document.getElementById('noRecentlyViewed');
+    
+    if (recentlyViewed.length === 0) {
+        noItemsMsg.style.display = 'block';
+        return;
+    }
+    
+    noItemsMsg.style.display = 'none';
+    
+    // Clear existing content
+    container.innerHTML = '';
+    
+    recentlyViewed.forEach(product => {
+        const productCard = `
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <a href="/products/${product.id}" class="block">
+                    <div class="relative">
+                        <img src="/images/products/${product.image}" 
+                             alt="${product.name}" 
+                             class="w-full h-48 object-cover">
+                        <div class="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                            In Stock
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-soft-brown mb-2">${product.name}</h4>
+                        <p class="text-jade-green font-bold">$${product.price}</p>
+                    </div>
+                </a>
+            </div>
+        `;
+        container.innerHTML += productCard;
+    });
+}
 </script>
 @endsection

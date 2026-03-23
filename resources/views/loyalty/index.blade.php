@@ -60,7 +60,9 @@
                 <div class="w-full bg-white rounded-full h-3 mb-2">
                     <div class="bg-jade-green h-3 rounded-full" style="width: 50%"></div>
                 </div>
-                <p class="text-xs text-soft-brown opacity-75 text-center">{{ $loyaltyData['points_to_next_tier'] }} points to {{ $loyaltyData['next_tier }}</p>
+                <p class="text-xs text-soft-brown opacity-75 text-center">
+                    {{ $loyaltyData['points_to_next_tier'] }} points to {{ $loyaltyData['next_tier'] }}
+                </p>
             </div>
         </div>
 
@@ -70,54 +72,43 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @foreach($rewards as $reward)
-                @php
-                    $category = $reward['category'];
-                    $name = $reward['name'];
-                    $description = $reward['description'];
-                    $pointsCost = $reward['points_cost'];
-                    $rewardId = $reward['id'];
-                    $isAvailable = isset($reward['available']) && $reward['available'];
-                @endphp
-                <div class="border border-light-sage rounded-xl p-6 hover:border-jade-green hover:shadow-lg transition">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <span class="px-2 py-1 bg-jade-green text-white text-xs font-medium rounded-full mb-2 inline-block">
-                                {{ $category }}
-                            </span>
-                            <h3 class="font-bold text-soft-brown mb-2">{{ $name }}</h3>
-                            <p class="text-sm text-soft-brown opacity-75 mb-4">{{ $description }}</p>
-                        </div>
-                        <div class="text-center">
-                            <div class="w-16 h-16 bg-jade-green rounded-full flex items-center justify-center mb-2">
-                                <span class="text-lg font-bold text-white">{{ $pointsCost }}</span>
+                    @php 
+                        $rewardData = $reward;
+                        $rewardName = $rewardData['name'] ?? 'Reward';
+                        $rewardDesc = $rewardData['description'] ?? 'No description available';
+                        $pointsCost = $rewardData['points_cost'] ?? 0;
+                        $rewardId = $rewardData['id'] ?? 1;
+                        $isAvailable = isset($rewardData['available']) ? $rewardData['available'] : false;
+                    @endphp
+                    
+                    <div class="border border-light-sage rounded-xl p-6 hover:border-jade-green hover:shadow-lg transition">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <span class="px-2 py-1 bg-jade-green text-white text-xs font-medium rounded-full mb-2 inline-block">
+                                    General
+                                </span>
+                                <h3 class="text-lg font-semibold text-soft-brown mb-2">{{ $rewardName }}</h3>
+                                <p class="text-sm text-soft-brown opacity-75 mb-4">{{ $rewardDesc }}</p>
                             </div>
-                            <p class="text-xs text-soft-brown opacity-75">points</p>
+                            <div class="text-right">
+                                <div class="text-2xl font-bold text-jade-green mb-2">{{ $pointsCost }} pts</div>
+                                @if($isAvailable && (Auth::user()->loyalty_points ?? 0) >= $pointsCost)
+                                    <button onclick="redeemReward({{ $rewardId }})" 
+                                            class="w-full px-4 py-2 bg-jade-green text-white rounded-lg hover:bg-opacity-90 transition font-semibold">
+                                        Redeem Now
+                                    </button>
+                                @else
+                                    <button disabled 
+                                            class="w-full px-4 py-2 bg-gray-300 text-gray-500 rounded-lg cursor-not-allowed font-semibold">
+                                        Currently Unavailable
+                                    </button>
+                                @endif
+                            </div>
                         </div>
                     </div>
-                    
-                    @if($isAvailable && $loyaltyData['current_points'] >= $pointsCost)
-                            <form method="POST" action="{{ route('loyalty.redeem') }}">
-                                @csrf
-                                <input type="hidden" name="reward_id" value="{{ $rewardId }}">
-                                <button type="submit" 
-                                        class="w-full py-2 bg-jade-green text-white rounded-full hover:shadow-lg transition font-semibold"
-                                        onclick="return confirm('Are you sure you want to redeem {{ $name }} for {{ $pointsCost }} points?')">
-                                    Redeem Reward
-                                </button>
-                            </form>
-                        @elseif($isAvailable)
-                            <button disabled 
-                                    class="w-full py-2 bg-gray-300 text-gray-500 rounded-full font-semibold cursor-not-allowed">
-                                Need {{ $pointsCost - $loyaltyData['current_points'] }} more points
-                            </button>
-                        @else
-                            <button disabled 
-                                    class="w-full py-2 bg-gray-300 text-gray-500 rounded-full font-semibold cursor-not-allowed">
-                                Currently Unavailable
-                            </button>
-                        @endif
-                </div>
                 @endforeach
+            </div>
+            </div>
             </div>
         </div>
 
@@ -145,7 +136,13 @@
         <div class="bg-white rounded-3xl shadow-xl p-8">
             <h2 class="text-2xl font-bold text-soft-brown font-playfair mb-6">Redemption History</h2>
             
-            @if($redemptionHistory->count() > 0)
+            @php
+                // `$redemptionHistory` may be a plain array or a Collection depending on the controller.
+                $redemptionHistoryCount = is_array($redemptionHistory)
+                    ? count($redemptionHistory)
+                    : ($redemptionHistory ? $redemptionHistory->count() : 0);
+            @endphp
+            @if($redemptionHistoryCount > 0)
                 <div class="space-y-4">
                     @foreach($redemptionHistory as $redemption)
                     <div class="flex items-center justify-between p-4 border border-light-sage rounded-xl">
@@ -168,6 +165,17 @@
                     <p class="text-soft-brown opacity-75">No rewards redeemed yet. Start earning points to claim your first reward!</p>
                 </div>
             @endif
+        </div>
+        
+        <!-- Learn More Button -->
+        <div class="text-center mt-8">
+            <a href="{{ route('loyalty.points') }}" 
+               class="inline-flex items-center px-6 py-3 bg-jade-green text-white rounded-full hover:bg-opacity-90 transition font-semibold">
+                <span>Learn More</span>
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5 5 5H4m0 0h6m-6 6v6m0-6h6"/>
+                </svg>
+            </a>
         </div>
     </div>
 </div>

@@ -173,10 +173,17 @@
 
                             <!-- Quick Actions -->
                             <div class="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <button onclick="event.stopPropagation(); toggleWishlist({{ $product->id }})" 
-                                        class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-red-50 transition">
-                                    <span class="text-red-500">{{ in_array($product->id, $wishlistProductIds ?? []) ? '❤️' : '🤍' }}</span>
-                                </button>
+                                @if(auth()->check())
+                                    <button onclick="event.stopPropagation(); toggleWishlist({{ $product->id }}, this)" 
+                                            class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-red-50 transition">
+                                        <span class="text-red-500">{{ in_array($product->id, $wishlistProductIds ?? []) ? '❤️' : '🤍' }}</span>
+                                    </button>
+                                @else
+                                    <button onclick="event.stopPropagation(); alert('Please login to add items to your wishlist!')" 
+                                            class="w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center hover:bg-red-50 transition">
+                                        <span class="text-gray-400">🤍</span>
+                                    </button>
+                                @endif
                             </div>
                         </div>
 
@@ -287,7 +294,15 @@
 </div>
 
 <script>
-function toggleWishlist(productId) {
+function toggleWishlist(productId, button) {
+    console.log('toggleWishlist called for product:', productId);
+    console.log('Button element:', button);
+    
+    if (!button) {
+        console.error('Error: button parameter is null or undefined.');
+        return;
+    }
+    
     fetch(`/wishlist/toggle/${productId}`, {
         method: 'POST',
         headers: {
@@ -295,19 +310,34 @@ function toggleWishlist(productId) {
             'Content-Type': 'application/json'
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log('Response status:', response.status);
+        return response.json();
+    })
     .then(data => {
+        console.log('Response data:', data);
+        console.log('data.success:', data.success);
+        console.log('data.action:', data.action);
+        console.log('data.message:', data.message);
+        
         if (data.success) {
             // Update UI to show wishlist status
-            const button = event.currentTarget;
-            if (data.added) {
+            if (data.action === 'added') {
                 button.innerHTML = '<span class="text-red-500">❤️</span>';
-            } else {
+            } else if (data.action === 'removed') {
                 button.innerHTML = '<span class="text-gray-400">🤍</span>';
+            } else {
+                console.log('Unknown action:', data.action);
+                alert('Unknown action received: ' + data.action);
             }
+        } else {
+            alert('Error updating wishlist: ' + (data.message || 'Unknown error'));
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating wishlist');
+    });
 }
 </script>
 @endsection

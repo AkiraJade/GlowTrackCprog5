@@ -114,32 +114,22 @@ Route::middleware('auth')->group(function () {
 
     // Loyalty Program Routes
     Route::get('/loyalty', [LoyaltyController::class , 'index'])->name('loyalty.index');
-    Route::get('/loyalty/points', function () {
-            return view('loyalty.points');
-        }
-        )->name('loyalty.points');
-        Route::post('/loyalty/redeem', [LoyaltyController::class , 'redeem'])->name('loyalty.redeem');
+    Route::get('/loyalty/points', [LoyaltyController::class , 'points'])->name('loyalty.points');
+    Route::post('/loyalty/redeem', [LoyaltyController::class , 'redeem'])->name('loyalty.redeem');
 
-        // Knowledge Base Routes
-        Route::get('/support/knowledge', function () {
-            return view('support.knowledge');
-        }
-        )->name('support.knowledge');
+    // Knowledge Base Routes
+    Route::get('/support/knowledge', function () {
+        return view('support.knowledge');
+    })->name('support.knowledge');
 
-        // Getting Started Articles
-        Route::get('/knowledge/creating-account', function () {
-            return view('knowledge.creating-account');
-        }
-        )->name('knowledge.creating-account');
-        Route::get('/knowledge/complete-profile', function () {
-            return view('knowledge.complete-profile');
-        }
-        )->name('knowledge.complete-profile');
-        Route::get('/knowledge/first-purchase', function () {
-            return view('knowledge.first-purchase');
-        }
-        )->name('knowledge.first-purchase');
+    // Getting Started Articles
+    Route::get('/knowledge/creating-account', function () {
+        return view('knowledge.creating-account');
+    })->name('knowledge.creating-account');
 
+    Route::get('/knowledge/complete-profile', function () {
+        return view('knowledge.complete-profile');
+    })->name('knowledge.complete-profile');
         // Orders & Shipping Articles
         Route::get('/knowledge/track-order', function () {
             return view('knowledge.track-order');
@@ -329,7 +319,7 @@ Route::middleware('auth')->group(function () {
 
     // Wishlist Routes
     Route::get('/wishlist', [WishlistController::class , 'index'])->name('wishlist.index');
-    Route::post('/wishlist/toggle', [WishlistController::class , 'toggle'])->name('wishlist.toggle');
+    Route::post('/wishlist/toggle/{product}', [WishlistController::class , 'toggle'])->name('wishlist.toggle');
     Route::post('/wishlist/remove', [WishlistController::class , 'remove'])->name('wishlist.remove');
 
     // Orders Routes

@@ -336,41 +336,58 @@ class ProductController extends Controller
             ->first();
 
         if (!auth()->user()->hasDeliveredProduct($product->id)) {
-            return redirect()->route('products.show', $product)
-                ->with('error', 'You can only review products after they have been delivered.');
+            return response()->json([
+                'success' => false,
+                'message' => 'You can only review products after they have been delivered.'
+            ], 403);
         }
 
-        if ($existingReview) {
-            // Updating existing review
-            $request->validate([
-                'rating' => 'nullable|integer|min:1|max:5',
-                'comment' => 'required|string|max:2000',
-            ]);
+        try {
+            if ($existingReview) {
+                // Updating existing review
+                $request->validate([
+                    'rating' => 'nullable|integer|min:1|max:5',
+                    'comment' => 'required|string|max:2000',
+                ]);
 
-            $data = ['comment' => $request->comment];
-            if ($request->filled('rating')) {
-                $data['rating'] = $request->rating;
+                $data = ['comment' => $request->comment];
+                if ($request->filled('rating')) {
+                    $data['rating'] = $request->rating;
+                }
+
+                $existingReview->update($data);
+            }
+            else {
+                // Creating new review
+                $request->validate([
+                    'rating' => 'required|integer|min:1|max:5',
+                    'comment' => 'required|string|max:2000',
+                ]);
+
+                Review::create([
+                    'product_id' => $product->id,
+                    'user_id' => auth()->id(),
+                    'rating' => $request->rating,
+                    'comment' => $request->comment,
+                ]);
             }
 
-            $existingReview->update($data);
-        }
-        else {
-            // Creating new review
-            $request->validate([
-                'rating' => 'required|integer|min:1|max:5',
-                'comment' => 'required|string|max:2000',
+            return response()->json([
+                'success' => true,
+                'message' => 'Your review has been submitted.'
             ]);
 
-            Review::create([
-                'product_id' => $product->id,
-                'user_id' => auth()->id(),
-                'rating' => $request->rating,
-                'comment' => $request->comment,
-            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed: ' . implode(', ', $e->errors())
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error submitting review: ' . $e->getMessage()
+            ], 500);
         }
-
-        return redirect()->route('products.show', $product)
-            ->with('success', 'Your review has been submitted.');
     }
 
     /**
@@ -379,7 +396,10 @@ class ProductController extends Controller
     public function deleteReview(Product $product)
     {
         if ($product->status !== 'approved') {
-            abort(404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Product not found'
+            ], 404);
         }
 
         $review = Review::where('product_id', $product->id)
@@ -388,10 +408,16 @@ class ProductController extends Controller
 
         if ($review) {
             $review->delete();
+            return response()->json([
+                'success' => true,
+                'message' => 'Your review has been deleted.'
+            ]);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Review not found'
+            ], 404);
         }
-
-        return redirect()->route('products.show', $product)
-            ->with('success', 'Your review has been deleted.');
     }
 
     /**
