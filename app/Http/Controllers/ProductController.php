@@ -276,20 +276,9 @@ class ProductController extends Controller
         $relatedProducts = Product::where('id', '!=', $product->id)
             ->approved()
             ->where(function ($query) use ($product) {
-                $query->where('classification', $product->classification);
-                
-                $skinTypes = is_string($product->skin_types) 
-                    ? json_decode($product->skin_types, true) 
-                    : $product->skin_types;
-
-                if (is_array($skinTypes)) {
-                    foreach ($skinTypes as $type) {
-                        $query->orWhereJsonContains('skin_types', $type);
-                    }
-                } elseif ($skinTypes) {
-                    $query->orWhereJsonContains('skin_types', $skinTypes);
-                }
-            })
+            $query->where('classification', $product->classification)
+                ->orWhereJsonContains('skin_types', $product->skin_types);
+        })
             ->inStock()
             ->take(4)
             ->get();
@@ -517,6 +506,16 @@ class ProductController extends Controller
         }
 
         $product->delete();
+
+        if (auth()->user()->isAdmin()) {
+            return redirect()->route('admin.products')
+                ->with('success', 'Product deleted successfully!');
+        }
+
+        if (auth()->user()->isSeller()) {
+            return redirect()->route('seller.products.index')
+                ->with('success', 'Product deleted successfully!');
+        }
 
         return redirect()->route('products.index')
             ->with('success', 'Product deleted successfully!');

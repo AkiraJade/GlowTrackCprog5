@@ -6,6 +6,8 @@ use App\Models\User;
 use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Cart;
+use App\Models\Review;
 use App\Models\SellerApplication;
 use App\Models\ForumDiscussion;
 use App\Models\ForumReply;
@@ -922,5 +924,129 @@ class AdminController extends Controller
                 );
             }
         }
+    }
+
+    /**
+     * Display all trashed items
+     */
+    public function trash(Request $request)
+    {
+        $type = $request->query('type', 'users');
+        
+        $trashedCounts = [
+            'users' => User::onlyTrashed()->count(),
+            'products' => Product::onlyTrashed()->count(),
+            'orders' => Order::onlyTrashed()->count(),
+            'carts' => Cart::onlyTrashed()->count(),
+            'reviews' => Review::onlyTrashed()->count(),
+        ];
+
+        $trashedItems = null;
+
+        switch ($type) {
+            case 'products':
+                $trashedItems = Product::onlyTrashed()->with('seller')->latest('deleted_at')->paginate(15);
+                break;
+            case 'orders':
+                $trashedItems = Order::onlyTrashed()->with('user')->latest('deleted_at')->paginate(15);
+                break;
+            case 'carts':
+                $trashedItems = Cart::onlyTrashed()->with(['user', 'product'])->latest('deleted_at')->paginate(15);
+                break;
+            case 'reviews':
+                $trashedItems = Review::onlyTrashed()->with(['product', 'user'])->latest('deleted_at')->paginate(15);
+                break;
+            case 'users':
+            default:
+                $trashedItems = User::onlyTrashed()->latest('deleted_at')->paginate(15);
+                break;
+        }
+
+        return view('admin.trash', compact('trashedItems', 'type', 'trashedCounts'));
+    }
+
+    /**
+     * Restore a trashed item
+     */
+    public function restore(Request $request)
+    {
+        $type = $request->input('type');
+        $id = $request->input('id');
+
+        switch ($type) {
+            case 'user':
+                $user = User::onlyTrashed()->findOrFail($id);
+                $user->restore();
+                $message = "User '{$user->name}' has been restored.";
+                break;
+            case 'product':
+                $product = Product::onlyTrashed()->findOrFail($id);
+                $product->restore();
+                $message = "Product '{$product->name}' has been restored.";
+                break;
+            case 'order':
+                $order = Order::onlyTrashed()->findOrFail($id);
+                $order->restore();
+                $message = "Order #{$order->order_id} has been restored.";
+                break;
+            case 'cart':
+                $cart = Cart::onlyTrashed()->findOrFail($id);
+                $cart->restore();
+                $message = "Cart item has been restored.";
+                break;
+            case 'review':
+                $review = Review::onlyTrashed()->findOrFail($id);
+                $review->restore();
+                $message = "Review has been restored.";
+                break;
+            default:
+                return back()->with('error', 'Invalid item type.');
+        }
+
+        return back()->with('success', $message);
+    }
+
+    /**
+     * Permanently delete a trashed item
+     */
+    public function forceDelete(Request $request)
+    {
+        $type = $request->input('type');
+        $id = $request->input('id');
+
+        switch ($type) {
+            case 'user':
+                $user = User::onlyTrashed()->findOrFail($id);
+                $userName = $user->name;
+                $user->forceDelete();
+                $message = "User '{$userName}' has been permanently deleted.";
+                break;
+            case 'product':
+                $product = Product::onlyTrashed()->findOrFail($id);
+                $productName = $product->name;
+                $product->forceDelete();
+                $message = "Product '{$productName}' has been permanently deleted.";
+                break;
+            case 'order':
+                $order = Order::onlyTrashed()->findOrFail($id);
+                $orderId = $order->order_id;
+                $order->forceDelete();
+                $message = "Order #{$orderId} has been permanently deleted.";
+                break;
+            case 'cart':
+                $cart = Cart::onlyTrashed()->findOrFail($id);
+                $cart->forceDelete();
+                $message = "Cart item has been permanently deleted.";
+                break;
+            case 'review':
+                $review = Review::onlyTrashed()->findOrFail($id);
+                $review->forceDelete();
+                $message = "Review has been permanently deleted.";
+                break;
+            default:
+                return back()->with('error', 'Invalid item type.');
+        }
+
+        return back()->with('success', $message);
     }
 }

@@ -3,16 +3,20 @@
 @section('title', 'Admin Dashboard - GlowTrack')
 
 @section('content')
-<div class="p-6">
+<div class="p-6 space-y-8">
     <!-- Page Header -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 font-playfair">Dashboard</h1>
-        <p class="text-gray-600 mt-2">Manage your GlowTrack skincare platform</p>
+    <div class="mb-2">
+        <p class="text-sm uppercase tracking-widest text-gray-500">Admin Dashboard</p>
+        <h1 class="text-3xl font-bold text-gray-900 font-playfair">GlowTrack Management Center</h1>
+        <p class="text-gray-600 mt-2">Overview of users, products, orders, and platform health.</p>
     </div>
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition cursor-pointer border border-gray-200" onclick="window.location.href='{{ route('admin.users') }}'">
+            <div class="lg:col-span-4 bg-white shadow-xl rounded-2xl p-5 border border-gray-200 glass-card">
+                <p class="text-sm text-gray-500">Last updated: {{ now()->format('M d, Y H:i') }}</p>
+            </div>
+            <div class="glass-card rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer border border-gray-200" onclick="window.location.href='{{ route('admin.users') }}'">
                 <div class="flex items-center">
                     <div class="p-3 bg-jade-green rounded-full">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -26,7 +30,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition cursor-pointer border border-gray-200" onclick="window.location.href='{{ route('admin.products') }}'">
+            <div class="glass-card rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer border border-gray-200" onclick="window.location.href='{{ route('admin.products') }}'">
                 <div class="flex items-center">
                     <div class="p-3 bg-warm-peach rounded-full">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -43,7 +47,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition cursor-pointer border border-gray-200" onclick="window.location.href='{{ route('admin.orders') }}'">
+            <div class="glass-card rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer border border-gray-200" onclick="window.location.href='{{ route('admin.orders') }}'">
                 <div class="flex items-center">
                     <div class="p-3 bg-blush-pink rounded-full">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,7 +64,7 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition cursor-pointer border border-gray-200" onclick="window.location.href='{{ route('admin.reports') }}'">
+            <div class="glass-card rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer border border-gray-200" onclick="window.location.href='{{ route('admin.reports') }}'">
                 <div class="flex items-center">
                     <div class="p-3 bg-jade-green rounded-full">
                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,7 +83,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             
             <!-- Recent Orders -->
-            <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6 border border-gray-200">
+            <div class="lg:col-span-2 glass-card rounded-2xl shadow-lg p-6 border border-gray-200">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-bold text-gray-900 font-playfair">Recent Orders</h2>
                     <a href="{{ route('admin.orders') }}" class="text-jade-green hover:text-jade-green/90 transition font-semibold text-sm">View All</a>
@@ -118,7 +122,7 @@
             </div>
 
             <!-- Quick Actions -->
-            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+            <div class="glass-card rounded-2xl shadow-lg p-6 border border-gray-200">
                 <h2 class="text-xl font-bold text-gray-900 font-playfair mb-6">Quick Actions</h2>
                 
                 <div class="space-y-3">
@@ -196,7 +200,7 @@
             
             <!-- Pending Products -->
             @if($pendingProducts->count() > 0)
-            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+            <div class="glass-card rounded-2xl shadow-lg p-6 border border-gray-200">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-bold text-gray-900 font-playfair">Pending Products</h2>
                     <a href="{{ route('admin.products') }}" class="text-jade-green hover:text-jade-green/90 transition font-semibold text-sm">View All</a>
@@ -235,7 +239,7 @@
             @endif
 
             <!-- Recent Users -->
-            <div class="bg-white rounded-xl shadow-md p-6 border border-gray-200">
+            <div class="glass-card rounded-2xl shadow-lg p-6 border border-gray-200">
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-bold text-gray-900 font-playfair">Recent Users</h2>
                     <a href="{{ route('admin.users') }}" class="text-jade-green hover:text-jade-green/90 transition font-semibold text-sm">View All</a>

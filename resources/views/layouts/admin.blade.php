@@ -51,16 +51,37 @@
                 background: linear-gradient(135deg, #7EC8B3 0%, #F1FAF7 100%);
             }
             .sidebar-menu-item {
-                transition: all 0.2s ease;
+                transition: all 0.25s ease;
+                border-radius: 0.75rem;
+                border: 1px solid transparent;
             }
             .sidebar-menu-item:hover {
-                background-color: #8B6F6F;
-                transform: translateX(4px);
+                background: linear-gradient(120deg, #8B6F6F 0%, #6B4F4F 100%);
+                color: #ffffff !important;
+                transform: translateX(3px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.09);
+                border-color: #ffffff33;
             }
             .sidebar-menu-item.active {
-                background-color: #7EC8B3;
+                background: linear-gradient(120deg, #7EC8B3 0%, #5DAE99 100%);
+                color: #ffffff !important;
+                box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
             }
-            
+
+            .glass-card {
+                background: rgba(255, 255, 255, 0.78);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(229, 231, 235, 0.7);
+            }
+
+            .badge-pill {
+                padding: 0.15rem 0.65rem;
+                border-radius: 9999px;
+                font-size: 0.70rem;
+                font-weight: 600;
+                letter-spacing: 0.02em;
+            }
+
             /* Mobile responsiveness */
             @media (max-width: 768px) {
                 .sidebar-mobile {
@@ -114,7 +135,7 @@
         </style>
     @endif
 </head>
-<body class="bg-gray-50 text-gray-800 font-poppins">
+<body class="bg-[radial-gradient(circle_at_top,_#f1fbf7,_#e6f7ee,_#d3f1df)] text-gray-800 font-poppins">
     <!-- Mobile Menu Overlay -->
     <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
     
@@ -273,6 +294,21 @@
                             </li>
                         </ul>
                     </div>
+
+                    <!-- System Management -->
+                    <div class="p-4">
+                        <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wider mb-3">System Management</h3>
+                        <ul class="space-y-2">
+                            <li>
+                                <a href="{{ route('admin.trash') }}" class="sidebar-menu-item {{ request()->routeIs('admin.trash*') ? 'active' : '' }} flex items-center px-4 py-3 text-gray-300 rounded-lg {{ request()->routeIs('admin.trash*') ? 'text-white' : 'hover:text-white' }}">
+                                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                    Trash Management
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </nav>
                 
                 <!-- Sidebar Footer -->
@@ -337,8 +373,10 @@
             </header>
             
             <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto bg-gradient-to-br from-mint-cream via-pastel-green to-light-sage">
-                @yield('content')
+            <main class="flex-1 overflow-y-auto bg-gradient-to-br from-mint-cream via-pastel-green to-light-sage p-6">
+                <div class="max-w-[1600px] mx-auto">
+                    @yield('content')
+                </div>
             </main>
         </div>
     </div>

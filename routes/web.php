@@ -466,7 +466,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::delete('/delivery-personnel/{deliveryPersonnel}', [App\Http\Controllers\DeliveryController::class , 'personnelDestroy'])->name('delivery-personnel.destroy');
 
         // Delivery Dashboard
-        Route::get('/delivery-dashboard', [App\Http\Controllers\DeliveryController::class , 'dashboard'])->name('delivery-dashboard');    });
+        Route::get('/delivery-dashboard', [App\Http\Controllers\DeliveryController::class , 'dashboard'])->name('delivery-dashboard');
+
+        // Trash Management (Soft Deletes)
+        Route::get('/trash', [AdminController::class, 'trash'])->name('trash');
+        Route::post('/trash/restore', [AdminController::class, 'restore'])->name('trash.restore');
+        Route::delete('/trash/force-delete', [AdminController::class, 'forceDelete'])->name('trash.force-delete');
+});
 
 // Test Email Route for Mailtrap
 Route::get('/test-email', function () {
