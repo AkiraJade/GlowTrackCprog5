@@ -11,6 +11,7 @@ use App\Models\ForumDiscussion;
 use App\Models\ForumReply;
 use App\Models\Notification;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\SalesReportExport;
 use App\Exports\InventoryReportExport;
@@ -45,7 +46,54 @@ class AdminController extends Controller
         $recentOrders = Order::with('user')->latest()->take(5)->get();
         $pendingProducts = Product::with('seller')->where('status', 'pending')->latest()->take(5)->get();
 
+        // Check for critical system alerts
+        $this->checkSystemAlerts();
+
         return view('admin.dashboard', compact('stats', 'recentUsers', 'recentOrders', 'pendingProducts'));
+    }
+
+    /**
+     * Check for system alerts and create notifications if needed
+     */
+    private function checkSystemAlerts(): void
+    {
+        $adminId = auth()->id();
+        
+        // Check for critical low stock products
+        $criticalLowStock = Product::whereRaw('quantity <= low_stock_threshold AND low_stock_threshold > 0')
+            ->where('quantity', '<=', 5)
+            ->count();
+            
+        if ($criticalLowStock > 0) {
+            $this->notifyAdmins(
+                'system_alert',
+                'Critical Low Stock Alert',
+                "{$criticalLowStock} products are critically low on stock (5 units or less).",
+                ['alert_type' => 'critical_low_stock', 'count' => $criticalLowStock]
+            );
+        }
+        
+        // Check for high number of pending orders
+        $pendingOrdersCount = Order::where('status', 'pending')->count();
+        if ($pendingOrdersCount >= 20) {
+            $this->notifyAdmins(
+                'system_alert',
+                'High Pending Orders Alert',
+                "{$pendingOrdersCount} orders are pending and need attention.",
+                ['alert_type' => 'high_pending_orders', 'count' => $pendingOrdersCount]
+            );
+        }
+        
+        // Check for high number of pending seller applications
+        $pendingApplicationsCount = SellerApplication::where('status', 'pending')->count();
+        if ($pendingApplicationsCount >= 10) {
+            $this->notifyAdmins(
+                'system_alert',
+                'High Pending Applications Alert',
+                "{$pendingApplicationsCount} seller applications are pending review.",
+                ['alert_type' => 'high_pending_applications', 'count' => $pendingApplicationsCount]
+            );
+        }
     }
 
     /**
@@ -73,12 +121,68 @@ class AdminController extends Controller
     public function updateUserStatus(Request $request, User $user)
     {
         $request->validate([
-            'status' => 'required|in:active,inactive',
+            'active' => 'required|boolean',
+            'deactivation_reason' => 'required_if:active,false|string|max:500',
         ]);
 
-        $user->update(['status' => $request->status]);
+        // Prevent admin from deactivating themselves
+        if ($user->id === auth()->id() && !$request->active) {
+            return redirect()->back()->with('error', 'You cannot deactivate your own account.');
+        }
+
+        $user->update([
+            'active' => $request->active,
+            'deactivation_reason' => $request->active ? null : $request->deactivation_reason,
+            'deactivated_at' => $request->active ? null : now(),
+        ]);
+
+        // Create notification for the user
+        $message = $request->active 
+            ? 'Your account has been reactivated. You can now use all platform features.'
+            : 'Your account has been deactivated. Reason: ' . $request->deactivation_reason;
+            
+        \App\Http\Controllers\NotificationController::createNotification(
+            $user->id,
+            $request->active ? 'account_reactivated' : 'account_deactivated',
+            $request->active ? 'Account Reactivated' : 'Account Deactivated',
+            $message
+        );
 
         return redirect()->back()->with('success', 'User status updated successfully.');
+    }
+
+    /**
+     * Show edit user form
+     */
+    public function editUser(User $user)
+    {
+        return view('admin.user-edit', compact('user'));
+    }
+
+    /**
+     * Update user information
+     */
+    public function updateUser(Request $request, User $user)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:20',
+            'address' => 'nullable|string|max:500',
+            'role' => 'required|in:admin,seller,customer',
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'username' => $request->username,
+            'email' => $request->email,
+            'phone' => $request->phone,
+            'address' => $request->address,
+            'role' => $request->role,
+        ]);
+
+        return redirect()->route('admin.users.show', $user)->with('success', 'User information updated successfully.');
     }
 
     /**
@@ -96,7 +200,7 @@ class AdminController extends Controller
     }
 
     /**
-     * Delete user (soft delete)
+     * Delete user (with cascade deletion of related records)
      */
     public function deleteUser(User $user)
     {
@@ -104,9 +208,54 @@ class AdminController extends Controller
             return redirect()->back()->with('error', 'You cannot delete your own account.');
         }
 
-        $user->delete();
+        try {
+            // Delete related records in order to avoid foreign key constraints
+            
+            // Delete notifications
+            $user->notifications()->delete();
+            
+            // Delete routine reviews and ratings
+            $user->routineReviews()->delete();
+            $user->routineRatings()->delete();
+            $user->routineFavorites()->delete();
+            
+            // Delete skincare routines and journals
+            $user->skincareRoutines()->delete();
+            $user->skinJournals()->delete();
+            
+            // Delete skin profile
+            $user->skinProfile()->delete();
+            
+            // Delete wishlist items
+            $user->wishlistItems()->delete();
+            
+            // Delete cart items
+            $user->cartItems()->delete();
+            
+            // Handle orders - you might want to keep them for records, but remove user reference
+            foreach ($user->orders as $order) {
+                $order->update(['user_id' => null]); // Or delete if you prefer
+            }
+            
+            // Handle products if user is a seller
+            if ($user->isSeller()) {
+                foreach ($user->products as $product) {
+                    $product->update(['seller_id' => null]); // Or delete if you prefer
+                }
+            }
+            
+            // Delete seller application if exists
+            $user->sellerApplication()->delete();
+            
+            // Finally delete the user
+            $user->delete();
 
-        return redirect()->route('admin.users')->with('success', 'User deleted successfully.');
+            return redirect()->route('admin.users')->with('success', 'User and all related data deleted successfully.');
+            
+        } catch (\Exception $e) {
+            \Log::error('Error deleting user: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error deleting user. The user may have related records that cannot be deleted. Please check logs for details.');
+        }
     }
 
     /**
@@ -124,6 +273,26 @@ class AdminController extends Controller
     public function approveProduct(Product $product)
     {
         $product->update(['status' => 'approved']);
+        
+        // Create notification for the seller
+        if ($product->seller_id) {
+            \App\Http\Controllers\NotificationController::createNotification(
+                $product->seller_id,
+                'product_approved',
+                'Product Approved',
+                "Your product '{$product->name}' has been approved and is now live.",
+                ['product_id' => $product->id, 'product_name' => $product->name]
+            );
+        }
+        
+        // Create notification for all admins
+        $this->notifyAdmins(
+            'admin_action',
+            'Product Approved',
+            "Product '{$product->name}' approved by admin.",
+            ['product_id' => $product->id, 'admin_id' => auth()->id()]
+        );
+        
         return redirect()->back()->with('success', 'Product approved successfully.');
     }
 
@@ -140,6 +309,25 @@ class AdminController extends Controller
             'status' => 'rejected',
             'rejection_reason' => $request->rejection_reason
         ]);
+        
+        // Create notification for the seller
+        if ($product->seller_id) {
+            \App\Http\Controllers\NotificationController::createNotification(
+                $product->seller_id,
+                'product_rejected',
+                'Product Rejected',
+                "Your product '{$product->name}' has been rejected. Reason: {$request->rejection_reason}",
+                ['product_id' => $product->id, 'product_name' => $product->name, 'reason' => $request->rejection_reason]
+            );
+        }
+        
+        // Create notification for all admins
+        $this->notifyAdmins(
+            'admin_action',
+            'Product Rejected',
+            "Product '{$product->name}' rejected by admin.",
+            ['product_id' => $product->id, 'admin_id' => auth()->id()]
+        );
 
         return redirect()->back()->with('success', 'Product rejected successfully.');
     }
@@ -176,6 +364,14 @@ class AdminController extends Controller
             'admin_id' => auth()->id(),
             'notes' => $request->restock_notes
         ]);
+
+        // Create notification for all admins about manual restock
+        $this->notifyAdmins(
+            'admin_action',
+            'Product Restocked',
+            "Product '{$product->name}' restocked by admin. Stock increased from {$oldQuantity} to {$newQuantity}.",
+            ['product_id' => $product->id, 'admin_id' => auth()->id(), 'old_quantity' => $oldQuantity, 'new_quantity' => $newQuantity]
+        );
 
         return redirect()->back()->with('success', 
             "Product '{$product->name}' restocked successfully! Stock increased from {$oldQuantity} to {$newQuantity}."
@@ -214,6 +410,14 @@ class AdminController extends Controller
                 'status' => $request->status,
                 'previous_status' => $previousStatus
             ]
+        );
+
+        // Create notification for all admins about order status change
+        $this->notifyAdmins(
+            'admin_action',
+            'Order Status Updated',
+            "Order #{$order->id} status changed from {$previousStatus} to {$request->status}.",
+            ['order_id' => $order->id, 'admin_id' => auth()->id(), 'previous_status' => $previousStatus, 'new_status' => $request->status]
         );
 
         // Send email notification about status update
@@ -303,12 +507,26 @@ class AdminController extends Controller
     }
 
     /**
-     * List admin viewing of notifications
+     * Display admin notifications
      */
-    public function notifications()
+    public function notifications(Request $request)
     {
-        $notifications = auth()->user()->notifications()->latest()->paginate(15);
-        return view('admin.notifications', compact('notifications'));
+        $user = Auth::user();
+        $query = $user->notifications()->with('user')->latest();
+        
+        // Apply filters
+        if ($request->get('filter') === 'unread') {
+            $query->unread();
+        } elseif ($request->get('filter') && $request->get('filter') !== 'all') {
+            $query->byType($request->get('filter'));
+        }
+        
+        $notifications = $query->paginate($request->get('per_page', 10));
+
+        return view('admin.notifications', [
+            'notifications' => $notifications,
+            'unreadCount' => $user->notifications()->unread()->count(),
+        ]);
     }
 
     /**
@@ -683,5 +901,26 @@ class AdminController extends Controller
             'userRegistrations',
             'stats'
         ));
+    }
+
+    /**
+     * Helper method to notify all admin users
+     */
+    private function notifyAdmins(string $type, string $title, string $message, array $data = []): void
+    {
+        $adminUsers = User::where('role', 'admin')->get();
+        
+        foreach ($adminUsers as $admin) {
+            // Don't notify the admin who performed the action
+            if ($admin->id !== auth()->id()) {
+                \App\Http\Controllers\NotificationController::createNotification(
+                    $admin->id,
+                    $type,
+                    $title,
+                    $message,
+                    $data
+                );
+            }
+        }
     }
 }

@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\ForgotPasswordController;
+use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
@@ -64,6 +66,12 @@ Route::middleware('guest')->group(function () {
 
     Route::get('register', [RegisterController::class , 'showRegistrationForm'])->name('register');
     Route::post('register', [RegisterController::class , 'register']);
+    
+    // Password Reset Routes
+    Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+    Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+    Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+    Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
     
     // Verification Pending Page (accessible without auth)
     Route::get('verify-pending', function () {
@@ -379,6 +387,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // User Management
     Route::get('/users', [AdminController::class , 'users'])->name('users');
     Route::get('/users/{user}', [AdminController::class , 'showUser'])->name('users.show');
+    Route::get('/users/{user}/edit', [AdminController::class , 'editUser'])->name('users.edit');
+    Route::put('/users/{user}', [AdminController::class , 'updateUser'])->name('users.update');
+    Route::put('/users/{user}/status', [AdminController::class , 'updateUserStatus'])->name('users.update-status');
     Route::put('/users/{user}/role', [AdminController::class , 'updateUserRole'])->name('users.update-role');
     Route::delete('/users/{user}', [AdminController::class , 'deleteUser'])->name('users.delete');
 

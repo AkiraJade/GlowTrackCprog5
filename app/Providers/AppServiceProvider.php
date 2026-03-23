@@ -23,13 +23,18 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         View::composer('*', function ($view) {
-            $user = Auth::user();
+            try {
+                $user = Auth::user();
 
-            if ($user) {
-                $unreadCount = $user->notifications()->unread()->count();
-                $recentNotifications = $user->notifications()->latest()->take(5)->get();
-                $view->with(compact('unreadCount', 'recentNotifications'));
-            } else {
+                if ($user) {
+                    $unreadCount = $user->notifications()->unread()->count();
+                    $recentNotifications = $user->notifications()->latest()->take(5)->get();
+                    $view->with(compact('unreadCount', 'recentNotifications'));
+                } else {
+                    $view->with(['unreadCount' => 0, 'recentNotifications' => collect()]);
+                }
+            } catch (\Exception $e) {
+                // Fallback in case of any issues with User model or Auth
                 $view->with(['unreadCount' => 0, 'recentNotifications' => collect()]);
             }
         });

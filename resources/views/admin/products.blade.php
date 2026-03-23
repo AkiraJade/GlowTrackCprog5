@@ -54,13 +54,13 @@
                             <tr>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
-                                        @if($product->photo_url)
+                                        @if($product->photo)
                                             <img src="{{ $product->photo_url }}" alt="{{ $product->name }}" 
-                                                 class="w-10 h-10 rounded-lg object-cover object-center mr-3">
+                                                 class="w-10 h-10 rounded-lg object-cover object-center mr-3"
+                                                 onerror="this.onerror=null; this.src='{{ asset('images/default-product.jpg') }}'; console.log('Image failed: {{ $product->photo_url }}');">
                                         @else
-                                            <div class="w-10 h-10 bg-gray-200 rounded-lg mr-3 flex items-center justify-center">
-                                                <span class="text-gray-400 text-xs">No img</span>
-                                            </div>
+                                            <img src="{{ asset('images/default-product.jpg') }}" alt="{{ $product->name }}" 
+                                                 class="w-10 h-10 rounded-lg object-cover object-center mr-3">
                                         @endif
                                         <div>
                                             <div class="text-sm font-medium text-gray-900">{{ $product->name }}</div>

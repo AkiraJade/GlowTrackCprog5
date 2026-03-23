@@ -25,10 +25,10 @@
                                  class="w-full h-96 object-cover object-center rounded-lg shadow-md cursor-pointer"
                                  onclick="openImageModal('{{ $product->images->first()->image_url }}')">
                         @elseif($product->photo)
-                            <img id="mainImage" src="{{ asset('storage/' . $product->photo) }}" 
+                            <img id="mainImage" src="{{ $product->photo_url }}" 
                                  alt="{{ $product->name }}" 
                                  class="w-full h-96 object-cover object-center rounded-lg shadow-md cursor-pointer"
-                                 onclick="openImageModal('{{ asset('storage/' . $product->photo) }}')">
+                                 onclick="openImageModal('{{ $product->photo_url }}')">
                         @else
                             <div class="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
                                 <span class="text-gray-400 text-xl">No Product Image</span>
@@ -290,7 +290,7 @@
                                          class="w-full h-32 object-cover rounded-t-lg cursor-pointer"
                                          onclick="window.location.href='{{ route('products.show', $relatedProduct) }}'">
                                 @elseif($relatedProduct->photo)
-                                    <img src="{{ asset('storage/' . $relatedProduct->photo) }}" 
+                                    <img src="{{ $relatedProduct->photo_url }}" 
                                          alt="{{ $relatedProduct->name }}" 
                                          class="w-full h-32 object-cover rounded-t-lg cursor-pointer"
                                          onclick="window.location.href='{{ route('products.show', $relatedProduct) }}'">

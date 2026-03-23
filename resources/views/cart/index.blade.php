@@ -40,7 +40,7 @@
                                     <td class="py-4 px-4">
                                         <div class="flex items-center">
                                             @if($item->product->photo)
-                                                <img src="{{ asset('storage/' . $item->product->photo) }}" 
+                                                <img src="{{ $item->product->photo_url }}" 
                                                      alt="{{ $item->product->name }}" 
                                                      class="w-16 h-16 object-cover object-center rounded-lg mr-3">
                                             @else

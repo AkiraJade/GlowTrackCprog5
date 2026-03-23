@@ -111,6 +111,14 @@ class SellerApplicationController extends Controller
             ]);
         }
 
+        // Create notification for all admins about new seller application
+        $this->notifyAdmins(
+            'new_seller_application',
+            'New Seller Application',
+            "New seller application submitted by {$request->brand_name}.",
+            ['application_id' => $rejectedApplication ? $rejectedApplication->id : SellerApplication::latest()->first()->id, 'brand_name' => $request->brand_name, 'user_id' => auth()->id()]
+        );
+
         return redirect()->route('seller.application.status')
             ->with('success', 'Your seller application has been submitted successfully! We will review it within 2-3 business days.');
     }
@@ -191,6 +199,23 @@ class SellerApplicationController extends Controller
 
         // Update user role to seller
         $application->user->update(['role' => 'seller']);
+        
+        // Create notification for the applicant
+        \App\Http\Controllers\NotificationController::createNotification(
+            $application->user_id,
+            'seller_approved',
+            'Seller Application Approved',
+            'Congratulations! Your seller application has been approved. You can now start selling products.',
+            ['application_id' => $application->id, 'admin_notes' => $request->admin_notes]
+        );
+        
+        // Create notification for all admins
+        $this->notifyAdmins(
+            'admin_action',
+            'Seller Application Approved',
+            "Seller application for {$application->user->name} approved by admin.",
+            ['application_id' => $application->id, 'user_id' => $application->user_id, 'admin_id' => auth()->id()]
+        );
 
         return redirect()->route('admin.seller-applications')
             ->with('success', 'Seller application approved successfully!');
@@ -215,8 +240,46 @@ class SellerApplicationController extends Controller
             'reviewed_at' => now(),
             'reviewed_by' => auth()->id(),
         ]);
+        
+        // Create notification for the applicant
+        \App\Http\Controllers\NotificationController::createNotification(
+            $application->user_id,
+            'seller_rejected',
+            'Seller Application Rejected',
+            "Your seller application has been rejected. Reason: {$request->admin_notes}",
+            ['application_id' => $application->id, 'reason' => $request->admin_notes]
+        );
+        
+        // Create notification for all admins
+        $this->notifyAdmins(
+            'admin_action',
+            'Seller Application Rejected',
+            "Seller application for {$application->user->name} rejected by admin.",
+            ['application_id' => $application->id, 'user_id' => $application->user_id, 'admin_id' => auth()->id()]
+        );
 
         return redirect()->route('admin.seller-applications')
             ->with('success', 'Seller application rejected.');
+    }
+
+    /**
+     * Helper method to notify all admin users
+     */
+    private function notifyAdmins(string $type, string $title, string $message, array $data = []): void
+    {
+        $adminUsers = User::where('role', 'admin')->get();
+        
+        foreach ($adminUsers as $admin) {
+            // Don't notify the admin who performed the action
+            if ($admin->id !== auth()->id()) {
+                \App\Http\Controllers\NotificationController::createNotification(
+                    $admin->id,
+                    $type,
+                    $title,
+                    $message,
+                    $data
+                );
+            }
+        }
     }
 }

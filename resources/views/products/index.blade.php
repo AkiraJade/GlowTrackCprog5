@@ -149,7 +149,7 @@
                             <!-- Product Image -->
                             <div class="relative">
                                 @if($product->photo)
-                                    <img src="{{ asset('storage/' . $product->photo) }}" 
+                                    <img src="{{ $product->photo_url }}" 
                                          alt="{{ $product->name }}" 
                                          class="w-full h-48 object-cover object-center rounded-t-lg">
                                 @else

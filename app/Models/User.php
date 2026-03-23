@@ -6,6 +6,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use App\Models\Order;
@@ -23,7 +24,7 @@ use App\Models\RoutineReview;
 class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, CanResetPassword;
 
     /**
      * The attributes that are mass assignable.
@@ -38,6 +39,9 @@ class User extends Authenticatable implements MustVerifyEmail
         'address',
         'role',
         'status',
+        'active',
+        'deactivation_reason',
+        'deactivated_at',
         'loyalty_points',
         'password',
         'last_seen_at',
@@ -65,6 +69,9 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'status' => 'string',
+            'active' => 'boolean',
+            'deactivated_at' => 'datetime',
+            'last_seen_at' => 'datetime',
         ];
     }
 
@@ -73,7 +80,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isActive(): bool
     {
-        return $this->status === 'active';
+        return $this->active === true;
     }
 
     /**
@@ -81,7 +88,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     public function isInactive(): bool
     {
-        return $this->status === 'inactive';
+        return $this->active === false;
     }
 
     /**

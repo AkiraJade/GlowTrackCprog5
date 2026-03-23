@@ -116,7 +116,7 @@
                         <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                             <div class="relative">
                                 @if($product->photo)
-                                    <img src="{{ asset('storage/product_photos/' . $product->photo) }}" 
+                                    <img src="{{ $product->photo_url }}" 
                                          alt="{{ $product->name }}" 
                                          class="w-full h-48 object-cover object-center">
                                 @else
@@ -164,7 +164,7 @@
                         <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
                             <div class="relative">
                                 @if($product->photo)
-                                    <img src="{{ asset('storage/product_photos/' . $product->photo) }}" 
+                                    <img src="{{ $product->photo_url }}" 
                                          alt="{{ $product->name }}" 
                                          class="w-full h-40 object-cover object-center">
                                 @else

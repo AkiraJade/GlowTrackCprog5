@@ -166,7 +166,7 @@
                                         <div class="group cursor-pointer" onclick="window.location.href='{{ route('products.show', $wishlistItem->product) }}'">
                                             <div class="relative overflow-hidden rounded-lg mb-3">
                                                 @if($wishlistItem->product->photo)
-                                                    <img src="{{ asset('storage/' . $wishlistItem->product->photo) }}" 
+                                                    <img src="{{ $wishlistItem->product->photo_url }}" 
                                                          alt="{{ $wishlistItem->product->name }}" 
                                                          class="w-full h-32 object-cover object-center group-hover:scale-105 transition-transform duration-300">
                                                 @else

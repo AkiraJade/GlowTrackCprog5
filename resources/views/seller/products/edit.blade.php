@@ -208,7 +208,7 @@
                         <label for="photo-upload" class="cursor-pointer">
                             <div id="photo-preview" class="mb-4">
                                 @if($product->photo)
-                                    <img src="{{ asset('storage/' . $product->photo) }}" alt="Current product photo" class="mx-auto h-32 w-32 object-cover object-center rounded-lg">
+                                    <img src="{{ $product->photo_url }}" alt="Current product photo" class="mx-auto h-32 w-32 object-cover object-center rounded-lg">
                                 @else
                                     <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>

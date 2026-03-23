@@ -101,6 +101,12 @@ class Notification extends Model
             'seller_rejected' => '😞',
             'new_review' => '⭐',
             'promotion' => '🎁',
+            'admin_action' => '👨‍💼',
+            'new_seller_application' => '📋',
+            'system_alert' => '🚨',
+            'security_alert' => '🔒',
+            'account_reactivated' => '✅',
+            'account_deactivated' => '🚫',
             default => '🔔',
         };
     }
@@ -118,6 +124,12 @@ class Notification extends Model
             'product_approved', 'seller_approved' => 'green',
             'new_review' => 'purple',
             'promotion' => 'pink',
+            'admin_action' => 'indigo',
+            'new_seller_application' => 'orange',
+            'system_alert' => 'red',
+            'security_alert' => 'red',
+            'account_reactivated' => 'green',
+            'account_deactivated' => 'red',
             default => 'gray',
         };
     }
