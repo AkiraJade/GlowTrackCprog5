@@ -200,6 +200,17 @@
         <div class="footer">
             <p>This email was sent to {{ $user->email }} regarding order #{{ $order->id }}.</p>
             <p>Your PDF receipt is attached to this email for your records.</p>
+            
+            <!-- PDF Download Button -->
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="{{ url('/orders/' . $order->id . '/receipt/pdf') }}" 
+                   style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); transition: all 0.3s ease;">
+                    📄 Download PDF Receipt
+                </a>
+                <p style="margin-top: 10px; font-size: 12px; color: #666;">
+                    Can't click the button? <a href="{{ url('/orders/' . $order->id . '/receipt/pdf') }}" style="color: #667eea;">Copy this link</a>
+                </p>
+            </div>
         </div>
         <div class="footer">
             <p>&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</p>

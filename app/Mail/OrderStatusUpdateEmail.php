@@ -72,7 +72,12 @@ class OrderStatusUpdateEmail extends Mailable
         $attachments = [];
 
         if ($this->pdfReceipt) {
-            $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromData(fn() => $this->pdfReceipt, 'receipt-' . $this->order->id . '.pdf')
+            // Save PDF to temporary file for attachment
+            $tempPath = storage_path('app/temp_receipt_' . $this->order->id . '_' . time() . '.pdf');
+            file_put_contents($tempPath, $this->pdfReceipt);
+            
+            $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath($tempPath)
+                ->as('receipt-' . $this->order->id . '.pdf')
                 ->withMime('application/pdf');
         }
 

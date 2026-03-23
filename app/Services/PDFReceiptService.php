@@ -40,7 +40,7 @@ class PDFReceiptService
             'isRemoteEnabled' => true,
         ]);
 
-        return $pdf->download('receipt-' . $order->id . '.pdf');
+        return $pdf->output();
     }
 
     /**
@@ -133,6 +133,36 @@ class PDFReceiptService
             return true;
         } catch (\Exception $e) {
             \Log::error('Failed to send order status update email', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+            
+            return false;
+        }
+    }
+
+    /**
+     * Send order cancellation email with PDF receipt
+     */
+    public function sendOrderCancellationEmail(Order $order, string $reason): bool
+    {
+        try {
+            // Generate PDF receipt for cancelled order
+            $pdfReceipt = $this->generateReceipt($order);
+            
+            // Send email with PDF attachment
+            Mail::to($order->user->email)->send(new \App\Mail\OrderCancellationEmail($order->user, $order, $reason, $pdfReceipt));
+            
+            // Log the email sent
+            \Log::info('Order cancellation email sent', [
+                'order_id' => $order->id,
+                'user_email' => $order->user->email,
+                'reason' => $reason,
+            ]);
+            
+            return true;
+        } catch (\Exception $e) {
+            \Log::error('Failed to send order cancellation email', [
                 'order_id' => $order->id,
                 'error' => $e->getMessage(),
             ]);

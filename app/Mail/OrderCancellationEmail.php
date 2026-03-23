@@ -7,23 +7,26 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
+use Illuminate\Queue\SerializesModels;
 
 class OrderCancellationEmail extends Mailable
 {
-    use Queueable;
+    use Queueable, SerializesModels;
 
     public $order;
     public $user;
     public $cancellationReason;
+    public $pdfReceipt;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($user, Order $order, string $cancellationReason)
+    public function __construct($user, Order $order, string $cancellationReason, $pdfReceipt = null)
     {
         $this->user = $user;
         $this->order = $order;
         $this->cancellationReason = $cancellationReason;
+        $this->pdfReceipt = $pdfReceipt;
     }
 
     /**
@@ -67,6 +70,18 @@ class OrderCancellationEmail extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        $attachments = [];
+
+        if ($this->pdfReceipt) {
+            // Save PDF to temporary file for attachment
+            $tempPath = storage_path('app/temp_receipt_' . $this->order->id . '_' . time() . '.pdf');
+            file_put_contents($tempPath, $this->pdfReceipt);
+            
+            $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromPath($tempPath)
+                ->as('receipt-' . $this->order->id . '.pdf')
+                ->withMime('application/pdf');
+        }
+
+        return $attachments;
     }
 }

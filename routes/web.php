@@ -333,6 +333,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders', [OrderController::class , 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class , 'show'])->name('orders.show');
     Route::put('/orders/{order}/cancel', [OrderController::class , 'cancel'])->name('orders.cancel');
+    Route::get('/orders/{order}/receipt/pdf', [OrderController::class , 'downloadReceipt'])->name('orders.receipt.pdf');
 
     // Notification Routes
         Route::get('/notifications', [NotificationController::class , 'index'])->name('notifications.index');

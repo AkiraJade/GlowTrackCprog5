@@ -257,11 +257,8 @@ class OrderController extends Controller
 
         // Send email notification to customer
         try {
-            Mail::to($order->user->email)->send(new \App\Mail\OrderCancellationEmail($order->user, $order, $request->reason));
-            \Log::info('Order cancellation email sent', [
-                'order_id' => $order->id,
-                'email' => $order->user->email
-            ]);
+            $pdfService = new \App\Services\PDFReceiptService();
+            $pdfService->sendOrderCancellationEmail($order, $request->reason);
         } catch (\Exception $e) {
             \Log::error('Failed to send order cancellation email', [
                 'order_id' => $order->id,
@@ -277,5 +274,23 @@ class OrderController extends Controller
 
         return redirect()->route('orders.index')
             ->with('success', 'Order cancelled successfully. Items have been returned to stock.');
+    }
+
+    /**
+     * Download PDF receipt for an order
+     */
+    public function downloadReceipt(Order $order)
+    {
+        // Check if user owns this order or is admin
+        if (auth()->user()->id !== $order->user_id && !auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized');
+        }
+
+        try {
+            $pdfService = new \App\Services\PDFReceiptService();
+            return $pdfService->downloadReceipt($order);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to generate PDF receipt.');
+        }
     }
 }

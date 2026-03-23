@@ -14,6 +14,7 @@ class OrderConfirmationEmail extends Mailable
 
     public $order;
     public $pdfReceipt;
+    public $tempFiles = [];
 
     /**
      * Create a new message instance.
@@ -22,6 +23,18 @@ class OrderConfirmationEmail extends Mailable
     {
         $this->order = $order;
         $this->pdfReceipt = $pdfReceipt;
+    }
+
+    /**
+     * Clean up temporary files
+     */
+    public function __destruct()
+    {
+        foreach ($this->tempFiles as $tempFile) {
+            if (file_exists($tempFile)) {
+                unlink($tempFile);
+            }
+        }
     }
 
     /**
@@ -67,8 +80,14 @@ class OrderConfirmationEmail extends Mailable
         $attachments = [];
 
         if ($this->pdfReceipt) {
-            $attachments[] = \Illuminate\Mail\Mailables\Attachment::fromData(fn() => $this->pdfReceipt, 'receipt-' . $this->order->id . '.pdf')
-                ->withMime('application/pdf');
+            // Save PDF to temporary file for attachment
+            $tempPath = storage_path('app/temp_receipt_' . $this->order->id . '_' . time() . '.pdf');
+            file_put_contents($tempPath, $this->pdfReceipt);
+            
+            // Track for cleanup
+            $this->tempFiles[] = $tempPath;
+            
+            $attachments[] = $tempPath;
         }
 
         return $attachments;
