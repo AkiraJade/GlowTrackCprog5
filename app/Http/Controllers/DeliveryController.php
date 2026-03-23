@@ -117,7 +117,7 @@ class DeliveryController extends Controller
 
         if ($validated['status'] === 'Delivered') {
             $updateData['actual_delivery_date'] = now();
-            
+
             // Handle confirmation photo upload
             if ($request->hasFile('confirmation_photo')) {
                 $photoPath = $request->file('confirmation_photo')->store('delivery_photos', 'public');
@@ -158,17 +158,22 @@ class DeliveryController extends Controller
         ]);
     }
 
-    public function destroy(Delivery $delivery): JsonResponse
+    public function destroy(Delivery $delivery)
     {
         // Reset order status
         $delivery->order->update(['status' => 'processing']);
-        
+
         $delivery->delete();
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Delivery deleted successfully!'
-        ]);
+        if (request()->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Delivery deleted successfully!'
+            ]);
+        }
+
+        return redirect()->route('admin.deliveries.index')
+            ->with('success', 'Delivery deleted successfully.');
     }
 
     // Delivery Personnel Management

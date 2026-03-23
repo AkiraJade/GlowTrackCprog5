@@ -11,9 +11,36 @@
                 <h1 class="text-3xl font-bold text-gray-900 font-playfair">Seller Application Details</h1>
                 <p class="text-gray-600 mt-2">Review application from {{ $application->user->name }}</p>
             </div>
-            <a href="{{ route('admin.seller-applications') }}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">
-                ← Back to Applications
-            </a>
+            <div style="display:flex;align-items:center;gap:.625rem;">
+                <a href="{{ route('admin.seller-applications') }}"
+                   style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;
+                          font-size:.825rem;font-weight:600;border-radius:.75rem;text-decoration:none;
+                          color:#6B4F4F;background:rgba(255,255,255,.6);
+                          border:1px solid rgba(168,213,194,.4);transition:all .2s ease;"
+                   onmouseover="this.style.background='rgba(255,255,255,.88)'"
+                   onmouseout="this.style.background='rgba(255,255,255,.6)'">
+                    ← Back to Applications
+                </a>
+
+                <form action="{{ route('admin.seller-applications.destroy', $application) }}" method="POST" style="display:inline;"
+                      onsubmit="return confirm('Permanently delete the application for {{ addslashes($application->brand_name) }}? This cannot be undone.')">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit"
+                            style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;
+                                   font-size:.825rem;font-weight:600;border-radius:.75rem;cursor:pointer;
+                                   color:#8B3A4A;background:rgba(246,193,204,.2);
+                                   border:1px solid rgba(220,150,170,.35);
+                                   transition:all .2s ease;font-family:'Poppins',sans-serif;"
+                            onmouseover="this.style.background='rgba(246,193,204,.4)'"
+                            onmouseout="this.style.background='rgba(246,193,204,.2)'">
+                        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                        Delete Application
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 

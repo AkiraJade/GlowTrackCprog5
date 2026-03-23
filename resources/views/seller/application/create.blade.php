@@ -37,17 +37,17 @@
 
         <!-- Benefits -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <div class="bg-white p-6 rounded-lg shadow text-center">
+            <div class="glass-card p-6 rounded-lg shadow text-center border border-gray-200">
                 <div class="text-3xl mb-4">🎯</div>
                 <h3 class="font-semibold text-gray-900 mb-2">Targeted Audience</h3>
                 <p class="text-gray-600">Access customers actively searching for skincare solutions</p>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow text-center">
+            <div class="glass-card p-6 rounded-lg shadow text-center border border-gray-200">
                 <div class="text-3xl mb-4">📈</div>
                 <h3 class="font-semibold text-gray-900 mb-2">Growth Tools</h3>
                 <p class="text-gray-600">Analytics and insights to grow your skincare business</p>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow text-center">
+            <div class="glass-card p-6 rounded-lg shadow text-center border border-gray-200">
                 <div class="text-3xl mb-4">🤝</div>
                 <h3 class="font-semibold text-gray-900 mb-2">Seller Support</h3>
                 <p class="text-gray-600">Dedicated support and resources for your success</p>
@@ -55,7 +55,7 @@
         </div>
 
         <!-- Application Form -->
-        <div class="bg-white rounded-lg shadow-lg">
+        <div class="glass-card rounded-lg shadow-lg border border-gray-200">
             <div class="px-8 py-6 border-b border-gray-200">
                 <h2 class="text-2xl font-bold text-gray-900">Seller Application</h2>
                 <p class="text-gray-600 mt-2">Please provide your business information to apply for a seller account.</p>

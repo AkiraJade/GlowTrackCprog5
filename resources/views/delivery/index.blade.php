@@ -12,7 +12,7 @@
                 <h1 class="text-3xl font-bold text-soft-brown font-playfair mb-2">Manage Deliveries</h1>
                 <p class="text-gray-600">Track and manage all delivery operations</p>
             </div>
-            <a href="{{ route('admin.deliveries.create') }}" 
+            <a href="{{ route('admin.deliveries.create') }}"
                class="px-6 py-3 bg-jade-green text-white rounded-full hover:bg-jade-green/80 transition font-semibold shadow-lg">
                 + Create Delivery
             </a>
@@ -24,7 +24,7 @@
         <form method="GET" action="{{ route('admin.deliveries.index') }}" class="flex flex-wrap gap-4">
             <div>
                 <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status Filter</label>
-                <select name="status" id="status" 
+                <select name="status" id="status"
                         class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jade-green focus:border-transparent">
                     <option value="">All Status</option>
                     <option value="Pending Assignment" {{ request('status') == 'Pending Assignment' ? 'selected' : '' }}>Pending Assignment</option>
@@ -36,22 +36,22 @@
                     <option value="Returned" {{ request('status') == 'Returned' ? 'selected' : '' }}>Returned</option>
                 </select>
             </div>
-            
+
             <div>
                 <label for="personnel" class="block text-sm font-medium text-gray-700 mb-2">Delivery Personnel</label>
                 <select name="delivery_personnel_id" id="personnel"
                         class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-jade-green focus:border-transparent">
                     <option value="">All Personnel</option>
                     @foreach(App\Models\DeliveryPersonnel::where('is_active', true)->get() as $person)
-                        <option value="{{ $person->id }}" 
+                        <option value="{{ $person->id }}"
                                 {{ request('delivery_personnel_id') == $person->id ? 'selected' : '' }}>
                             {{ $person->name }}
                         </option>
                     @endforeach
                 </select>
             </div>
-            
-            <button type="submit" 
+
+            <button type="submit"
                     class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition font-medium">
                 Apply Filters
             </button>
@@ -118,21 +118,64 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <a href="{{ route('admin.deliveries.show', $delivery) }}" 
-                                       class="text-jade-green hover:text-jade-green/90 mr-3">View</a>
-                                    <a href="{{ route('admin.deliveries.edit', $delivery) }}" 
-                                       class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                                    
-                                    <!-- Status Update Buttons -->
-                                    @if(in_array($delivery->status, ['Assigned', 'Picked Up', 'In Transit']))
-                                        <button onclick="updateDeliveryStatus({{ $delivery->id }}, 'Delivered')" 
-                                                class="text-green-600 hover:text-green-900 mr-3">Mark Delivered</button>
-                                    @endif
-                                    
-                                    @if(in_array($delivery->status, ['Assigned', 'Picked Up']))
-                                        <button onclick="updateDeliveryStatus({{ $delivery->id }}, 'Failed')" 
-                                                class="text-red-600 hover:text-red-900">Mark Failed</button>
-                                    @endif
+                                    <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;">
+                                        <a href="{{ route('admin.deliveries.show', $delivery) }}"
+                                           style="padding:.3rem .65rem;font-size:.72rem;font-weight:600;border-radius:.5rem;
+                                                  text-decoration:none;color:#2D6A5B;background:rgba(126,200,179,.18);
+                                                  border:1px solid rgba(126,200,179,.32);transition:all .18s ease;white-space:nowrap;"
+                                           onmouseover="this.style.background='rgba(126,200,179,.3)'"
+                                           onmouseout="this.style.background='rgba(126,200,179,.18)'">
+                                            View
+                                        </a>
+                                        <a href="{{ route('admin.deliveries.edit', $delivery) }}"
+                                           style="padding:.3rem .65rem;font-size:.72rem;font-weight:600;border-radius:.5rem;
+                                                  text-decoration:none;color:#2D5A4A;background:rgba(168,213,194,.2);
+                                                  border:1px solid rgba(168,213,194,.35);transition:all .18s ease;white-space:nowrap;"
+                                           onmouseover="this.style.background='rgba(168,213,194,.35)'"
+                                           onmouseout="this.style.background='rgba(168,213,194,.2)'">
+                                            Edit
+                                        </a>
+
+                                        <!-- Status Update Buttons -->
+                                        @if(in_array($delivery->status, ['Assigned', 'Picked Up', 'In Transit']))
+                                            <button onclick="updateDeliveryStatus({{ $delivery->id }}, 'Delivered')"
+                                                    style="padding:.3rem .65rem;font-size:.72rem;font-weight:600;border-radius:.5rem;
+                                                           color:#2D6A5B;background:rgba(126,200,179,.15);
+                                                           border:1px solid rgba(126,200,179,.28);cursor:pointer;
+                                                           transition:all .18s ease;white-space:nowrap;font-family:'Poppins',sans-serif;"
+                                                    onmouseover="this.style.background='rgba(126,200,179,.3)'"
+                                                    onmouseout="this.style.background='rgba(126,200,179,.15)'">
+                                                ✓ Delivered
+                                            </button>
+                                        @endif
+
+                                        @if(in_array($delivery->status, ['Assigned', 'Picked Up']))
+                                            <button onclick="updateDeliveryStatus({{ $delivery->id }}, 'Failed')"
+                                                    style="padding:.3rem .65rem;font-size:.72rem;font-weight:600;border-radius:.5rem;
+                                                           color:#8B5E3C;background:rgba(255,214,165,.2);
+                                                           border:1px solid rgba(255,180,100,.28);cursor:pointer;
+                                                           transition:all .18s ease;white-space:nowrap;font-family:'Poppins',sans-serif;"
+                                                    onmouseover="this.style.background='rgba(255,214,165,.38)'"
+                                                    onmouseout="this.style.background='rgba(255,214,165,.2)'">
+                                                ✕ Failed
+                                            </button>
+                                        @endif
+
+                                        <form action="{{ route('admin.deliveries.destroy', $delivery) }}" method="POST" style="display:inline;"
+                                              onsubmit="return confirm('Delete delivery for Order #{{ $delivery->order->id }}? This cannot be undone.')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    style="padding:.3rem .65rem;font-size:.72rem;font-weight:600;border-radius:.5rem;
+                                                           color:#8B3A4A;background:rgba(246,193,204,.18);
+                                                           border:1px solid rgba(220,150,170,.28);cursor:pointer;
+                                                           transition:all .18s ease;white-space:nowrap;font-family:'Poppins',sans-serif;"
+                                                    onmouseover="this.style.background='rgba(246,193,204,.35)'"
+                                                    onmouseout="this.style.background='rgba(246,193,204,.18)'">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -147,7 +190,7 @@
         @else
             <div class="text-center py-12">
                 <div class="text-gray-500 mb-4">No deliveries found.</div>
-                <a href="{{ route('admin.deliveries.create') }}" 
+                <a href="{{ route('admin.deliveries.create') }}"
                    class="px-6 py-3 bg-jade-green text-white rounded-full hover:bg-jade-green/80 transition font-semibold shadow-lg">
                     + Create First Delivery
                 </a>

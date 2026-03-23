@@ -8,7 +8,7 @@
         
         <!-- Welcome Section -->
         <div class="mb-8">
-            <div class="bg-white rounded-3xl shadow-xl p-8 md:p-12">
+            <div class="glass-card rounded-3xl shadow-lg p-8 md:p-12">
                 <div class="flex flex-col md:flex-row items-center justify-between gap-8">
                     <div>
                         <h1 class="text-4xl md:text-5xl font-bold text-soft-brown font-playfair mb-3">
@@ -42,7 +42,7 @@
 
         <!-- Quick Stats -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="window.location.href='{{ route('seller.products.index') }}'">
+            <div class="glass-card rounded-2xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer border border-gray-200" onclick="window.location.href='{{ route('seller.products.index') }}'">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="text-lg font-bold text-soft-brown">Total Products</h3>
                     <span class="text-4xl">📦</span>
@@ -80,7 +80,7 @@
         </div>
 
         <!-- Recent Products -->
-        <div class="bg-white rounded-2xl shadow-lg p-8">
+        <div class="glass-card rounded-2xl shadow-lg p-8 border border-gray-200">
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-soft-brown font-playfair">Recent Products</h2>
                 <a href="{{ route('seller.products.index') }}" class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">View All</a>

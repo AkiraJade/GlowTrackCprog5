@@ -129,8 +129,38 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <a href="{{ route('admin.deliveries.show', $delivery) }}" class="text-jade-green hover:text-jade-green/90 mr-3">View</a>
-                                    <a href="{{ route('admin.deliveries.edit', $delivery) }}" class="text-indigo-600 hover:text-indigo-900">Edit</a>
+                                    <div style="display:flex;align-items:center;gap:.4rem;flex-wrap:nowrap;">
+                                        <a href="{{ route('admin.deliveries.show', $delivery) }}"
+                                           style="padding:.3rem .65rem;font-size:.72rem;font-weight:600;border-radius:.5rem;
+                                                  text-decoration:none;color:#2D6A5B;background:rgba(126,200,179,.18);
+                                                  border:1px solid rgba(126,200,179,.32);transition:all .18s ease;white-space:nowrap;"
+                                           onmouseover="this.style.background='rgba(126,200,179,.3)'"
+                                           onmouseout="this.style.background='rgba(126,200,179,.18)'">
+                                            View
+                                        </a>
+                                        <a href="{{ route('admin.deliveries.edit', $delivery) }}"
+                                           style="padding:.3rem .65rem;font-size:.72rem;font-weight:600;border-radius:.5rem;
+                                                  text-decoration:none;color:#2D5A4A;background:rgba(168,213,194,.2);
+                                                  border:1px solid rgba(168,213,194,.35);transition:all .18s ease;white-space:nowrap;"
+                                           onmouseover="this.style.background='rgba(168,213,194,.35)'"
+                                           onmouseout="this.style.background='rgba(168,213,194,.2)'">
+                                            Edit
+                                        </a>
+                                        <form action="{{ route('admin.deliveries.destroy', $delivery) }}" method="POST" style="display:inline;"
+                                              onsubmit="return confirm('Delete delivery #{{ $delivery->id }} for Order #{{ $delivery->order->id }}? This cannot be undone.')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    style="padding:.3rem .65rem;font-size:.72rem;font-weight:600;border-radius:.5rem;
+                                                           color:#8B3A4A;background:rgba(246,193,204,.18);
+                                                           border:1px solid rgba(220,150,170,.28);cursor:pointer;
+                                                           transition:all .18s ease;white-space:nowrap;font-family:'Poppins',sans-serif;"
+                                                    onmouseover="this.style.background='rgba(246,193,204,.35)'"
+                                                    onmouseout="this.style.background='rgba(246,193,204,.18)'">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach

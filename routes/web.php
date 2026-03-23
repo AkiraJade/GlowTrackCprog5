@@ -66,13 +66,13 @@ Route::middleware('guest')->group(function () {
 
     Route::get('register', [RegisterController::class , 'showRegistrationForm'])->name('register');
     Route::post('register', [RegisterController::class , 'register']);
-    
+
     // Password Reset Routes
     Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
     Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
     Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])->name('password.reset');
     Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
-    
+
     // Verification Pending Page (accessible without auth)
     Route::get('verify-pending', function () {
         $email = session('verification_email');
@@ -302,6 +302,7 @@ Route::get('/test-import', function() {
 
 // Product Routes
 Route::get('/products', [ProductController::class , 'index'])->name('products.index');
+Route::get('/api/products/search', [ProductController::class, 'search'])->name('api.products.search');
 Route::get('/products/import', [ProductController::class , 'showImportForm'])->name('products.import')->middleware('auth');
 Route::post('/products/import', [ProductController::class , 'import'])->name('products.import.store')->middleware('auth');
 Route::get('/products/export', [ProductController::class , 'export'])->name('products.export')->middleware('auth');
@@ -365,7 +366,7 @@ Route::middleware(['auth', 'seller'])->prefix('seller')->name('seller.')->group(
 
         // Seller-specific application management removed here to avoid route conflicts
         // Public/customer-facing seller application routes are defined earlier (auth guarded)
-    
+
         // Seller Product Management
         Route::get('/products', [ProductController::class , 'sellerIndex'])->name('products.index');
         Route::get('/products/create', [ProductController::class , 'sellerCreate'])->name('products.create');
@@ -401,6 +402,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         }
         )->name('products.create');
         Route::post('/products', [ProductController::class , 'store'])->name('products.store');
+        Route::get('/products/{product}/edit', [AdminController::class, 'editProduct'])->name('products.edit');
         Route::delete('/products/{product}', [ProductController::class , 'destroy'])->name('products.destroy');
         Route::post('/products/{product}/approve', [AdminController::class , 'approveProduct'])->name('products.approve');
         Route::post('/products/{product}/reject', [AdminController::class , 'rejectProduct'])->name('products.reject');
@@ -409,6 +411,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         // Order Management
         Route::get('/orders', [AdminController::class , 'orders'])->name('orders');
         Route::put('/orders/{order}/status', [AdminController::class , 'updateOrderStatus'])->name('orders.update-status');
+        Route::delete('/orders/{order}', [AdminController::class , 'destroyOrder'])->name('orders.destroy');
 
         // Reports
         Route::get('/reports', [AdminController::class , 'reports'])->name('reports');
@@ -434,6 +437,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/seller-applications/{application}', [SellerApplicationController::class , 'show'])->name('seller-applications.show');
         Route::put('/seller-applications/{application}/approve', [SellerApplicationController::class , 'approve'])->name('seller-applications.approve');
         Route::put('/seller-applications/{application}/reject', [SellerApplicationController::class , 'reject'])->name('seller-applications.reject');
+        Route::delete('/seller-applications/{application}', [SellerApplicationController::class , 'destroy'])->name('seller-applications.destroy');
 
         // Forum Moderation (Admin)
         Route::get('/forum-moderation', [AdminController::class, 'forumModeration'])->name('forum-moderation');
@@ -478,18 +482,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 Route::get('/test-email', function () {
     try {
         \Log::info('Test email route accessed');
-        
+
         \Mail::to('test@example.com')->send(
             new class extends \Illuminate\Mail\Mailable {
-                public function envelope() { 
-                    return new \Illuminate\Mail\Mailables\Envelope(subject: 'Test Email from GlowTrack'); 
+                public function envelope() {
+                    return new \Illuminate\Mail\Mailables\Envelope(subject: 'Test Email from GlowTrack');
                 }
-                public function content() { 
-                    return new \Illuminate\Mail\Mailables\Content(view: 'emails.test'); 
+                public function content() {
+                    return new \Illuminate\Mail\Mailables\Content(view: 'emails.test');
                 }
             }
         );
-        
+
         return 'Test email sent successfully! Check your Mailtrap inbox.';
     } catch (\Exception $e) {
         \Log::error('Test email failed: ' . $e->getMessage());
@@ -509,7 +513,7 @@ Route::get('/test-welcome-email', function () {
         'email' => 'test@example.com',
         'username' => 'testuser'
     ]);
-    
+
     try {
         Mail::to('test@example.com')->send(new \App\Mail\WelcomeEmail($testUser));
         return 'Welcome email test sent successfully! Check your Mailtrap inbox.';
@@ -528,12 +532,12 @@ Route::get('/test-order-email', function () {
         if (!$order) {
             return 'Order not found';
         }
-        
+
         $pdfService = new \App\Services\PDFReceiptService();
         $pdfReceipt = $pdfService->generateReceipt($order);
-        
+
         \Illuminate\Support\Facades\Mail::to('test@example.com')->send(new \App\Mail\OrderConfirmationEmail($order, $pdfReceipt));
-        
+
         return 'Order confirmation email sent successfully! Check your Mailtrap inbox.';
     } catch (\Exception $e) {
         return 'Error sending order confirmation email: ' . $e->getMessage();

@@ -22,7 +22,7 @@ class SellerApplicationController extends Controller
         $activeApplication = SellerApplication::where('user_id', auth()->id())
             ->whereIn('status', ['pending', 'approved'])
             ->first();
-        
+
         if ($activeApplication) {
             return redirect()->route('seller.application.status')
                 ->with('info', 'You already have a seller application under review or approved.');
@@ -41,7 +41,7 @@ class SellerApplicationController extends Controller
 
         $categories = ['Cleanser', 'Moisturizer', 'Serum', 'Toner', 'Sunscreen', 'Mask', 'Exfoliant', 'Treatment'];
         $isReapplication = $rejectedApplication ? true : false;
-        
+
         return view('seller.application.create', compact('categories', 'isReapplication', 'rejectedApplication'));
     }
 
@@ -67,7 +67,7 @@ class SellerApplicationController extends Controller
         $activeApplication = SellerApplication::where('user_id', auth()->id())
             ->whereIn('status', ['pending', 'approved'])
             ->first();
-        
+
         if ($activeApplication) {
             return redirect()->back()
                 ->with('error', 'You already have a seller application under review or approved.');
@@ -129,7 +129,7 @@ class SellerApplicationController extends Controller
     public function status()
     {
         $application = SellerApplication::where('user_id', auth()->id())->first();
-        
+
         if (!$application) {
             return redirect()->route('seller.application.create');
         }
@@ -199,7 +199,7 @@ class SellerApplicationController extends Controller
 
         // Update user role to seller
         $application->user->update(['role' => 'seller']);
-        
+
         // Create notification for the applicant
         \App\Http\Controllers\NotificationController::createNotification(
             $application->user_id,
@@ -208,7 +208,7 @@ class SellerApplicationController extends Controller
             'Congratulations! Your seller application has been approved. You can now start selling products.',
             ['application_id' => $application->id, 'admin_notes' => $request->admin_notes]
         );
-        
+
         // Create notification for all admins
         $this->notifyAdmins(
             'admin_action',
@@ -240,7 +240,7 @@ class SellerApplicationController extends Controller
             'reviewed_at' => now(),
             'reviewed_by' => auth()->id(),
         ]);
-        
+
         // Create notification for the applicant
         \App\Http\Controllers\NotificationController::createNotification(
             $application->user_id,
@@ -249,7 +249,7 @@ class SellerApplicationController extends Controller
             "Your seller application has been rejected. Reason: {$request->admin_notes}",
             ['application_id' => $application->id, 'reason' => $request->admin_notes]
         );
-        
+
         // Create notification for all admins
         $this->notifyAdmins(
             'admin_action',
@@ -263,12 +263,46 @@ class SellerApplicationController extends Controller
     }
 
     /**
+     * Delete a seller application (hard delete).
+     */
+    public function destroy(SellerApplication $application)
+    {
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        try {
+            $brandName = $application->brand_name;
+            $userId    = $application->user_id;
+
+            // Notify the applicant
+            \App\Http\Controllers\NotificationController::createNotification(
+                $userId,
+                'seller_application_deleted',
+                'Seller Application Removed',
+                "Your seller application for \"{$brandName}\" has been removed by an administrator.",
+                ['brand_name' => $brandName]
+            );
+
+            $application->delete();
+
+            return redirect()->route('admin.seller-applications')
+                ->with('success', "Seller application for \"{$brandName}\" has been deleted.");
+
+        } catch (\Exception $e) {
+            \Log::error('Error deleting seller application: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Failed to delete the application. Please try again.');
+        }
+    }
+
+    /**
      * Helper method to notify all admin users
      */
     private function notifyAdmins(string $type, string $title, string $message, array $data = []): void
     {
         $adminUsers = User::where('role', 'admin')->get();
-        
+
         foreach ($adminUsers as $admin) {
             // Don't notify the admin who performed the action
             if ($admin->id !== auth()->id()) {

@@ -15,7 +15,10 @@ class SkinProfile extends Model
     ];
 
     protected $casts = [
-        'user_id' => 'integer',
+        'user_id'               => 'integer',
+        'skin_concerns'         => 'array',
+        'skin_types'            => 'array',
+        'ingredient_allergies'  => 'array',
     ];
 
     public function user(): BelongsTo
@@ -31,7 +34,7 @@ class SkinProfile extends Model
     public function getAvailableConcerns(): array
     {
         return [
-            'Acne', 'Hyperpigmentation', 'Aging', 'Dryness', 
+            'Acne', 'Hyperpigmentation', 'Aging', 'Dryness',
             'Oily Skin', 'Sensitive Skin', 'Dark Spots', 'Fine Lines'
         ];
     }
@@ -50,7 +53,7 @@ class SkinProfile extends Model
     public static function getSkinTypeDistribution($dateRange = null)
     {
         $query = static::query();
-        
+
         if ($dateRange && isset($dateRange['start'])) {
             $query->where('created_at', '>=', $dateRange['start']);
         }
@@ -67,13 +70,13 @@ class SkinProfile extends Model
     public static function getTopConcerns($limit = 10, $dateRange = null)
     {
         $query = static::query();
-        
+
         if ($dateRange && isset($dateRange['start'])) {
             $query->where('created_at', '>=', $dateRange['start']);
         }
 
         $profiles = $query->whereNotNull('skin_concerns')->get();
-        
+
         $concerns = [];
         foreach ($profiles as $profile) {
             if ($profile->skin_concerns) {
@@ -93,7 +96,7 @@ class SkinProfile extends Model
     public static function getTypeConcernCombinations($dateRange = null)
     {
         $query = static::query();
-        
+
         if ($dateRange && isset($dateRange['start'])) {
             $query->where('created_at', '>=', $dateRange['start']);
         }
@@ -123,13 +126,13 @@ class SkinProfile extends Model
     public static function getAllergyTrends($limit = 10, $dateRange = null)
     {
         $query = static::query();
-        
+
         if ($dateRange && isset($dateRange['start'])) {
             $query->where('created_at', '>=', $dateRange['start']);
         }
 
         $profiles = $query->whereNotNull('ingredient_allergies')->get();
-        
+
         $allergies = [];
         foreach ($profiles as $profile) {
             if ($profile->ingredient_allergies) {

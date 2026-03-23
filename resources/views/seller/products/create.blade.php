@@ -8,7 +8,7 @@
         
         <!-- Header -->
         <div class="mb-8">
-            <div class="bg-white rounded-3xl shadow-xl p-8">
+            <div class="glass-card rounded-3xl shadow-lg p-8 border border-gray-200">
                 <div class="flex items-center justify-between gap-6">
                     <div>
                         <h1 class="text-4xl font-bold text-soft-brown font-playfair mb-3">
@@ -26,7 +26,7 @@
         </div>
 
         <!-- Product Form -->
-        <div class="bg-white rounded-2xl shadow-lg p-8">
+        <div class="glass-card rounded-2xl shadow-lg p-8 border border-gray-200">
             <form action="{{ route('seller.products.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 
@@ -216,33 +216,74 @@
                     @enderror
                 </div>
 
-                <!-- Product Photo -->
+                <!-- Product Photos -->
                 <div class="mb-8">
                     <h2 class="text-2xl font-bold text-soft-brown font-playfair mb-6 flex items-center gap-3">
-                        <span class="text-3xl">📷</span> Product Photo
+                        <span class="text-3xl">📷</span> Product Photos
                     </h2>
-                    
-                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-jade-green transition">
-                        <input type="file" 
-                               name="photo" 
-                               accept="image/*"
-                               class="hidden"
-                               id="photo-upload"
-                               onchange="previewPhoto(event)">
-                        
-                        <label for="photo-upload" class="cursor-pointer">
-                            <div id="photo-preview" class="mb-4">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                </svg>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Primary Image -->
+                        <div>
+                            <label class="block text-sm font-medium text-soft-brown mb-2">
+                                Primary Image <span class="text-red-500">*</span>
+                            </label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-jade-green transition">
+                                <input type="file"
+                                       name="photo"
+                                       accept="image/*"
+                                       class="hidden"
+                                       id="photo-upload"
+                                       onchange="previewPhoto(event)"
+                                       required>
+
+                                <label for="photo-upload" class="cursor-pointer">
+                                    <div id="photo-preview" class="mb-4">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                        </svg>
+                                    </div>
+                                    <p class="text-sm text-soft-brown opacity-75">Click to upload primary photo</p>
+                                    <p class="text-xs text-soft-brown opacity-60 mt-1">PNG, JPG, GIF up to 2MB</p>
+                                </label>
                             </div>
-                            <p class="text-sm text-soft-brown opacity-75">Click to upload product photo</p>
-                            <p class="text-xs text-soft-brown opacity-60 mt-1">PNG, JPG, GIF up to 2MB</p>
-                        </label>
+                            @error('photo')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <!-- Additional Images -->
+                        <div>
+                            <label class="block text-sm font-medium text-soft-brown mb-2">
+                                Additional Images (Optional)
+                            </label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-jade-green transition">
+                                <input type="file"
+                                       name="images[]"
+                                       accept="image/*"
+                                       multiple
+                                       class="hidden"
+                                       id="images-upload"
+                                       onchange="previewImages(event)">
+
+                                <label for="images-upload" class="cursor-pointer">
+                                    <div id="images-preview" class="mb-4">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                        </svg>
+                                    </div>
+                                    <p class="text-sm text-soft-brown opacity-75">Click to upload additional photos</p>
+                                    <p class="text-xs text-soft-brown opacity-60 mt-1">Up to 5 images, PNG, JPG, GIF up to 2MB each</p>
+                                </label>
+                            </div>
+                            @error('images')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                            @error('images.*')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
-                    @error('photo')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
                 </div>
 
                 <!-- Submit Buttons -->
@@ -302,6 +343,75 @@ function previewPhoto(event) {
             `;
         }
         reader.readAsDataURL(file);
+    }
+}
+
+function previewImages(event) {
+    const files = Array.from(event.target.files);
+    const preview = document.getElementById('images-preview');
+    
+    // Clear previous previews
+    preview.innerHTML = '';
+    
+    // Limit to 5 images
+    const maxImages = 5;
+    const displayFiles = files.slice(0, maxImages);
+    
+    if (displayFiles.length > 0) {
+        const grid = document.createElement('div');
+        grid.className = 'grid grid-cols-2 md:grid-cols-3 gap-2';
+        
+        displayFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'relative group';
+                
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'w-full h-20 object-cover rounded-lg';
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-700';
+                removeBtn.textContent = '×';
+                removeBtn.onclick = function(e) {
+                    e.preventDefault();
+                    div.remove();
+                    
+                    // Remove from file input
+                    const dt = new DataTransfer();
+                    const newFiles = Array.from(event.target.files).filter((f, i) => i !== index);
+                    newFiles.forEach(f => dt.items.add(f));
+                    event.target.files = dt.files;
+                    
+                    // Update preview
+                    previewImages(event);
+                };
+                
+                div.appendChild(img);
+                div.appendChild(removeBtn);
+                grid.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        preview.appendChild(grid);
+        
+        // Show warning if more than 5 images
+        if (files.length > maxImages) {
+            const warning = document.createElement('p');
+            warning.className = 'text-sm text-yellow-600 mt-2';
+            warning.textContent = `Maximum ${maxImages} images allowed. Only first ${maxImages} will be uploaded.`;
+            preview.appendChild(warning);
+        }
+    } else {
+        // Reset to default icon
+        preview.innerHTML = `
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+        `;
     }
 }
 </script>

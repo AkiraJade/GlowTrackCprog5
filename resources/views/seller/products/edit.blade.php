@@ -8,7 +8,7 @@
         
         <!-- Header -->
         <div class="mb-8">
-            <div class="bg-white rounded-3xl shadow-xl p-8">
+            <div class="glass-card rounded-3xl shadow-lg p-8 border border-gray-200">
                 <div class="flex items-center justify-between gap-6">
                     <div>
                         <h1 class="text-4xl font-bold text-soft-brown font-playfair mb-3">
@@ -26,7 +26,7 @@
         </div>
 
         <!-- Product Form -->
-        <div class="bg-white rounded-2xl shadow-lg p-8">
+        <div class="glass-card rounded-2xl shadow-lg p-8 border border-gray-200">
             <form action="{{ route('seller.products.update', $product) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
@@ -196,32 +196,114 @@
                     @enderror
                 </div>
 
-                <!-- Product Photo -->
+                <!-- Product Photos -->
                 <div class="mb-8">
                     <h2 class="text-2xl font-bold text-soft-brown font-playfair mb-6 flex items-center gap-3">
-                        <span class="text-3xl">📷</span> Product Photo
+                        <span class="text-3xl">📷</span> Product Photos
                     </h2>
-                    
-                    <div class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center hover:border-jade-green transition">
-                        <input type="file" name="photo" accept="image/*" class="hidden" id="photo-upload" onchange="previewPhoto(event)">
-                        
-                        <label for="photo-upload" class="cursor-pointer">
-                            <div id="photo-preview" class="mb-4">
-                                @if($product->photo)
-                                    <img src="{{ $product->photo_url }}" alt="Current product photo" class="mx-auto h-32 w-32 object-cover object-center rounded-lg">
-                                @else
-                                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
-                                    </svg>
-                                @endif
+
+                    <!-- Existing Images -->
+                    @if($product->images->count() > 0)
+                        <div class="mb-6">
+                            <h3 class="text-lg font-semibold text-soft-brown mb-4">Current Images ({{ $product->images->count() }})</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                @foreach($product->images->sortBy('sort_order') as $image)
+                                    <div class="relative group">
+                                        <img src="{{ asset('storage/products/' . $image->image_path) }}"
+                                             alt="Product image"
+                                             class="w-full h-32 object-cover rounded-lg border-2 {{ $image->is_primary ? 'border-jade-green' : 'border-gray-200' }}">
+                                        @if($image->is_primary)
+                                            <span class="absolute top-1 left-1 bg-jade-green text-white text-xs px-2 py-1 rounded">Primary</span>
+                                        @endif
+                                        <div class="absolute top-1 right-1 flex space-x-1">
+                                            <button type="button" onclick="setPrimaryImage({{ $image->id }})"
+                                                    class="bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-blue-600 {{ $image->is_primary ? 'opacity-50 cursor-not-allowed' : '' }}"
+                                                    {{ $image->is_primary ? 'disabled' : '' }}>
+                                                ★
+                                            </button>
+                                            <button type="button" onclick="removeImage({{ $image->id }})"
+                                                    class="bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">
+                                                ×
+                                            </button>
+                                        </div>
+                                        <input type="hidden" name="remove_images[]" value="{{ $image->id }}" id="remove_{{ $image->id }}" style="display:none;">
+                                    </div>
+                                @endforeach
                             </div>
-                            <p class="text-sm text-soft-brown opacity-75">Click to upload new product photo</p>
-                            <p class="text-xs text-soft-brown opacity-60 mt-1">PNG, JPG, GIF up to 2MB</p>
-                        </label>
+                        </div>
+                    @endif
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Primary Image (if no existing images) -->
+                        @if($product->images->count() === 0)
+                        <div>
+                            <label class="block text-sm font-medium text-soft-brown mb-2">
+                                Primary Image <span class="text-red-500">*</span>
+                            </label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-jade-green transition">
+                                <input type="file"
+                                       name="photo"
+                                       accept="image/*"
+                                       class="hidden"
+                                       id="photo-upload"
+                                       onchange="previewPhoto(event)"
+                                       required>
+
+                                <label for="photo-upload" class="cursor-pointer">
+                                    <div id="photo-preview" class="mb-4">
+                                        @if($product->photo)
+                                            <img src="{{ $product->photo_url }}" alt="Current product photo" class="mx-auto h-32 w-32 object-cover object-center rounded-lg">
+                                        @else
+                                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                            </svg>
+                                        @endif
+                                    </div>
+                                    <p class="text-sm text-soft-brown opacity-75">Click to upload primary photo</p>
+                                    <p class="text-xs text-soft-brown opacity-60 mt-1">PNG, JPG, GIF up to 2MB</p>
+                                </label>
+                            </div>
+                            @error('photo')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        @endif
+
+                        <!-- Additional Images -->
+                        <div>
+                            <label class="block text-sm font-medium text-soft-brown mb-2">
+                                Add More Images (Optional)
+                            </label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-jade-green transition">
+                                <input type="file"
+                                       name="images[]"
+                                       accept="image/*"
+                                       multiple
+                                       class="hidden"
+                                       id="images-upload"
+                                       onchange="previewImages(event)">
+
+                                <label for="images-upload" class="cursor-pointer">
+                                    <div id="images-preview" class="mb-4">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                        </svg>
+                                    </div>
+                                    <p class="text-sm text-soft-brown opacity-75">Click to upload additional photos</p>
+                                    <p class="text-xs text-soft-brown opacity-60 mt-1">Up to {{ 5 - $product->images->count() }} more images, PNG, JPG, GIF up to 2MB each</p>
+                                </label>
+                            </div>
+                            @error('images')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                            @error('images.*')
+                                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+                            @enderror
+                        </div>
                     </div>
-                    @error('photo')
-                        <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                    @enderror
+
+                    <!-- Hidden field for primary image -->
+                    <input type="hidden" name="primary_image" id="primary_image" value="{{ $product->images->where('is_primary', true)->first()->id ?? 0 }}">
                 </div>
 
                 <!-- Submit Buttons -->
@@ -273,6 +355,104 @@ function previewPhoto(event) {
             preview.innerHTML = `<img src="${e.target.result}" alt="Product preview" class="mx-auto h-32 w-32 object-cover object-center rounded-lg">`;
         }
         reader.readAsDataURL(file);
+    }
+}
+
+function previewImages(event) {
+    const files = Array.from(event.target.files);
+    const preview = document.getElementById('images-preview');
+    
+    // Clear previous previews
+    preview.innerHTML = '';
+    
+    // Calculate remaining slots
+    const currentImages = {{ $product->images->count() }};
+    const maxImages = 5;
+    const remainingSlots = maxImages - currentImages;
+    const displayFiles = files.slice(0, remainingSlots);
+    
+    if (displayFiles.length > 0) {
+        const grid = document.createElement('div');
+        grid.className = 'grid grid-cols-2 md:grid-cols-3 gap-2';
+        
+        displayFiles.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'relative group';
+                
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'w-full h-20 object-cover rounded-lg';
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-700';
+                removeBtn.textContent = '×';
+                removeBtn.onclick = function(e) {
+                    e.preventDefault();
+                    div.remove();
+                    
+                    // Remove from file input
+                    const dt = new DataTransfer();
+                    const newFiles = Array.from(event.target.files).filter((f, i) => i !== index);
+                    newFiles.forEach(f => dt.items.add(f));
+                    event.target.files = dt.files;
+                    
+                    // Update preview
+                    previewImages(event);
+                };
+                
+                div.appendChild(img);
+                div.appendChild(removeBtn);
+                grid.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        preview.appendChild(grid);
+        
+        // Show warning if more than allowed images
+        if (files.length > remainingSlots) {
+            const warning = document.createElement('p');
+            warning.className = 'text-sm text-yellow-600 mt-2';
+            warning.textContent = `Maximum ${maxImages} images total. You can add ${remainingSlots} more. Only first ${remainingSlots} will be uploaded.`;
+            preview.appendChild(warning);
+        }
+    } else {
+        // Reset to default icon
+        preview.innerHTML = `
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+            </svg>
+        `;
+    }
+}
+
+function setPrimaryImage(imageId) {
+    document.getElementById('primary_image').value = imageId;
+    // Update UI to show new primary
+    document.querySelectorAll('.bg-blue-500').forEach(btn => {
+        btn.classList.remove('opacity-50', 'cursor-not-allowed');
+        btn.disabled = false;
+    });
+    document.querySelectorAll('.bg-jade-green').forEach(span => span.remove());
+    
+    const imageDiv = event.target.closest('.relative');
+    const starBtn = imageDiv.querySelector('.bg-blue-500');
+    starBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    starBtn.disabled = true;
+    
+    const primaryBadge = document.createElement('span');
+    primaryBadge.className = 'absolute top-1 left-1 bg-jade-green text-white text-xs px-2 py-1 rounded';
+    primaryBadge.textContent = 'Primary';
+    imageDiv.appendChild(primaryBadge);
+}
+
+function removeImage(imageId) {
+    if (confirm('Are you sure you want to remove this image?')) {
+        document.getElementById(`remove_${imageId}`).style.display = 'block';
+        event.target.closest('.relative').remove();
     }
 }
 

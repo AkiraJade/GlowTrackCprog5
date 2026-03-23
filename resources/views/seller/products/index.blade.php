@@ -8,7 +8,7 @@
         
         <!-- Header -->
         <div class="mb-8">
-            <div class="bg-white rounded-3xl shadow-xl p-8">
+            <div class="glass-card rounded-3xl shadow-lg p-8 border border-gray-200">
                 <div class="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div>
                         <h1 class="text-4xl md:text-5xl font-bold text-soft-brown font-playfair mb-3">
@@ -31,7 +31,7 @@
         </div>
 
         <!-- Filters and Stats -->
-        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+        <div class="glass-card rounded-2xl shadow-lg p-6 mb-8 border border-gray-200">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <!-- Total Products -->
                 <div class="text-center">
@@ -66,7 +66,7 @@
         </div>
 
         <!-- Products List -->
-        <div class="bg-white rounded-2xl shadow-lg p-8">
+        <div class="glass-card rounded-2xl shadow-lg p-8 border border-gray-200">
             @if($products->count() > 0)
                 <div class="overflow-x-auto">
                     <table class="w-full">

@@ -60,12 +60,12 @@ class AdminController extends Controller
     private function checkSystemAlerts(): void
     {
         $adminId = auth()->id();
-        
+
         // Check for critical low stock products
         $criticalLowStock = Product::whereRaw('quantity <= low_stock_threshold AND low_stock_threshold > 0')
             ->where('quantity', '<=', 5)
             ->count();
-            
+
         if ($criticalLowStock > 0) {
             $this->notifyAdmins(
                 'system_alert',
@@ -74,7 +74,7 @@ class AdminController extends Controller
                 ['alert_type' => 'critical_low_stock', 'count' => $criticalLowStock]
             );
         }
-        
+
         // Check for high number of pending orders
         $pendingOrdersCount = Order::where('status', 'pending')->count();
         if ($pendingOrdersCount >= 20) {
@@ -85,7 +85,7 @@ class AdminController extends Controller
                 ['alert_type' => 'high_pending_orders', 'count' => $pendingOrdersCount]
             );
         }
-        
+
         // Check for high number of pending seller applications
         $pendingApplicationsCount = SellerApplication::where('status', 'pending')->count();
         if ($pendingApplicationsCount >= 10) {
@@ -139,10 +139,10 @@ class AdminController extends Controller
         ]);
 
         // Create notification for the user
-        $message = $request->active 
+        $message = $request->active
             ? 'Your account has been reactivated. You can now use all platform features.'
             : 'Your account has been deactivated. Reason: ' . $request->deactivation_reason;
-            
+
         \App\Http\Controllers\NotificationController::createNotification(
             $user->id,
             $request->active ? 'account_reactivated' : 'account_deactivated',
@@ -212,48 +212,48 @@ class AdminController extends Controller
 
         try {
             // Delete related records in order to avoid foreign key constraints
-            
+
             // Delete notifications
             $user->notifications()->delete();
-            
+
             // Delete routine reviews and ratings
             $user->routineReviews()->delete();
             $user->routineRatings()->delete();
             $user->routineFavorites()->delete();
-            
+
             // Delete skincare routines and journals
             $user->skincareRoutines()->delete();
             $user->skinJournals()->delete();
-            
+
             // Delete skin profile
             $user->skinProfile()->delete();
-            
+
             // Delete wishlist items
             $user->wishlistItems()->delete();
-            
+
             // Delete cart items
             $user->cartItems()->delete();
-            
+
             // Handle orders - you might want to keep them for records, but remove user reference
             foreach ($user->orders as $order) {
                 $order->update(['user_id' => null]); // Or delete if you prefer
             }
-            
+
             // Handle products if user is a seller
             if ($user->isSeller()) {
                 foreach ($user->products as $product) {
                     $product->update(['seller_id' => null]); // Or delete if you prefer
                 }
             }
-            
+
             // Delete seller application if exists
             $user->sellerApplication()->delete();
-            
+
             // Finally delete the user
             $user->delete();
 
             return redirect()->route('admin.users')->with('success', 'User and all related data deleted successfully.');
-            
+
         } catch (\Exception $e) {
             \Log::error('Error deleting user: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error deleting user. The user may have related records that cannot be deleted. Please check logs for details.');
@@ -275,7 +275,7 @@ class AdminController extends Controller
     public function approveProduct(Product $product)
     {
         $product->update(['status' => 'approved']);
-        
+
         // Create notification for the seller
         if ($product->seller_id) {
             \App\Http\Controllers\NotificationController::createNotification(
@@ -286,7 +286,7 @@ class AdminController extends Controller
                 ['product_id' => $product->id, 'product_name' => $product->name]
             );
         }
-        
+
         // Create notification for all admins
         $this->notifyAdmins(
             'admin_action',
@@ -294,7 +294,7 @@ class AdminController extends Controller
             "Product '{$product->name}' approved by admin.",
             ['product_id' => $product->id, 'admin_id' => auth()->id()]
         );
-        
+
         return redirect()->back()->with('success', 'Product approved successfully.');
     }
 
@@ -311,7 +311,7 @@ class AdminController extends Controller
             'status' => 'rejected',
             'rejection_reason' => $request->rejection_reason
         ]);
-        
+
         // Create notification for the seller
         if ($product->seller_id) {
             \App\Http\Controllers\NotificationController::createNotification(
@@ -322,7 +322,7 @@ class AdminController extends Controller
                 ['product_id' => $product->id, 'product_name' => $product->name, 'reason' => $request->rejection_reason]
             );
         }
-        
+
         // Create notification for all admins
         $this->notifyAdmins(
             'admin_action',
@@ -346,7 +346,7 @@ class AdminController extends Controller
 
         $oldQuantity = $product->quantity;
         $addedQuantity = $request->add_quantity;
-        
+
         $product->adjustStock(
             $addedQuantity,
             'restock',
@@ -375,7 +375,7 @@ class AdminController extends Controller
             ['product_id' => $product->id, 'admin_id' => auth()->id(), 'old_quantity' => $oldQuantity, 'new_quantity' => $newQuantity]
         );
 
-        return redirect()->back()->with('success', 
+        return redirect()->back()->with('success',
             "Product '{$product->name}' restocked successfully! Stock increased from {$oldQuantity} to {$newQuantity}."
         );
     }
@@ -434,6 +434,45 @@ class AdminController extends Controller
         }
 
         return redirect()->back()->with('success', 'Order status updated successfully and customer notified.');
+    }
+
+    /**
+     * Delete (soft-delete) an order
+     */
+    public function destroyOrder(Order $order)
+    {
+        try {
+            $orderId = $order->id;
+
+            // Notify the customer
+            if ($order->user_id) {
+                \App\Http\Controllers\NotificationController::createNotification(
+                    $order->user_id,
+                    'order_cancelled',
+                    'Order Removed',
+                    "Your order #{$orderId} has been removed by an administrator.",
+                    ['order_id' => $orderId]
+                );
+            }
+
+            // Notify admins
+            $this->notifyAdmins(
+                'admin_action',
+                'Order Deleted',
+                "Order #{$orderId} was deleted by admin.",
+                ['order_id' => $orderId, 'admin_id' => auth()->id()]
+            );
+
+            $order->delete(); // soft delete — restorable from Trash
+
+            return redirect()->route('admin.orders')
+                ->with('success', "Order #{$orderId} has been deleted and moved to trash.");
+
+        } catch (\Exception $e) {
+            \Log::error('Error deleting order: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Failed to delete order. Please try again.');
+        }
     }
 
     /**
@@ -515,14 +554,14 @@ class AdminController extends Controller
     {
         $user = Auth::user();
         $query = $user->notifications()->with('user')->latest();
-        
+
         // Apply filters
         if ($request->get('filter') === 'unread') {
             $query->unread();
         } elseif ($request->get('filter') && $request->get('filter') !== 'all') {
             $query->byType($request->get('filter'));
         }
-        
+
         $notifications = $query->paginate($request->get('per_page', 10));
 
         return view('admin.notifications', [
@@ -541,7 +580,7 @@ class AdminController extends Controller
         } catch (\Exception $e) {
             $start = now()->subYears(10);
         }
-        
+
         try {
             $end = \Carbon\Carbon::parse($request->input('end_date', now()));
         } catch (\Exception $e) {
@@ -743,11 +782,11 @@ class AdminController extends Controller
         $totalValue = $products->sum(function($product) {
             return $product->quantity * $product->price;
         });
-        
+
         $lowStockProducts = $products->filter(function($product) {
             return $product->quantity > 0 && $product->quantity <= 5;
         });
-        
+
         $outOfStockProducts = $products->filter(function($product) {
             return $product->quantity == 0;
         });
@@ -795,7 +834,7 @@ class AdminController extends Controller
 
         return view('admin.inventory-report', compact(
             'products', 'totalProducts', 'totalValue',
-            'lowStockProducts', 'outOfStockProducts', 
+            'lowStockProducts', 'outOfStockProducts',
             'expiredProducts', 'expiringSoonProducts',
             'productsByCategory', 'inventoryBySeller', 'restockingRecommendations',
             'stockFilter', 'expiryFilter', 'sellerId', 'category',
@@ -817,13 +856,13 @@ class AdminController extends Controller
         $sellerId = $request->input('seller_id');
 
         $filename = "sales_report_{$startDate}_to_{$endDate}";
-        
+
         if ($format === 'csv') {
             return Excel::download(new SalesReportExport(
                 $startDate, $endDate, $productId, $brand, $productCategory, $sellerId
             ), $filename . '.csv');
         }
-        
+
         return Excel::download(new SalesReportExport(
             $startDate, $endDate, $productId, $brand, $productCategory, $sellerId
         ), $filename . '.xlsx');
@@ -841,16 +880,29 @@ class AdminController extends Controller
         $category = $request->input('category');
 
         $filename = "inventory_report_" . now()->format('Y-m-d');
-        
+
         if ($format === 'csv') {
             return Excel::download(new InventoryReportExport(
                 $stockFilter, $expiryFilter, $sellerId, $category
             ), $filename . '.csv');
         }
-        
+
         return Excel::download(new InventoryReportExport(
             $stockFilter, $expiryFilter, $sellerId, $category
         ), $filename . '.xlsx');
+    }
+
+    /**
+     * Show the admin edit form for a product
+     */
+    public function editProduct(\App\Models\Product $product)
+    {
+        $classifications = ['Cleanser', 'Moisturizer', 'Serum', 'Toner', 'Sunscreen', 'Mask', 'Exfoliant', 'Treatment'];
+        $skinTypes = ['Oily', 'Dry', 'Combination', 'Sensitive', 'Normal'];
+
+        $product->load('images');
+
+        return view('admin.product-edit', compact('product', 'classifications', 'skinTypes'));
     }
 
     /**
@@ -858,15 +910,16 @@ class AdminController extends Controller
      */
     public function charts()
     {
-        // Get yearly sales data for charts
-        $yearlySales = Order::selectRaw('YEAR(created_at) as year, SUM(total_amount) as total')
+        // Get yearly sales data for charts (SQLite-compatible)
+        $yearlySales = Order::selectRaw("strftime('%Y', created_at) as year, SUM(total_amount) as total")
             ->groupBy('year')
             ->orderBy('year', 'desc')
             ->get();
 
-        // Get monthly sales for current year
-        $monthlySales = Order::selectRaw('MONTH(created_at) as month, SUM(total_amount) as total')
-            ->whereYear('created_at', now()->year)
+        // Get monthly sales for current year (SQLite-compatible)
+        $currentYear = now()->year;
+        $monthlySales = Order::selectRaw("CAST(strftime('%m', created_at) AS INTEGER) as month, SUM(total_amount) as total")
+            ->whereRaw("strftime('%Y', created_at) = ?", [$currentYear])
             ->groupBy('month')
             ->orderBy('month')
             ->get();
@@ -879,9 +932,9 @@ class AdminController extends Controller
             ->limit(10)
             ->get();
 
-        // Get user registration trends
-        $userRegistrations = User::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
-            ->whereYear('created_at', now()->year)
+        // Get user registration trends (SQLite-compatible)
+        $userRegistrations = User::selectRaw("CAST(strftime('%m', created_at) AS INTEGER) as month, COUNT(*) as count")
+            ->whereRaw("strftime('%Y', created_at) = ?", [$currentYear])
             ->groupBy('month')
             ->orderBy('month')
             ->get();
@@ -898,7 +951,7 @@ class AdminController extends Controller
 
         return view('admin.charts', compact(
             'yearlySales',
-            'monthlySales', 
+            'monthlySales',
             'topProducts',
             'userRegistrations',
             'stats'
@@ -911,7 +964,7 @@ class AdminController extends Controller
     private function notifyAdmins(string $type, string $title, string $message, array $data = []): void
     {
         $adminUsers = User::where('role', 'admin')->get();
-        
+
         foreach ($adminUsers as $admin) {
             // Don't notify the admin who performed the action
             if ($admin->id !== auth()->id()) {
@@ -932,7 +985,7 @@ class AdminController extends Controller
     public function trash(Request $request)
     {
         $type = $request->query('type', 'users');
-        
+
         $trashedCounts = [
             'users' => User::onlyTrashed()->count(),
             'products' => Product::onlyTrashed()->count(),
@@ -982,6 +1035,9 @@ class AdminController extends Controller
             case 'product':
                 $product = Product::onlyTrashed()->findOrFail($id);
                 $product->restore();
+                if ($product->shouldBeSearchable()) {
+                    $product->searchable();
+                }
                 $message = "Product '{$product->name}' has been restored.";
                 break;
             case 'order':

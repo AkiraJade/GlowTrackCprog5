@@ -6,12 +6,12 @@
     <meta name="description" content="GlowTrack - Your Premium Skincare E-commerce Platform">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'GlowTrack - Premium Skincare')</title>
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Styles -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
         @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -44,6 +44,20 @@
             html { scroll-behavior: smooth; }
             .font-playfair { font-family: 'Playfair Display', serif; }
             a { transition: all 0.2s ease; }
+
+            .glass-card {
+                background: rgba(255, 255, 255, 0.78);
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(229, 231, 235, 0.7);
+            }
+
+            .badge-pill {
+                padding: 0.15rem 0.65rem;
+                border-radius: 9999px;
+                font-size: 0.70rem;
+                font-weight: 600;
+                letter-spacing: 0.02em;
+            }
         </style>
     @endif
 </head>
@@ -59,20 +73,20 @@
                         <span class="text-2xl font-bold text-jade-green font-playfair">GlowTrack</span>
                     </a>
                 </div>
-                
+
                 <!-- Menu -->
                 <div class="hidden md:flex items-center space-x-8">
 <a href="{{ route('features') }}" class="text-soft-brown hover:text-jade-green transition">Features</a>
                     <a href="{{ route('products.index') }}" class="text-soft-brown hover:text-jade-green transition">Products</a>
                     <a href="{{ route('about') }}" class="text-soft-brown hover:text-jade-green transition">About</a>
                 </div>
-                
+
                 <!-- Auth Links -->
                 <div class="flex items-center space-x-4">
                     @auth
                         <!-- Notification Button -->
                         <div class="relative group">
-                            <button id="notification-btn" 
+                            <button id="notification-btn"
                                     class="relative p-2 text-soft-brown hover:text-jade-green transition rounded-full hover:bg-gray-100">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
@@ -92,14 +106,14 @@
 @if(auth()->user()->isCustomer())
                             <a href="{{ route('cart.index') }}" class="text-soft-brown hover:text-jade-green transition">Cart ({{ Auth::user()->cartItems()->count() }})</a>
                         @endif
-                        
+
                         @if(auth()->user()->isSeller())
                             <a href="{{ route('seller.dashboard') }}" class="text-soft-brown hover:text-jade-green transition">Seller Dashboard</a>
                             <a href="{{ route('seller.products.index') }}" class="text-soft-brown hover:text-jade-green transition">My Products</a>
                             <a href="{{ route('products.import') }}" class="text-soft-brown hover:text-jade-green transition">Import Products</a>
                             <a href="{{ route('products.export') }}" class="text-soft-brown hover:text-jade-green transition">Export Products</a>
                         @endif
-                        
+
                         <a href="{{ route('dashboard') }}" class="text-soft-brown hover:text-jade-green transition">Dashboard</a>
                         <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
@@ -170,7 +184,7 @@
             });
         });
     </script>
-    
+
     <!-- Notifications JavaScript -->
     @if(auth()->check())
         <script>
@@ -212,7 +226,7 @@
             });
         </script>
     @endif
-    
+
     @stack('scripts')
 </body>
 </html>

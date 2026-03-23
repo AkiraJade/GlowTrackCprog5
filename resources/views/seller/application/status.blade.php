@@ -12,7 +12,7 @@
         </div>
 
         <!-- Application Status Card -->
-        <div class="bg-white rounded-lg shadow-lg">
+        <div class="glass-card rounded-lg shadow-lg border border-gray-200">
             <div class="p-8">
                 <!-- Status Badge -->
                 <div class="mb-6">

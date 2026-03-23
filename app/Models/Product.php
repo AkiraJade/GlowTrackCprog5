@@ -115,6 +115,36 @@ class Product extends Model
     }
 
     /**
+     * Boot model events for search index syncing.
+     */
+    protected static function booted()
+    {
+        static::created(function (Product $product) {
+            if ($product->shouldBeSearchable()) {
+                $product->searchable();
+            }
+        });
+
+        static::updated(function (Product $product) {
+            if ($product->shouldBeSearchable()) {
+                $product->searchable();
+            } else {
+                $product->unsearchable();
+            }
+        });
+
+        static::deleted(function (Product $product) {
+            $product->unsearchable();
+        });
+
+        static::restored(function (Product $product) {
+            if ($product->shouldBeSearchable()) {
+                $product->searchable();
+            }
+        });
+    }
+
+    /**
      * Get the primary image for the product.
      */
     public function primaryImage(): HasOne

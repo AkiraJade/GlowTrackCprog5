@@ -1,18 +1,18 @@
-@extends('layouts.app')
+@extends(auth()->check() && auth()->user()->isAdmin() ? 'layouts.admin' : 'layouts.app')
 
 @section('title', $discussion->title . ' - GlowTrack Forum')
 
 @section('content')
-<div class="min-h-screen bg-gradient-to-br from-mint-cream via-pastel-green to-light-sage py-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="{{ auth()->check() && auth()->user()->isAdmin() ? '' : 'min-h-screen bg-gradient-to-br from-mint-cream via-pastel-green to-light-sage py-12' }}">
+    <div class="{{ auth()->check() && auth()->user()->isAdmin() ? '' : 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8' }}">
         <!-- Back Navigation -->
         <div class="mb-8">
-            <a href="{{ route('support.forum') }}" 
+            <a href="{{ auth()->check() && auth()->user()->isAdmin() ? route('admin.forum-moderation') : route('support.forum') }}"
                class="inline-flex items-center text-jade-green hover:text-soft-brown transition font-semibold">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
-                Back to Forum
+                {{ auth()->check() && auth()->user()->isAdmin() ? 'Back to Forum Moderation' : 'Back to Forum' }}
             </a>
         </div>
 
@@ -39,16 +39,16 @@
                     @if($discussion->user_id === Auth::id() || Auth::user()->role === 'admin')
                         <div class="flex gap-2">
                             @if($discussion->user_id === Auth::id())
-                                <a href="{{ route('forum.edit', $discussion) }}" 
+                                <a href="{{ route('forum.edit', $discussion) }}"
                                    class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">
                                     Edit
                                 </a>
                             @endif
-                            <form method="POST" action="{{ route('forum.destroy', $discussion) }}" 
+                            <form method="POST" action="{{ route('forum.destroy', $discussion) }}"
                                   onsubmit="return confirm('Are you sure you want to delete this discussion?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" 
+                                <button type="submit"
                                         class="text-red-500 hover:text-red-700 transition font-semibold text-sm">
                                     Delete
                                 </button>
@@ -56,11 +56,11 @@
                         </div>
                     @endif
                 </div>
-                
+
                 <h1 class="text-3xl font-bold text-soft-brown font-playfair mb-4">
                     {{ $discussion->title }}
                 </h1>
-                
+
                 <div class="flex items-center gap-4 text-sm text-soft-brown opacity-75">
                     <span>👤 {{ $discussion->user->username }}</span>
                     <span>📅 {{ $discussion->created_at->format('M d, Y \a\t g:i A') }}</span>
@@ -111,7 +111,7 @@
         @if($discussion->replies->count() > 0)
             <div class="border-t border-light-sage pt-8">
                 <h3 class="text-xl font-bold text-soft-brown mb-6">{{ $discussion->reply_count }} {{ $discussion->reply_count == 1 ? 'Reply' : 'Replies' }}</h3>
-                
+
                 <div class="space-y-6">
                     @foreach($discussion->replies->where('parent_reply_id', null) as $reply)
                         <div class="bg-light-sage bg-opacity-30 rounded-xl p-6">
@@ -125,30 +125,30 @@
                                         <p class="text-xs text-soft-brown opacity-75">{{ $reply->created_at->diffForHumans() }}</p>
                                     </div>
                                 </div>
-                                
+
                                 @if($reply->user_id === Auth::id() || Auth::user()->role === 'admin')
                                     <div class="flex gap-2">
                                         @if($reply->user_id === Auth::id())
-                                            <a href="{{ route('forum.edit-reply', $reply) }}" 
+                                            <a href="{{ route('forum.edit-reply', $reply) }}"
                                                class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">
                                                 Edit
                                             </a>
                                         @endif
                                         @if(Auth::user()->role === 'admin')
-                                            <form method="POST" action="{{ route('forum.warn-reply', $reply) }}" 
+                                            <form method="POST" action="{{ route('forum.warn-reply', $reply) }}"
                                                   onsubmit="return confirm('Are you sure you want to warn this user for this reply?')">
                                                 @csrf
-                                                <button type="submit" 
+                                                <button type="submit"
                                                         class="text-yellow-500 hover:text-yellow-700 transition font-semibold text-sm">
                                                     ⚠️ Warn
                                                 </button>
                                             </form>
                                         @endif
-                                        <form method="POST" action="{{ route('forum.delete-reply', $reply) }}" 
+                                        <form method="POST" action="{{ route('forum.delete-reply', $reply) }}"
                                               onsubmit="return confirm('Are you sure you want to delete this reply?')">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" 
+                                            <button type="submit"
                                                     class="text-red-500 hover:text-red-700 transition font-semibold text-sm">
                                                 Delete
                                             </button>
@@ -156,14 +156,14 @@
                                     </div>
                                 @endif
                             </div>
-                            
+
                             <div class="prose max-w-none text-soft-brown mb-4">
                                 <p>{{ nl2br(e($reply->content)) }}</p>
                             </div>
 
                             <!-- Reply to Reply Button -->
                             <div class="mb-4">
-                                <button onclick="toggleReplyForm({{ $reply->id }})" 
+                                <button onclick="toggleReplyForm({{ $reply->id }})"
                                         class="text-jade-green hover:text-jade-green/80 transition font-semibold text-sm">
                                     💬 Reply to this
                                 </button>
@@ -177,11 +177,11 @@
                                               placeholder="Write a reply to {{ $reply->user->username }}..."
                                               class="w-full px-3 py-2 border border-light-sage rounded-lg focus:ring-2 focus:ring-jade-green focus:border-transparent transition resize-none text-sm"></textarea>
                                     <div class="flex gap-2">
-                                        <button type="submit" 
+                                        <button type="submit"
                                                 class="px-4 py-2 bg-jade-green text-white rounded-lg hover:shadow-lg transition font-semibold text-sm">
                                             Post Reply
                                         </button>
-                                        <button type="button" onclick="toggleReplyForm({{ $reply->id }})" 
+                                        <button type="button" onclick="toggleReplyForm({{ $reply->id }})"
                                                 class="px-4 py-2 border border-light-sage text-soft-brown rounded-lg hover:bg-light-sage transition font-semibold text-sm">
                                             Cancel
                                         </button>
@@ -204,30 +204,30 @@
                                                         <p class="text-xs text-soft-brown opacity-75">{{ $childReply->created_at->diffForHumans() }}</p>
                                                     </div>
                                                 </div>
-                                                
+
                                                 @if($childReply->user_id === Auth::id() || Auth::user()->role === 'admin')
                                                     <div class="flex gap-2">
                                                         @if($childReply->user_id === Auth::id())
-                                                            <a href="{{ route('forum.edit-reply', $childReply) }}" 
+                                                            <a href="{{ route('forum.edit-reply', $childReply) }}"
                                                                class="text-jade-green hover:text-soft-brown transition font-semibold text-xs">
                                                                 Edit
                                                             </a>
                                                         @endif
                                                         @if(Auth::user()->role === 'admin')
-                                                            <form method="POST" action="{{ route('forum.warn-reply', $childReply) }}" 
+                                                            <form method="POST" action="{{ route('forum.warn-reply', $childReply) }}"
                                                                   onsubmit="return confirm('Are you sure you want to warn this user for this reply?')">
                                                                 @csrf
-                                                                <button type="submit" 
+                                                                <button type="submit"
                                                                         class="text-yellow-500 hover:text-yellow-700 transition font-semibold text-xs">
                                                                     ⚠️ Warn
                                                                 </button>
                                                             </form>
                                                         @endif
-                                                        <form method="POST" action="{{ route('forum.delete-reply', $childReply) }}" 
+                                                        <form method="POST" action="{{ route('forum.delete-reply', $childReply) }}"
                                                               onsubmit="return confirm('Are you sure you want to delete this reply?')">
                                                             @csrf
                                                             @method('DELETE')
-                                                            <button type="submit" 
+                                                            <button type="submit"
                                                                     class="text-red-500 hover:text-red-700 transition font-semibold text-xs">
                                                                 Delete
                                                             </button>
@@ -235,7 +235,7 @@
                                                     </div>
                                                 @endif
                                             </div>
-                                            
+
                                             <div class="prose max-w-none text-soft-brown text-sm">
                                                 <p>{{ nl2br(e($childReply->content)) }}</p>
                                             </div>
@@ -255,7 +255,7 @@
 function toggleReplyForm(replyId) {
     const form = document.getElementById('reply-form-' + replyId);
     form.classList.toggle('hidden');
-    
+
     // Focus on the textarea when showing the form
     if (!form.classList.contains('hidden')) {
         const textarea = form.querySelector('textarea');
@@ -271,10 +271,10 @@ function validateReplyContent(textarea) {
     const charCountElement = document.getElementById('replyCharCount');
     const warningElement = document.getElementById('replyWarning');
     const submitBtn = document.getElementById('replySubmitBtn');
-    
+
     // Update character count
     charCountElement.textContent = `${charCount} / 10`;
-    
+
     // Update character count color
     if (charCount < 10) {
         charCountElement.classList.add('text-red-500');
@@ -283,14 +283,14 @@ function validateReplyContent(textarea) {
         charCountElement.classList.remove('text-red-500');
         charCountElement.classList.add('text-soft-brown');
     }
-    
+
     // Show/hide warning
     if (charCount > 0 && charCount < 10) {
         warningElement.classList.remove('hidden');
     } else {
         warningElement.classList.add('hidden');
     }
-    
+
     // Enable/disable submit button
     if (charCount >= 10) {
         submitBtn.disabled = false;
@@ -303,14 +303,14 @@ function validateReplyContent(textarea) {
 
 function validateReplyForm(event) {
     const content = document.getElementById('replyContent').value.trim();
-    
+
     if (content.length < 10) {
         event.preventDefault();
         document.getElementById('replyWarning').classList.remove('hidden');
         document.getElementById('replyContent').focus();
         return false;
     }
-    
+
     return true;
 }
 

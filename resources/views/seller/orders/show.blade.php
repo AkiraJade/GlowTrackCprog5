@@ -8,7 +8,7 @@
         
         <!-- Header -->
         <div class="mb-8">
-            <div class="bg-white rounded-3xl shadow-xl p-8">
+            <div class="glass-card rounded-3xl shadow-lg p-8 border border-gray-200">
                 <div class="flex flex-col md:flex-row items-center justify-between gap-6">
                     <div>
                         <h1 class="text-4xl font-bold text-soft-brown font-playfair mb-2">
@@ -31,7 +31,7 @@
             <!-- Order Details -->
             <div class="lg:col-span-2 space-y-8">
                 <!-- Customer Information -->
-                <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="glass-card rounded-2xl shadow-lg p-6 border border-gray-200">
                     <h2 class="text-2xl font-bold text-soft-brown mb-6">Customer Information</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -62,7 +62,7 @@
                 </div>
 
                 <!-- Order Items -->
-                <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="glass-card rounded-2xl shadow-lg p-6 border border-gray-200">
                     <h2 class="text-2xl font-bold text-soft-brown mb-6">Order Items</h2>
                     <div class="space-y-4">
                         @foreach($order->orderItems as $item)
@@ -103,7 +103,7 @@
 
                 <!-- Order Notes -->
                 @if($order->notes)
-                    <div class="bg-white rounded-2xl shadow-lg p-6">
+                    <div class="glass-card rounded-2xl shadow-lg p-6 border border-gray-200">
                         <h2 class="text-2xl font-bold text-soft-brown mb-4">Order Notes</h2>
                         <p class="text-soft-brown whitespace-pre-line">{{ $order->notes }}</p>
                     </div>
@@ -113,7 +113,7 @@
             <!-- Order Actions -->
             <div class="space-y-8">
                 <!-- Order Status -->
-                <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="glass-card rounded-2xl shadow-lg p-6 border border-gray-200">
                     <h2 class="text-2xl font-bold text-soft-brown mb-6">Order Status</h2>
                     
                     @php

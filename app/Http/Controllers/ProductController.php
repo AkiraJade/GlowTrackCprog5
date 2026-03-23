@@ -122,6 +122,36 @@ class ProductController extends Controller
     }
 
     /**
+     * API Search route for Scout and fallback search.
+     */
+    public function search(Request $request)
+    {
+        $request->validate(['q' => 'required|string|max:255']);
+
+        $query = Product::query()->approved()->inStock();
+        $searchTerm = $request->q;
+
+        try {
+            $searchResults = Product::search($searchTerm)->take(30)->get();
+            $products = Product::whereIn('id', $searchResults->pluck('id'))->with('seller')->get();
+        } catch (\Exception $e) {
+            $products = $query
+                ->where(function ($q) use ($searchTerm) {
+                    $q->where('name', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('brand', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('description', 'like', '%' . $searchTerm . '%')
+                        ->orWhereJsonContains('active_ingredients', $searchTerm)
+                        ->orWhereJsonContains('skin_types', $searchTerm);
+                })
+                ->take(30)
+                ->with('seller')
+                ->get();
+        }
+
+        return response()->json(['data' => $products]);
+    }
+
+    /**
      * Show the form for creating a new product.
      */
     public function create()
