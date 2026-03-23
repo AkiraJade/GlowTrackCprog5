@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\Product;
 use App\Models\Order;
@@ -176,10 +177,10 @@ class SellerPerformanceDataSeeder extends Seeder
         foreach ($sellerProfiles as $profile) {
             $user = User::create([
                 'name' => $profile['name'],
+                'username' => 'seller_' . rand(10000, 99999),
                 'email' => $profile['email'],
                 'password' => bcrypt('password'),
                 'role' => 'seller',
-                'seller_status' => $profile['status'],
                 'address' => $this->generateSellerAddress(),
                 'created_at' => $profile['joined'],
             ]);
@@ -187,13 +188,18 @@ class SellerPerformanceDataSeeder extends Seeder
             // Create seller application
             SellerApplication::create([
                 'user_id' => $user->id,
-                'business_name' => $profile['name'] . "'s Skincare",
-                'business_type' => 'individual',
+                'brand_name' => $profile['name'] . "'s Skincare",
                 'business_description' => 'Premium skincare products with natural ingredients',
-                'business_address' => $this->generateSellerAddress(),
+                'business_license' => 'LIC-' . strtoupper(Str::random(8)),
+                'contact_person' => $profile['name'],
+                'contact_email' => $profile['email'],
                 'contact_phone' => $this->generatePhoneNumber(),
+                'business_address' => $this->generateSellerAddress(),
+                'website_url' => 'https://www.' . strtolower(str_replace(' ', '', $profile['name'])) . '.com',
+                'product_categories' => ['Serum', 'Moisturizer', 'Treatment', 'Mask'],
                 'status' => 'approved',
-                'approved_at' => $profile['joined'],
+                'reviewed_at' => $profile['joined'],
+                'reviewed_by' => 1,
                 'created_at' => $profile['joined'],
             ]);
         }
@@ -204,25 +210,25 @@ class SellerPerformanceDataSeeder extends Seeder
         $sellers = User::where('role', 'seller')->get();
         $productTemplates = [
             // High-performing products
-            ['name' => 'Retinol 1% Serum', 'category' => 'Serums', 'price' => 89.99, 'rating' => 4.8],
-            ['name' => 'Vitamin C Brightening Cream', 'category' => 'Moisturizers', 'price' => 69.99, 'rating' => 4.6],
-            ['name' => 'Hyaluronic Acid 2% + B5', 'category' => 'Serums', 'price' => 54.99, 'rating' => 4.7],
-            ['name' => 'Niacinamide 10% Booster', 'category' => 'Serums', 'price' => 44.99, 'rating' => 4.5],
-            ['name' => 'AHA 30% + BHA 2% Peeling Solution', 'category' => 'Treatments', 'price' => 79.99, 'rating' => 4.4],
+            ['name' => 'Retinol 1% Serum', 'category' => 'Serum', 'price' => 89.99, 'rating' => 4.8],
+            ['name' => 'Vitamin C Brightening Cream', 'category' => 'Moisturizer', 'price' => 69.99, 'rating' => 4.6],
+            ['name' => 'Hyaluronic Acid 2% + B5', 'category' => 'Serum', 'price' => 54.99, 'rating' => 4.7],
+            ['name' => 'Niacinamide 10% Booster', 'category' => 'Serum', 'price' => 44.99, 'rating' => 4.5],
+            ['name' => 'AHA 30% + BHA 2% Peeling Solution', 'category' => 'Treatment', 'price' => 79.99, 'rating' => 4.4],
             
             // Mid-range products
-            ['name' => 'Gentle Cleansing Gel', 'category' => 'Cleansers', 'price' => 29.99, 'rating' => 4.3],
-            ['name' => 'Balancing Toner', 'category' => 'Toners', 'price' => 34.99, 'rating' => 4.2],
-            ['name' => 'Daily Moisturizer SPF 30', 'category' => 'Moisturizers', 'price' => 49.99, 'rating' => 4.1],
-            ['name' => 'Eye Cream', 'category' => 'Treatments', 'price' => 59.99, 'rating' => 4.0],
-            ['name' => 'Face Mask Set', 'category' => 'Masks', 'price' => 39.99, 'rating' => 3.9],
+            ['name' => 'Gentle Cleansing Gel', 'category' => 'Cleanser', 'price' => 29.99, 'rating' => 4.3],
+            ['name' => 'Balancing Toner', 'category' => 'Toner', 'price' => 34.99, 'rating' => 4.2],
+            ['name' => 'Daily Moisturizer SPF 30', 'category' => 'Moisturizer', 'price' => 49.99, 'rating' => 4.1],
+            ['name' => 'Eye Cream', 'category' => 'Treatment', 'price' => 59.99, 'rating' => 4.0],
+            ['name' => 'Face Mask Set', 'category' => 'Mask', 'price' => 39.99, 'rating' => 3.9],
             
             // Budget products
-            ['name' => 'Basic Cleanser', 'category' => 'Cleansers', 'price' => 19.99, 'rating' => 3.8],
-            ['name' => 'Simple Moisturizer', 'category' => 'Moisturizers', 'price' => 24.99, 'rating' => 3.7],
-            ['name' => 'Toner Spray', 'category' => 'Toners', 'price' => 22.99, 'rating' => 3.6],
-            ['name' => 'Sheet Masks (5 pack)', 'category' => 'Masks', 'price' => 15.99, 'rating' => 3.5],
-            ['name' => 'Lip Balm', 'category' => 'Treatments', 'price' => 12.99, 'rating' => 3.4]
+            ['name' => 'Basic Cleanser', 'category' => 'Cleanser', 'price' => 19.99, 'rating' => 3.8],
+            ['name' => 'Simple Moisturizer', 'category' => 'Moisturizer', 'price' => 24.99, 'rating' => 3.7],
+            ['name' => 'Toner Spray', 'category' => 'Toner', 'price' => 22.99, 'rating' => 3.6],
+            ['name' => 'Sheet Masks (5 pack)', 'category' => 'Mask', 'price' => 15.99, 'rating' => 3.5],
+            ['name' => 'Lip Balm', 'category' => 'Treatment', 'price' => 12.99, 'rating' => 3.4]
         ];
 
         foreach ($sellers as $seller) {
@@ -238,7 +244,7 @@ class SellerPerformanceDataSeeder extends Seeder
                 
                 Product::create([
                     'name' => $template['name'],
-                    'slug' => str_slug($template['name']) . '-' . uniqid(),
+                    'slug' => Str::slug($template['name']) . '-' . uniqid(),
                     'description' => "High-quality {$template['category']} from {$seller->name}'s collection. Perfect for all skin types.",
                     'brand' => $seller->name . "'s Skincare",
                     'classification' => $template['category'],
@@ -250,7 +256,7 @@ class SellerPerformanceDataSeeder extends Seeder
                     'active_ingredients' => $this->getActiveIngredients($template['category']),
                     'seller_id' => $seller->id,
                     'status' => 'approved',
-                    'is_verified' => $seller->seller_status === 'active',
+                    'is_verified' => true,
                     'average_rating' => $adjustedRating,
                     'review_count' => rand(5, 50),
                     'created_at' => $seller->created_at->addDays(rand(1, 30)),
@@ -288,11 +294,12 @@ class SellerPerformanceDataSeeder extends Seeder
                 
                 // Create order
                 $order = Order::create([
+                    'order_id' => 'ORD-' . strtoupper(Str::random(10)),
                     'user_id' => $customer->id,
-                    'seller_id' => $seller->id,
                     'total_amount' => 0, // Will be calculated
                     'status' => $this->getOrderStatus($seller, $orderDate),
                     'shipping_address' => $this->generateCustomerAddress(),
+                    'payment_method' => collect(['credit_card', 'paypal', 'apple_pay', 'google_pay', 'cash_on_delivery'])->random(),
                     'notes' => $this->generateOrderNotes(),
                     'created_at' => $orderDate,
                     'updated_at' => $orderDate,
@@ -313,7 +320,9 @@ class SellerPerformanceDataSeeder extends Seeder
                         'product_id' => $product->id,
                         'quantity' => $quantity,
                         'price' => $product->price,
+                        'total' => $price,
                         'created_at' => $orderDate,
+                        'updated_at' => $orderDate,
                     ]);
                     
                     $orderTotal += $price;
@@ -334,24 +343,42 @@ class SellerPerformanceDataSeeder extends Seeder
         foreach ($products as $product) {
             // Create 5-20 reviews per product
             $reviewCount = rand(5, 20);
+            $selectedUsers = [];
             
             for ($i = 0; $i < $reviewCount; $i++) {
-                $customer = $customers->random();
-                $productRating = $product->average_rating;
-                $seller = $product->seller;
+                $attempt = 0;
+                do {
+                    $customer = $customers->random();
+                    $attempt++;
+                } while(in_array($customer->id, $selectedUsers) && $attempt < 20);
                 
-                // Adjust rating based on seller performance
-                $adjustedRating = $this->adjustReviewRating($productRating, $seller);
+                if (in_array($customer->id, $selectedUsers)) {
+                    continue;
+                }
                 
-                Review::create([
-                    'product_id' => $product->id,
-                    'user_id' => $customer->id,
-                    'rating' => $adjustedRating,
-                    'comment' => $this->generateReviewComment($product, $seller, $adjustedRating),
-                    'skin_type' => $this->getRandomSkinType(),
-                    'improvements' => $this->generateImprovements($adjustedRating),
-                    'created_at' => Carbon::now()->subDays(rand(1, 180)),
-                ]);
+                $selectedUsers[] = $customer->id;
+                
+                $existingReview = Review::where('product_id', $product->id)
+                    ->where('user_id', $customer->id)
+                    ->first();
+                    
+                if (!$existingReview) {
+                    $productRating = $product->average_rating;
+                    $seller = $product->seller;
+                    
+                    // Adjust rating based on seller performance
+                    $adjustedRating = $this->adjustReviewRating($productRating, $seller);
+                    
+                    Review::create([
+                        'product_id' => $product->id,
+                        'user_id' => $customer->id,
+                        'rating' => $adjustedRating,
+                        'comment' => $this->generateReviewComment($product, $seller, $adjustedRating),
+                        'skin_type' => $this->getRandomSkinType(),
+                        'improvements_observed' => $this->generateImprovements($adjustedRating),
+                        'created_at' => Carbon::now()->subDays(rand(1, 180)),
+                    ]);
+                }
             }
         }
     }
@@ -525,16 +552,17 @@ class SellerPerformanceDataSeeder extends Seeder
     private function getActiveIngredients($category): array
     {
         $ingredients = [
-            'Serums' => ['Retinol', 'Vitamin C', 'Hyaluronic Acid', 'Niacinamide'],
-            'Moisturizers' => ['Hyaluronic Acid', 'Ceramides', 'Peptides', 'Vitamin E'],
-            'Cleansers' => ['Salicylic Acid', 'Glycerin', 'Tea Tree Oil', 'Aloe Vera'],
-            'Toners' => ['Witch Hazel', 'Rose Water', 'AHA', 'BHA'],
-            'Treatments' => ['Retinol', 'AHA', 'BHA', 'Peptides'],
-            'Masks' => ['Clay', 'Charcoal', 'Hyaluronic Acid', 'Vitamin C']
+            'Serum' => ['Retinol', 'Vitamin C', 'Hyaluronic Acid', 'Niacinamide'],
+            'Moisturizer' => ['Hyaluronic Acid', 'Ceramides', 'Peptides', 'Vitamin E'],
+            'Cleanser' => ['Salicylic Acid', 'Glycerin', 'Tea Tree Oil', 'Aloe Vera'],
+            'Toner' => ['Witch Hazel', 'Rose Water', 'AHA', 'BHA'],
+            'Treatment' => ['Retinol', 'AHA', 'BHA', 'Peptides'],
+            'Mask' => ['Clay', 'Charcoal', 'Hyaluronic Acid', 'Vitamin C']
         ];
         
         $categoryIngredients = $ingredients[$category] ?? ['Hyaluronic Acid'];
-        return array_rand(array_flip($categoryIngredients), rand(1, 3));
+        $selected = array_rand(array_flip($categoryIngredients), rand(1, 3));
+        return (array) $selected;
     }
 
     private function generateOrderNotes(): string

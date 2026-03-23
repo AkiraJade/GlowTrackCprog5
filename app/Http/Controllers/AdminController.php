@@ -316,14 +316,28 @@ class AdminController extends Controller
      */
     public function salesReport(Request $request)
     {
-        $startDate = $request->input('start_date', now()->subDays(30)->format('Y-m-d'));
-        $endDate = $request->input('end_date', now()->format('Y-m-d'));
+        try {
+            $start = \Carbon\Carbon::parse($request->input('start_date', now()->subYears(10)));
+        } catch (\Exception $e) {
+            $start = now()->subYears(10);
+        }
+        
+        try {
+            $end = \Carbon\Carbon::parse($request->input('end_date', now()));
+        } catch (\Exception $e) {
+            $end = now();
+        }
+
+        $startDate = $start->format('Y-m-d');
+        $endDate = $end->format('Y-m-d');
+        $sqlStart = $start->startOfDay()->toDateTimeString();
+        $sqlEnd = $end->endOfDay()->toDateTimeString();
         $productId = $request->input('product_id');
         $brand = $request->input('brand');
         $productCategory = $request->input('product_category');
         $sellerId = $request->input('seller_id');
 
-        $query = Order::whereBetween('order_date', [$startDate, $endDate])
+        $query = Order::whereBetween('created_at', [$sqlStart, $sqlEnd])
             ->where('status', '!=', 'cancelled')
             ->with(['orderItems.product', 'user']);
 
@@ -366,8 +380,8 @@ class AdminController extends Controller
         });
 
         // Top products by revenue and units sold
-        $topProductsQuery = OrderItem::whereHas('order', function($query) use ($startDate, $endDate) {
-            $query->whereBetween('order_date', [$startDate, $endDate])
+        $topProductsQuery = OrderItem::whereHas('order', function($query) use ($sqlStart, $sqlEnd) {
+            $query->whereBetween('created_at', [$sqlStart, $sqlEnd])
                   ->where('status', '!=', 'cancelled');
         });
 
@@ -445,9 +459,9 @@ class AdminController extends Controller
         ->get();
 
         // Daily sales trend
-        $dailySales = Order::whereBetween('order_date', [$startDate, $endDate])
+        $dailySales = Order::whereBetween('created_at', [$sqlStart, $sqlEnd])
             ->where('status', '!=', 'cancelled')
-            ->selectRaw('DATE(order_date) as date, COUNT(*) as orders, SUM(total_amount) as revenue')
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as orders, SUM(total_amount) as revenue')
             ->groupBy('date')
             ->orderBy('date')
             ->get();
@@ -575,7 +589,7 @@ class AdminController extends Controller
     public function exportSalesReport(Request $request)
     {
         $format = $request->input('format', 'excel'); // excel or csv
-        $startDate = $request->input('start_date', now()->subDays(30)->format('Y-m-d'));
+        $startDate = $request->input('start_date', now()->subYears(10)->format('Y-m-d'));
         $endDate = $request->input('end_date', now()->format('Y-m-d'));
         $productId = $request->input('product_id');
         $brand = $request->input('brand');

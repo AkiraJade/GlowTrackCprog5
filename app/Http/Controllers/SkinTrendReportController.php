@@ -23,7 +23,7 @@ class SkinTrendReportController extends Controller
     public function index(Request $request): View
     {
         $filters = [
-            'period' => $request->get('period', '30days'),
+            'period' => $request->get('period', 'all'),
             'skin_type' => $request->get('skin_type', 'all'),
             'concern' => $request->get('concern', 'all'),
         ];
@@ -89,7 +89,7 @@ class SkinTrendReportController extends Controller
         return [
             'data' => $distribution,
             'total' => $distribution->sum('count'),
-            'chart_data' => $distribution->map(function ($item) {
+            'chart_data' => $distribution->map(function ($item) use ($distribution) {
                 return [
                     'label' => ucfirst($item->skin_type),
                     'value' => $item->count,
@@ -190,7 +190,7 @@ class SkinTrendReportController extends Controller
                     'label' => ucfirst($ingredient),
                     'value' => $count,
                 ];
-            }),
+            })->values(),
         ];
     }
 
@@ -375,7 +375,7 @@ class SkinTrendReportController extends Controller
         $this->authorize('viewReports', User::class);
 
         $filters = [
-            'period' => $request->get('period', '30days'),
+            'period' => $request->get('period', 'all'),
             'skin_type' => $request->get('skin_type', 'all'),
             'concern' => $request->get('concern', 'all'),
         ];
@@ -427,7 +427,7 @@ class SkinTrendReportController extends Controller
 
         $type = $request->get('type');
         $filters = [
-            'period' => $request->get('period', '30days'),
+            'period' => $request->get('period', 'all'),
             'skin_type' => $request->get('skin_type', 'all'),
             'concern' => $request->get('concern', 'all'),
         ];
@@ -466,8 +466,9 @@ class SkinTrendReportController extends Controller
                 return ['start' => $now->copy()->subDays(90), 'end' => $now];
             case '1year':
                 return ['start' => $now->copy()->subYear(), 'end' => $now];
+            case 'all':
             default:
-                return ['start' => $now->copy()->subDays(30), 'end' => $now];
+                return ['start' => $now->copy()->subYears(10), 'end' => $now];
         }
     }
 

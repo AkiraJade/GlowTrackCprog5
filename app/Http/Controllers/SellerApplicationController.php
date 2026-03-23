@@ -18,12 +18,14 @@ class SellerApplicationController extends Controller
      */
     public function create()
     {
-        // Check if user already has an application
-        $existingApplication = SellerApplication::where('user_id', auth()->id())->first();
+        // Check if user has a pending or approved application
+        $activeApplication = SellerApplication::where('user_id', auth()->id())
+            ->whereIn('status', ['pending', 'approved'])
+            ->first();
         
-        if ($existingApplication) {
+        if ($activeApplication) {
             return redirect()->route('seller.application.status')
-                ->with('info', 'You already have a seller application on file.');
+                ->with('info', 'You already have a seller application under review or approved.');
         }
 
         // Check if user is already a seller
@@ -32,13 +34,19 @@ class SellerApplicationController extends Controller
                 ->with('info', 'You are already approved as a seller.');
         }
 
+        // Check if this is a reapplication after rejection
+        $rejectedApplication = SellerApplication::where('user_id', auth()->id())
+            ->where('status', 'rejected')
+            ->first();
+
         $categories = ['Cleanser', 'Moisturizer', 'Serum', 'Toner', 'Sunscreen', 'Mask', 'Exfoliant', 'Treatment'];
+        $isReapplication = $rejectedApplication ? true : false;
         
-        return view('seller.application.create', compact('categories'));
+        return view('seller.application.create', compact('categories', 'isReapplication', 'rejectedApplication'));
     }
 
     /**
-     * Store a new seller application.
+     * Store a new seller application or reapply after rejection.
      */
     public function store(Request $request)
     {
@@ -55,25 +63,53 @@ class SellerApplicationController extends Controller
             'product_categories.*' => 'in:Cleanser,Moisturizer,Serum,Toner,Sunscreen,Mask,Exfoliant,Treatment',
         ]);
 
-        // Check if user already has an application
-        $existingApplication = SellerApplication::where('user_id', auth()->id())->first();
-        if ($existingApplication) {
+        // Check if user has a pending or approved application
+        $activeApplication = SellerApplication::where('user_id', auth()->id())
+            ->whereIn('status', ['pending', 'approved'])
+            ->first();
+        
+        if ($activeApplication) {
             return redirect()->back()
-                ->with('error', 'You already have a seller application on file.');
+                ->with('error', 'You already have a seller application under review or approved.');
         }
 
-        SellerApplication::create([
-            'user_id' => auth()->id(),
-            'brand_name' => $request->brand_name,
-            'business_description' => $request->business_description,
-            'business_license' => $request->business_license,
-            'contact_person' => $request->contact_person,
-            'contact_email' => $request->contact_email,
-            'contact_phone' => $request->contact_phone,
-            'business_address' => $request->business_address,
-            'website_url' => $request->website_url,
-            'product_categories' => $request->product_categories,
-        ]);
+        // Check for rejected application to reapply
+        $rejectedApplication = SellerApplication::where('user_id', auth()->id())
+            ->where('status', 'rejected')
+            ->first();
+
+        if ($rejectedApplication) {
+            // Update rejected application with new information and reset to pending
+            $rejectedApplication->update([
+                'brand_name' => $request->brand_name,
+                'business_description' => $request->business_description,
+                'business_license' => $request->business_license,
+                'contact_person' => $request->contact_person,
+                'contact_email' => $request->contact_email,
+                'contact_phone' => $request->contact_phone,
+                'business_address' => $request->business_address,
+                'website_url' => $request->website_url,
+                'product_categories' => $request->product_categories,
+                'status' => 'pending',
+                'admin_notes' => null,
+                'reviewed_at' => null,
+                'reviewed_by' => null,
+            ]);
+        } else {
+            // Create new application
+            SellerApplication::create([
+                'user_id' => auth()->id(),
+                'brand_name' => $request->brand_name,
+                'business_description' => $request->business_description,
+                'business_license' => $request->business_license,
+                'contact_person' => $request->contact_person,
+                'contact_email' => $request->contact_email,
+                'contact_phone' => $request->contact_phone,
+                'business_address' => $request->business_address,
+                'website_url' => $request->website_url,
+                'product_categories' => $request->product_categories,
+            ]);
+        }
 
         return redirect()->route('seller.application.status')
             ->with('success', 'Your seller application has been submitted successfully! We will review it within 2-3 business days.');

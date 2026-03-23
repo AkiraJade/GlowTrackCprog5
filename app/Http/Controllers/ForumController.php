@@ -90,7 +90,7 @@ class ForumController extends Controller
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'content' => 'required|string|min:10',
+            'content' => 'required|string',
             'category' => 'required|in:Skincare Routine,Product Reviews,Skin Concerns,DIY & Natural,Beauty Tips,Off-Topic',
         ]);
 
@@ -166,7 +166,7 @@ class ForumController extends Controller
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'content' => 'required|string|min:10',
+            'content' => 'required|string',
             'category' => 'required|in:Skincare Routine,Product Reviews,Skin Concerns,DIY & Natural,Beauty Tips,Off-Topic',
         ]);
 
@@ -212,7 +212,7 @@ class ForumController extends Controller
         }
 
         $validated = $request->validate([
-            'content' => 'required|string|min:10',
+            'content' => 'required|string',
         ]);
 
         \Log::info('Validation passed. Content: ' . $validated['content']);
@@ -276,7 +276,7 @@ class ForumController extends Controller
         }
 
         $validated = $request->validate([
-            'content' => 'required|string|min:10',
+            'content' => 'required|string',
         ]);
 
         \Log::info('Reply to reply validation passed. Content: ' . $validated['content']);
@@ -355,7 +355,7 @@ class ForumController extends Controller
             return redirect()->route('login')->with('error', 'Please login to delete replies.');
         }
 
-        if ($reply->user_id !== Auth::id()) {
+        if ($reply->user_id !== Auth::id() && Auth::user()->role !== 'admin') {
             abort(403, 'Unauthorized action.');
         }
 
@@ -366,5 +366,30 @@ class ForumController extends Controller
         $discussion->decrement('reply_count');
 
         return back()->with('success', 'Reply deleted successfully!');
+    }
+
+    /**
+     * Warn a user for their reply (Admin only).
+     */
+    public function warnReply(ForumReply $reply)
+    {
+        if (!Auth::check()) {
+            return redirect()->route('login')->with('error', 'Please login to warn users.');
+        }
+
+        if (Auth::user()->role !== 'admin') {
+            abort(403, 'Unauthorized action. Admin access required.');
+        }
+
+        // Create a notification for the user
+        \App\Models\Notification::create([
+            'user_id' => $reply->user_id,
+            'title' => 'Forum Warning',
+            'message' => 'Your reply in the discussion "' . $reply->discussion->title . '" has been flagged by an administrator. Please review our community guidelines.',
+            'type' => 'warning',
+            'is_read' => false,
+        ]);
+
+        return back()->with('success', 'Warning sent to user successfully!');
     }
 }

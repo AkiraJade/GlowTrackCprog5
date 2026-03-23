@@ -21,9 +21,7 @@ use App\Http\Controllers\SellerPerformanceReportController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\TestRateLimitController;
 
-Route::get('/', function () {
-    return view('index');
-})->name('index');
+Route::get('/', [\App\Http\Controllers\ProductController::class, 'index'])->name('index');
 
 Route::get('/welcome', function () {
     return view('welcome');
@@ -104,6 +102,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/forum/replies/{reply}/edit', [ForumController::class , 'editReply'])->name('forum.edit-reply');
     Route::put('/forum/replies/{reply}', [ForumController::class , 'updateReply'])->name('forum.update-reply');
     Route::delete('/forum/replies/{reply}', [ForumController::class , 'deleteReply'])->name('forum.delete-reply');
+    Route::post('/forum/replies/{reply}/warn', [ForumController::class , 'warnReply'])->name('forum.warn-reply');
 
     // Loyalty Program Routes
     Route::get('/loyalty', [LoyaltyController::class , 'index'])->name('loyalty.index');

@@ -518,4 +518,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return "https://ui-avatars.com/api/?name={$initials}&color=ffffff&background=4a7c59&size=200&bold=true";
     }
 
+    /**
+     * Send the password reset notification.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\CustomPasswordResetNotification($token));
+    }
+
 }

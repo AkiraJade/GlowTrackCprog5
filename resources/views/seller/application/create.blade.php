@@ -13,6 +13,28 @@
             </p>
         </div>
 
+        <!-- Reapplication Notice -->
+        @if($isReapplication)
+            <div class="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-blue-800">Resubmitting Your Application</h3>
+                        <div class="mt-2 text-sm text-blue-700">
+                            <p>We appreciate you addressing our feedback! Please review and update your application information below.</p>
+                            @if($rejectedApplication && $rejectedApplication->admin_notes)
+                                <p class="mt-2 p-2 bg-blue-100 rounded"><strong>Previous Feedback:</strong> {{ $rejectedApplication->admin_notes }}</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         <!-- Benefits -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <div class="bg-white p-6 rounded-lg shadow text-center">
@@ -51,7 +73,8 @@
                             <label for="brand_name" class="block text-sm font-medium text-gray-700 mb-1">Brand Name *</label>
                             <input type="text" id="brand_name" name="brand_name" required
                                    class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-                                   placeholder="Your brand name">
+                                   placeholder="Your brand name"
+                                   value="{{ old('brand_name', $isReapplication && $rejectedApplication ? $rejectedApplication->brand_name : '') }}">
                             @error('brand_name')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -62,7 +85,8 @@
                             <label for="business_license" class="block text-sm font-medium text-gray-700 mb-1">Business License Number</label>
                             <input type="text" id="business_license" name="business_license"
                                    class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-                                   placeholder="License number (if applicable)">
+                                   placeholder="License number (if applicable)"
+                                   value="{{ old('business_license', $isReapplication && $rejectedApplication ? $rejectedApplication->business_license : '') }}">
                             @error('business_license')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -73,7 +97,7 @@
                             <label for="business_description" class="block text-sm font-medium text-gray-700 mb-1">Business Description *</label>
                             <textarea id="business_description" name="business_description" rows="4" required
                                       class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-                                      placeholder="Tell us about your business, your products, and what makes you unique..."></textarea>
+                                      placeholder="Tell us about your business, your products, and what makes you unique...">{{ old('business_description', $isReapplication && $rejectedApplication ? $rejectedApplication->business_description : '') }}</textarea>
                             @error('business_description')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -84,7 +108,8 @@
                             <label for="website_url" class="block text-sm font-medium text-gray-700 mb-1">Website URL</label>
                             <input type="url" id="website_url" name="website_url"
                                    class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-                                   placeholder="https://yourwebsite.com">
+                                   placeholder="https://yourwebsite.com"
+                                   value="{{ old('website_url', $isReapplication && $rejectedApplication ? $rejectedApplication->website_url : '') }}">
                             @error('website_url')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -101,7 +126,8 @@
                             <label for="contact_person" class="block text-sm font-medium text-gray-700 mb-1">Contact Person *</label>
                             <input type="text" id="contact_person" name="contact_person" required
                                    class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-                                   placeholder="Full name of primary contact">
+                                   placeholder="Full name of primary contact"
+                                   value="{{ old('contact_person', $isReapplication && $rejectedApplication ? $rejectedApplication->contact_person : '') }}">
                             @error('contact_person')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -112,7 +138,8 @@
                             <label for="contact_email" class="block text-sm font-medium text-gray-700 mb-1">Contact Email *</label>
                             <input type="email" id="contact_email" name="contact_email" required
                                    class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-                                   placeholder="business@example.com">
+                                   placeholder="business@example.com"
+                                   value="{{ old('contact_email', $isReapplication && $rejectedApplication ? $rejectedApplication->contact_email : '') }}">
                             @error('contact_email')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -123,7 +150,8 @@
                             <label for="contact_phone" class="block text-sm font-medium text-gray-700 mb-1">Contact Phone *</label>
                             <input type="tel" id="contact_phone" name="contact_phone" required
                                    class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-                                   placeholder="+1 (555) 123-4567">
+                                   placeholder="+1 (555) 123-4567"
+                                   value="{{ old('contact_phone', $isReapplication && $rejectedApplication ? $rejectedApplication->contact_phone : '') }}">
                             @error('contact_phone')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -134,7 +162,8 @@
                             <label for="business_address" class="block text-sm font-medium text-gray-700 mb-1">Business Address *</label>
                             <input type="text" id="business_address" name="business_address" required
                                    class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green"
-                                   placeholder="123 Business St, City, State 12345">
+                                   placeholder="123 Business St, City, State 12345"
+                                   value="{{ old('business_address', $isReapplication && $rejectedApplication ? $rejectedApplication->business_address : '') }}">
                             @error('business_address')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
@@ -150,7 +179,8 @@
                         @foreach($categories as $category)
                             <label class="flex items-center">
                                 <input type="checkbox" name="product_categories[]" value="{{ $category }}"
-                                       class="mr-2 border-gray-300 rounded text-jade-green focus:ring-jade-green">
+                                       class="mr-2 border-gray-300 rounded text-jade-green focus:ring-jade-green"
+                                       @if($isReapplication && $rejectedApplication && in_array($category, $rejectedApplication->product_categories)) checked @endif>
                                 <span class="text-sm text-gray-700">{{ $category }}</span>
                             </label>
                         @endforeach

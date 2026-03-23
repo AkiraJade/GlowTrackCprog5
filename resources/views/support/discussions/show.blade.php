@@ -36,12 +36,14 @@
                             </span>
                         @endif
                     </div>
-                    @if($discussion->user_id === Auth::id())
+                    @if($discussion->user_id === Auth::id() || Auth::user()->role === 'admin')
                         <div class="flex gap-2">
-                            <a href="{{ route('forum.edit', $discussion) }}" 
-                               class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">
-                                Edit
-                            </a>
+                            @if($discussion->user_id === Auth::id())
+                                <a href="{{ route('forum.edit', $discussion) }}" 
+                                   class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">
+                                    Edit
+                                </a>
+                            @endif
                             <form method="POST" action="{{ route('forum.destroy', $discussion) }}" 
                                   onsubmit="return confirm('Are you sure you want to delete this discussion?')">
                                 @csrf
@@ -124,12 +126,24 @@
                                     </div>
                                 </div>
                                 
-                                @if($reply->user_id === Auth::id())
+                                @if($reply->user_id === Auth::id() || Auth::user()->role === 'admin')
                                     <div class="flex gap-2">
-                                        <a href="{{ route('forum.edit-reply', $reply) }}" 
-                                           class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">
-                                            Edit
-                                        </a>
+                                        @if($reply->user_id === Auth::id())
+                                            <a href="{{ route('forum.edit-reply', $reply) }}" 
+                                               class="text-jade-green hover:text-soft-brown transition font-semibold text-sm">
+                                                Edit
+                                            </a>
+                                        @endif
+                                        @if(Auth::user()->role === 'admin')
+                                            <form method="POST" action="{{ route('forum.warn-reply', $reply) }}" 
+                                                  onsubmit="return confirm('Are you sure you want to warn this user for this reply?')">
+                                                @csrf
+                                                <button type="submit" 
+                                                        class="text-yellow-500 hover:text-yellow-700 transition font-semibold text-sm">
+                                                    ⚠️ Warn
+                                                </button>
+                                            </form>
+                                        @endif
                                         <form method="POST" action="{{ route('forum.delete-reply', $reply) }}" 
                                               onsubmit="return confirm('Are you sure you want to delete this reply?')">
                                             @csrf
@@ -191,12 +205,24 @@
                                                     </div>
                                                 </div>
                                                 
-                                                @if($childReply->user_id === Auth::id())
+                                                @if($childReply->user_id === Auth::id() || Auth::user()->role === 'admin')
                                                     <div class="flex gap-2">
-                                                        <a href="{{ route('forum.edit-reply', $childReply) }}" 
-                                                           class="text-jade-green hover:text-soft-brown transition font-semibold text-xs">
-                                                            Edit
-                                                        </a>
+                                                        @if($childReply->user_id === Auth::id())
+                                                            <a href="{{ route('forum.edit-reply', $childReply) }}" 
+                                                               class="text-jade-green hover:text-soft-brown transition font-semibold text-xs">
+                                                                Edit
+                                                            </a>
+                                                        @endif
+                                                        @if(Auth::user()->role === 'admin')
+                                                            <form method="POST" action="{{ route('forum.warn-reply', $childReply) }}" 
+                                                                  onsubmit="return confirm('Are you sure you want to warn this user for this reply?')">
+                                                                @csrf
+                                                                <button type="submit" 
+                                                                        class="text-yellow-500 hover:text-yellow-700 transition font-semibold text-xs">
+                                                                    ⚠️ Warn
+                                                                </button>
+                                                            </form>
+                                                        @endif
                                                         <form method="POST" action="{{ route('forum.delete-reply', $childReply) }}" 
                                                               onsubmit="return confirm('Are you sure you want to delete this reply?')">
                                                             @csrf

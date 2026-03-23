@@ -31,20 +31,21 @@ class ProductController extends Controller
         // Search by name or brand
         if ($request->filled('search')) {
             $searchTerm = $request->search;
-            
+
             // Use Scout search if available, fallback to LIKE query
             try {
                 $searchResults = Product::search($searchTerm)->get();
                 $productIds = $searchResults->pluck('id');
                 $query->whereIn('id', $productIds);
-            } catch (\Exception $e) {
+            }
+            catch (\Exception $e) {
                 // Fallback to LIKE query if Scout is not configured
                 $query->where(function ($q) use ($searchTerm) {
                     $q->where('name', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('brand', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('description', 'like', '%' . $searchTerm . '%')
-                      ->orWhereJsonContains('active_ingredients', $searchTerm)
-                      ->orWhereJsonContains('skin_types', $searchTerm);
+                        ->orWhere('brand', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('description', 'like', '%' . $searchTerm . '%')
+                        ->orWhereJsonContains('active_ingredients', $searchTerm)
+                        ->orWhereJsonContains('skin_types', $searchTerm);
                 });
             }
         }
@@ -67,6 +68,22 @@ class ProductController extends Controller
             $query->where('price', '<=', $request->max_price);
         }
 
+        // Stock filtering
+        $stockFilter = $request->get('stock_filter', 'all');
+        if ($stockFilter === 'in_stock') {
+            $query->where('quantity', '>', 0);
+        } elseif ($stockFilter === 'low_stock') {
+            $lowStockThreshold = $request->get('low_stock_threshold', 10);
+            $query->where('quantity', '>', 0)->where('quantity', '<=', $lowStockThreshold);
+        } elseif ($stockFilter === 'out_of_stock') {
+            $query->where('quantity', 0);
+        }
+
+        // Rating filtering
+        if ($request->filled('min_rating')) {
+            $query->where('average_rating', '>=', floatval($request->min_rating));
+        }
+
         // Filter by ingredients
         if ($request->filled('ingredient')) {
             $query->byIngredient($request->ingredient);
@@ -80,7 +97,7 @@ class ProductController extends Controller
         // Sort options
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
-        
+
         if (in_array($sortBy, ['name', 'price', 'average_rating', 'created_at'])) {
             $query->orderBy($sortBy, $sortOrder);
         }
@@ -115,7 +132,7 @@ class ProductController extends Controller
 
         $classifications = ['Cleanser', 'Moisturizer', 'Serum', 'Toner', 'Sunscreen', 'Mask', 'Exfoliant', 'Treatment'];
         $skinTypes = ['Oily', 'Dry', 'Combination', 'Sensitive', 'Normal'];
-        
+
         return view('products.create', compact('classifications', 'skinTypes'));
     }
 
@@ -167,7 +184,7 @@ class ProductController extends Controller
             'request_input_photo' => $request->input('photo'),
             'request_files_count' => count($request->allFiles()),
         ]);
-        
+
         if ($request->hasFile('photo')) {
             \Log::info('Processing photo upload', [
                 'original_name' => $request->file('photo')->getClientOriginalName(),
@@ -176,13 +193,14 @@ class ProductController extends Controller
                 'error' => $request->file('photo')->getError(),
                 'is_valid' => $request->file('photo')->isValid(),
             ]);
-            
+
             $photo = $request->file('photo');
             $photoPath = $photo->store('products', 'public');
             $data['photo'] = $photoPath;
-            
+
             \Log::info('Photo stored successfully', ['path' => $photoPath]);
-        } else {
+        }
+        else {
             \Log::warning('No photo file found in request', [
                 'files_in_request' => array_keys($request->allFiles()),
                 'request_data_keys' => array_keys($request->all()),
@@ -195,7 +213,7 @@ class ProductController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $index => $image) {
                 $imagePath = $image->store('products', 'public');
-                
+
                 ProductImage::create([
                     'product_id' => $product->id,
                     'image_path' => $imagePath,
@@ -203,7 +221,8 @@ class ProductController extends Controller
                     'is_primary' => $index === 0, // First image is primary
                 ]);
             }
-        } elseif ($request->hasFile('photo')) {
+        }
+        elseif ($request->hasFile('photo')) {
             // If only single photo was uploaded, create a ProductImage record
             ProductImage::create([
                 'product_id' => $product->id,
@@ -257,8 +276,19 @@ class ProductController extends Controller
         $relatedProducts = Product::where('id', '!=', $product->id)
             ->approved()
             ->where(function ($query) use ($product) {
-                $query->where('classification', $product->classification)
-                      ->orWhereJsonContains('skin_types', $product->skin_types);
+                $query->where('classification', $product->classification);
+                
+                $skinTypes = is_string($product->skin_types) 
+                    ? json_decode($product->skin_types, true) 
+                    : $product->skin_types;
+
+                if (is_array($skinTypes)) {
+                    foreach ($skinTypes as $type) {
+                        $query->orWhereJsonContains('skin_types', $type);
+                    }
+                } elseif ($skinTypes) {
+                    $query->orWhereJsonContains('skin_types', $skinTypes);
+                }
             })
             ->inStock()
             ->take(4)
@@ -298,7 +328,8 @@ class ProductController extends Controller
             }
 
             $existingReview->update($data);
-        } else {
+        }
+        else {
             // Creating new review
             $request->validate([
                 'rating' => 'required|integer|min:1|max:5',
@@ -350,10 +381,10 @@ class ProductController extends Controller
 
         $classifications = ['Cleanser', 'Moisturizer', 'Serum', 'Toner', 'Sunscreen', 'Mask', 'Exfoliant', 'Treatment'];
         $skinTypes = ['Oily', 'Dry', 'Combination', 'Sensitive', 'Normal'];
-        
+
         // Load product images
         $product->load('images');
-        
+
         return view('products.edit', compact('product', 'classifications', 'skinTypes'));
     }
 
@@ -369,11 +400,11 @@ class ProductController extends Controller
 
         // Add fallback for missing required fields
         $requestData = $request->all();
-        
+
         if (!$request->has('skin_types') || empty($request->input('skin_types'))) {
             $requestData['skin_types'] = ['Normal']; // Default fallback
         }
-        
+
         if (!$request->has('active_ingredients') || empty($request->input('active_ingredients'))) {
             $requestData['active_ingredients'] = ['Vitamin C']; // Default fallback
         }
@@ -399,7 +430,8 @@ class ProductController extends Controller
                 'remove_images' => 'nullable|array',
                 'remove_images.*' => 'integer',
             ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        }
+        catch (\Illuminate\Validation\ValidationException $e) {
             \Log::error('Validation failed in product update:', [
                 'errors' => $e->errors(),
                 'request_data' => $request->all()
@@ -415,7 +447,7 @@ class ProductController extends Controller
             if ($product->photo) {
                 Storage::disk('public')->delete($product->photo);
             }
-            
+
             $photo = $request->file('photo');
             $photoPath = $photo->store('products', 'public');
             $data['photo'] = $photoPath;
@@ -435,10 +467,10 @@ class ProductController extends Controller
         // Handle new image uploads
         if ($request->hasFile('images')) {
             $maxSortOrder = $product->images()->max('sort_order') ?? 0;
-            
+
             foreach ($request->file('images') as $index => $image) {
                 $imagePath = $image->store('products', 'public');
-                
+
                 ProductImage::create([
                     'product_id' => $product->id,
                     'image_path' => $imagePath,
@@ -452,7 +484,7 @@ class ProductController extends Controller
         if ($request->has('primary_image')) {
             // Reset all images to non-primary
             $product->images()->update(['is_primary' => false]);
-            
+
             // Set new primary image
             $primaryImage = $product->images()->find($request->primary_image);
             if ($primaryImage) {
@@ -543,7 +575,7 @@ class ProductController extends Controller
 
         $classifications = ['Cleanser', 'Moisturizer', 'Serum', 'Toner', 'Sunscreen', 'Mask', 'Exfoliant', 'Treatment'];
         $skinTypes = ['Oily', 'Dry', 'Combination', 'Sensitive', 'Normal'];
-        
+
         return view('seller.products.create', compact('classifications', 'skinTypes'));
     }
 
@@ -600,7 +632,7 @@ class ProductController extends Controller
 
         $classifications = ['Cleanser', 'Moisturizer', 'Serum', 'Toner', 'Sunscreen', 'Mask', 'Exfoliant', 'Treatment'];
         $skinTypes = ['Oily', 'Dry', 'Combination', 'Sensitive', 'Normal'];
-        
+
         return view('seller.products.edit', compact('product', 'classifications', 'skinTypes'));
     }
 
@@ -623,11 +655,11 @@ class ProductController extends Controller
 
         // Add fallback for missing required fields
         $requestData = $request->all();
-        
+
         if (!$request->has('skin_types') || empty($request->input('skin_types'))) {
             $requestData['skin_types'] = ['Normal']; // Default fallback
         }
-        
+
         if (!$request->has('active_ingredients') || empty($request->input('active_ingredients'))) {
             $requestData['active_ingredients'] = ['Vitamin C']; // Default fallback
         }
@@ -657,7 +689,7 @@ class ProductController extends Controller
             if ($product->photo) {
                 Storage::disk('public')->delete($product->photo);
             }
-            
+
             $photo = $request->file('photo');
             $photoPath = $photo->store('products', 'public');
             $data['photo'] = $photoPath;
@@ -689,7 +721,7 @@ class ProductController extends Controller
 
         $oldQuantity = $product->quantity;
         $addedQuantity = $request->add_quantity;
-        
+
         $product->adjustStock(
             $addedQuantity,
             'restock',
@@ -710,7 +742,7 @@ class ProductController extends Controller
             'notes' => $request->restock_notes
         ]);
 
-        return redirect()->back()->with('success', 
+        return redirect()->back()->with('success',
             "Product '{$product->name}' restocked successfully! Stock increased from {$oldQuantity} to {$newQuantity}."
         );
     }
@@ -757,9 +789,9 @@ class ProductController extends Controller
             'total_products' => $products->total(),
             'total_reviews' => $seller->products()->withCount('reviews')->get()->sum('reviews_count'),
             'average_rating' => $seller->products()->where('status', 'approved')->avg('average_rating') ?: 0,
-            'total_sales' => \App\Models\Order::whereHas('orderItems.product', function($query) use ($seller) {
-                $query->where('seller_id', $seller->id);
-            })->where('status', '!=', 'cancelled')->sum('total_amount'),
+            'total_sales' => \App\Models\Order::whereHas('orderItems.product', function ($query) use ($seller) {
+            $query->where('seller_id', $seller->id);
+        })->where('status', '!=', 'cancelled')->sum('total_amount'),
         ];
 
         // Get featured products (highest rated)
@@ -803,7 +835,8 @@ class ProductController extends Controller
 
             return redirect()->route('products.index')
                 ->with('success', 'Products imported successfully!');
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return back()->with('error', 'Error importing products: ' . $e->getMessage())
                 ->withInput();
         }

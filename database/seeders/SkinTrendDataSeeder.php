@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 use App\Models\User;
 use App\Models\SkinProfile;
 use App\Models\SkinJournal;
@@ -74,6 +75,7 @@ class SkinTrendDataSeeder extends Seeder
         foreach ($userProfiles as $profile) {
             $user = User::create([
                 'name' => $this->generateUserName($profile['age'], $profile['region']),
+                'username' => 'user_' . rand(10000, 99999),
                 'email' => $this->generateUserEmail($profile['age'], $profile['region']),
                 'password' => bcrypt('password'),
                 'role' => 'customer',
@@ -139,7 +141,7 @@ class SkinTrendDataSeeder extends Seeder
         foreach ($products as $product) {
             Product::create([
                 'name' => $product['name'],
-                'slug' => str_slug($product['name']) . '-' . uniqid(),
+                'slug' => Str::slug($product['name']) . '-' . uniqid(),
                 'description' => "Premium {$product['type']} with active ingredients for optimal skin health.",
                 'brand' => 'GlowTrack Labs',
                 'classification' => $product['type'],
@@ -167,21 +169,40 @@ class SkinTrendDataSeeder extends Seeder
         foreach ($products as $product) {
             // Create 5-20 reviews per product
             $reviewCount = rand(5, 20);
+            $selectedUsers = [];
             
             for ($i = 0; $i < $reviewCount; $i++) {
-                $user = $users->random();
-                
-                Review::create([
-                    'product_id' => $product->id,
-                    'user_id' => $user->id,
-                    'rating' => rand(3, 5),
-                    'comment' => $this->generateReviewComment($product, $user),
-                    'skin_type' => $user->skinProfile->skin_type ?? 'Normal',
-                    'improvements' => $this->generateImprovements($product),
-                    'before_photo' => rand(0, 3) === 0 ? 'review_photos/before_' . $product->id . '_' . $i . '.jpg' : null,
-                    'after_photo' => rand(0, 3) === 0 ? 'review_photos/after_' . $product->id . '_' . $i . '.jpg' : null,
-                    'created_at' => Carbon::now()->subDays(rand(1, 180)),
-                ]);
+                // Get a unique user for this product
+                $attempt = 0;
+                do {
+                    $user = $users->random();
+                    $attempt++;
+                } while (in_array($user->id, $selectedUsers) && $attempt < 10);
+
+                // Skip if we couldn't find a unique user
+                if (in_array($user->id, $selectedUsers)) {
+                    continue;
+                }
+
+                $selectedUsers[] = $user->id;
+
+                // Check if review already exists
+                $existingReview = Review::where('product_id', $product->id)
+                    ->where('user_id', $user->id)
+                    ->first();
+
+                if (!$existingReview) {
+                    Review::create([
+                        'product_id' => $product->id,
+                        'user_id' => $user->id,
+                        'rating' => rand(3, 5),
+                        'comment' => $this->generateReviewComment($product, $user),
+                        'skin_type' => $user->skinProfile->skin_type ?? 'Normal',
+                        'before_photo' => rand(0, 3) === 0 ? 'review_photos/before_' . $product->id . '_' . $i . '.jpg' : null,
+                        'after_photo' => rand(0, 3) === 0 ? 'review_photos/after_' . $product->id . '_' . $i . '.jpg' : null,
+                        'created_at' => Carbon::now()->subDays(rand(1, 180)),
+                    ]);
+                }
             }
         }
     }

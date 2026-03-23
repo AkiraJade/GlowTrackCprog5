@@ -8,6 +8,8 @@ use App\Http\Controllers\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\OrderStatusNotification;
+use App\Mail\OrderShippedEmail;
+use App\Mail\OrderDeliveredEmail;
 
 class OrderController extends Controller
 {
@@ -128,7 +130,13 @@ class OrderController extends Controller
 
         // Send email notification to customer
         try {
-            Mail::to($order->user->email)->send(new OrderStatusNotification($order->user, $order, $newStatus));
+            if ($newStatus === 'shipped') {
+                Mail::to($order->user->email)->send(new \App\Mail\OrderShippedEmail($order));
+            } elseif ($newStatus === 'delivered') {
+                Mail::to($order->user->email)->send(new \App\Mail\OrderDeliveredEmail($order));
+            } else {
+                Mail::to($order->user->email)->send(new OrderStatusNotification($order->user, $order, $newStatus));
+            }
             \Log::info('Order status email sent', [
                 'order_id' => $order->id,
                 'status' => $newStatus,

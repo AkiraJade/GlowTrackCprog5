@@ -11,11 +11,11 @@ class DatabaseSeeder extends Seeder
     use WithoutModelEvents;
 
     /**
-     * Seed the application's database with minimal user set.
+     * Seed the application's database with comprehensive data for all reports.
      */
     public function run(): void
     {
-        // Create only essential admin account
+        // Create core users first
         User::factory()->create([
             'name' => 'Admin User',
             'username' => 'admin',
@@ -25,27 +25,18 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
         ]);
 
-        // Create only essential seller account
-        User::factory()->create([
-            'name' => 'Sarah Seller',
-            'username' => 'sarah_seller',
-            'email' => 'sarah@glowtrack.com',
-            'phone' => '+1234567893',
-            'address' => '321 Seller Road, Seller City, SC 44556',
-            'role' => 'seller',
+        // Create comprehensive data
+        $this->call([
+            IngredientConflictSeeder::class,      // Ingredient compatibility data
+            ProductSeeder::class,                  // Skincare products
+            SkinTrendDataSeeder::class,            // Users, skin profiles, journals, reviews
+            SellerPerformanceDataSeeder::class,    // Sellers, applications, orders
+            ForumDataSeeder::class,                // Forum discussions and replies
+            DeliveryDataSeeder::class,             // Delivery personnel and deliveries
+            OrderItemsSeeder::class,               // Comprehensive order items
+            CartSeeder::class,                     // Customer shopping carts
+            RoutineSeeder::class,                  // Skincare routines
+            NotificationSeeder::class,             // System notifications
         ]);
-
-        // Create only essential customer account
-        User::factory()->create([
-            'name' => 'John Customer',
-            'username' => 'john_customer',
-            'email' => 'john@glowtrack.com',
-            'phone' => '+1234567891',
-            'address' => '456 Customer Avenue, Customer City, CC 67890',
-            'role' => 'customer',
-        ]);
-
-        // Products removed - ready for custom products
-        // $this->call(ProductSeeder::class); // Commented out to prevent auto-seeding
     }
 }

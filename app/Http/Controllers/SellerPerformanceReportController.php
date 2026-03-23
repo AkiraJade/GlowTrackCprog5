@@ -22,7 +22,7 @@ class SellerPerformanceReportController extends Controller
     public function index(Request $request): View
     {
         $filters = [
-            'period' => $request->get('period', '30days'),
+            'period' => $request->get('period', 'all'),
             'seller_status' => $request->get('seller_status', 'all'),
             'min_revenue' => $request->get('min_revenue', 0),
             'min_orders' => $request->get('min_orders', 0),
@@ -362,7 +362,7 @@ class SellerPerformanceReportController extends Controller
         $this->authorize('viewReports', User::class);
 
         $filters = [
-            'period' => $request->get('period', '30days'),
+            'period' => $request->get('period', 'all'),
             'seller_status' => $request->get('seller_status', 'all'),
             'min_revenue' => $request->get('min_revenue', 0),
             'min_orders' => $request->get('min_orders', 0),
@@ -415,7 +415,7 @@ class SellerPerformanceReportController extends Controller
 
         $type = $request->get('type');
         $filters = [
-            'period' => $request->get('period', '30days'),
+            'period' => $request->get('period', 'all'),
             'seller_status' => $request->get('seller_status', 'all'),
             'min_revenue' => $request->get('min_revenue', 0),
             'min_orders' => $request->get('min_orders', 0),
@@ -660,6 +660,8 @@ class SellerPerformanceReportController extends Controller
         $now = now();
         
         switch ($period) {
+            case 'all':
+                return ['start' => $now->copy()->subYears(10), 'end' => $now];
             case '7days':
                 return ['start' => $now->copy()->subDays(7), 'end' => $now];
             case '30days':
@@ -669,7 +671,7 @@ class SellerPerformanceReportController extends Controller
             case '1year':
                 return ['start' => $now->copy()->subYear(), 'end' => $now];
             default:
-                return ['start' => $now->copy()->subDays(30), 'end' => $now];
+                return ['start' => $now->copy()->subYears(10), 'end' => $now];
         }
     }
 

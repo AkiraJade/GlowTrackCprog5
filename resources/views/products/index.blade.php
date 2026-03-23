@@ -50,12 +50,42 @@
                             </select>
                         </div>
 
-                        <!-- Price Range -->
+                        <!-- Min Price -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Min Price</label>
+                            <input type="number" name="min_price" value="{{ request('min_price') }}" 
+                                   placeholder="Min price" min="0" step="0.01"
+                                   class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
+                        </div>
+
+                        <!-- Max Price -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Max Price</label>
                             <input type="number" name="max_price" value="{{ request('max_price') }}" 
                                    placeholder="Max price" min="0" step="0.01"
                                    class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
+                        </div>
+
+                        <!-- Stock Status -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Stock Status</label>
+                            <select name="stock_filter" class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
+                                <option value="all" {{ request('stock_filter', 'all') === 'all' ? 'selected' : '' }}>All Stock Levels</option>
+                                <option value="in_stock" {{ request('stock_filter') === 'in_stock' ? 'selected' : '' }}>In Stock</option>
+                                <option value="low_stock" {{ request('stock_filter') === 'low_stock' ? 'selected' : '' }}>Low Stock</option>
+                                <option value="out_of_stock" {{ request('stock_filter') === 'out_of_stock' ? 'selected' : '' }}>Out of Stock</option>
+                            </select>
+                        </div>
+
+                        <!-- Min Rating -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Min Rating</label>
+                            <select name="min_rating" class="w-full border-gray-300 rounded-md focus:ring-jade-green focus:border-jade-green">
+                                <option value="">Any Rating</option>
+                                @foreach([1,2,3,4,5] as $rating)
+                                    <option value="{{ $rating }}" {{ request('min_rating') == $rating ? 'selected' : '' }}>{{ $rating }}+</option>
+                                @endforeach
+                            </select>
                         </div>
 
                         <!-- Ingredients -->

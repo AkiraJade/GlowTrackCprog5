@@ -43,7 +43,7 @@ class OrderStatusUpdateEmail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.order-status-update',
+            markdown: 'emails.order-status-update',
             with: [
                 'order' => $this->order,
                 'user' => $this->order->user,
