@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->enum('skin_type', ['Oily', 'Dry', 'Combination', 'Sensitive', 'Normal']);
-            $table->json('skin_concerns')->nullable(); // Store array of concerns
-            $table->json('ingredient_allergies')->nullable(); // Store array of allergies
+            $table->text('skin_concerns')->nullable();
+            $table->text('ingredient_allergies')->nullable();
             $table->text('notes')->nullable();
             $table->timestamps();
         });

@@ -24,10 +24,12 @@ class SellerApplication extends Model
         'admin_notes',
         'reviewed_at',
         'reviewed_by',
+        'product_categories',
     ];
 
     protected $casts = [
         'reviewed_at' => 'datetime',
+        'product_categories' => 'array',
     ];
 
     /**

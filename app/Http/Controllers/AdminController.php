@@ -910,16 +910,16 @@ class AdminController extends Controller
      */
     public function charts()
     {
-        // Get yearly sales data for charts (SQLite-compatible)
-        $yearlySales = Order::selectRaw("strftime('%Y', created_at) as year, SUM(total_amount) as total")
+        // Get yearly sales data for charts (MySQL-compatible)
+        $yearlySales = Order::selectRaw('YEAR(created_at) as year, SUM(total_amount) as total')
             ->groupBy('year')
             ->orderBy('year', 'desc')
             ->get();
 
-        // Get monthly sales for current year (SQLite-compatible)
+        // Get monthly sales for current year (MySQL-compatible)
         $currentYear = now()->year;
-        $monthlySales = Order::selectRaw("CAST(strftime('%m', created_at) AS INTEGER) as month, SUM(total_amount) as total")
-            ->whereRaw("strftime('%Y', created_at) = ?", [$currentYear])
+        $monthlySales = Order::selectRaw('MONTH(created_at) as month, SUM(total_amount) as total')
+            ->whereYear('created_at', $currentYear)
             ->groupBy('month')
             ->orderBy('month')
             ->get();
@@ -932,9 +932,9 @@ class AdminController extends Controller
             ->limit(10)
             ->get();
 
-        // Get user registration trends (SQLite-compatible)
-        $userRegistrations = User::selectRaw("CAST(strftime('%m', created_at) AS INTEGER) as month, COUNT(*) as count")
-            ->whereRaw("strftime('%Y', created_at) = ?", [$currentYear])
+        // Get user registration trends (MySQL-compatible)
+        $userRegistrations = User::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->whereYear('created_at', $currentYear)
             ->groupBy('month')
             ->orderBy('month')
             ->get();

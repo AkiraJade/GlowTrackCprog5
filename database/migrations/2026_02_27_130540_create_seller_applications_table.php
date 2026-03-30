@@ -22,7 +22,7 @@ return new class extends Migration
             $table->string('contact_phone');
             $table->string('business_address');
             $table->string('website_url')->nullable();
-            $table->json('product_categories'); // Array of product categories they plan to sell
+            $table->text('product_categories');
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('admin_notes')->nullable();
             $table->timestamp('reviewed_at')->nullable();

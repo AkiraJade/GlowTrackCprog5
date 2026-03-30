@@ -33,6 +33,8 @@ class Product extends Model
         'is_verified',
         'average_rating',
         'review_count',
+        'skin_types',
+        'active_ingredients',
     ];
 
     protected $casts = [
@@ -55,8 +57,6 @@ class Product extends Model
 
         // Include related data
         $array['seller_name'] = $this->seller?->name;
-        $array['skin_types_string'] = implode(' ', $this->skin_types ?? []);
-        $array['active_ingredients_string'] = implode(' ', $this->active_ingredients ?? []);
 
         return $array;
     }
@@ -307,7 +307,7 @@ class Product extends Model
      */
     public function scopeBySkinType($query, $skinType)
     {
-        return $query->whereRaw('json_extract(skin_types, \'$\') LIKE ?', ['%' . $skinType . '%']);
+        return $query->where('skin_types', 'like', '%' . $skinType . '%');
     }
 
     /**
@@ -315,7 +315,7 @@ class Product extends Model
      */
     public function scopeByIngredient($query, $ingredient)
     {
-        return $query->whereRaw('json_extract(active_ingredients, \'$\') LIKE ?', ['%' . $ingredient . '%']);
+        return $query->where('active_ingredients', 'like', '%' . $ingredient . '%');
     }
 
     /**

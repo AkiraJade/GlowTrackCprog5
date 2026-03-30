@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('type'); // order_status, delivery_update, low_stock, etc.
             $table->string('title');
             $table->text('message');
-            $table->json('data')->nullable(); // Additional data like order_id, product_id, etc.
+            $table->text('data')->nullable();
             $table->boolean('is_read')->default(false);
             $table->timestamp('read_at')->nullable();
             $table->timestamps();

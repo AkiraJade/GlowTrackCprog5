@@ -138,9 +138,13 @@ class IngredientConflictSeeder extends Seeder
         ];
 
         foreach ($conflicts as $conflict) {
-            IngredientConflict::create(array_merge($conflict, [
-                'is_active' => true,
-            ]));
+            IngredientConflict::updateOrCreate(
+                ['ingredient_1' => $conflict['ingredient_1'], 'ingredient_2' => $conflict['ingredient_2']],
+                array_merge($conflict, [
+                    'is_active' => true,
+                    'alternatives' => implode(', ', $conflict['alternatives']),
+                ])
+            );
         }
 
         $this->command->info('Ingredient conflicts seeded successfully!');

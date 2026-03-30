@@ -50,7 +50,10 @@ class DeliveryDataSeeder extends Seeder
 
         $deliveryPersonnelIds = [];
         foreach ($deliveryPersonnel as $personnel) {
-            $created = DeliveryPersonnel::create($personnel);
+            $created = DeliveryPersonnel::updateOrCreate(
+                ['email' => $personnel['email']],
+                $personnel
+            );
             $deliveryPersonnelIds[] = $created->id;
         }
 

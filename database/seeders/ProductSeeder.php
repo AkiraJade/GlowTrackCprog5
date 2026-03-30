@@ -46,8 +46,6 @@ class ProductSeeder extends Seeder
                 'price' => 29.99,
                 'size_volume' => '30ml',
                 'quantity' => 50,
-                'skin_types' => ['Normal', 'Dry', 'Combination'],
-                'active_ingredients' => ['Vitamin C', 'Hyaluronic Acid', 'Ferulic Acid'],
                 'photo' => 'product-1.jpg',
             ],
             [
@@ -58,8 +56,6 @@ class ProductSeeder extends Seeder
                 'price' => 18.50,
                 'size_volume' => '150ml',
                 'quantity' => 75,
-                'skin_types' => ['Normal', 'Dry', 'Sensitive'],
-                'active_ingredients' => ['Glycerin', 'Ceramides', 'Green Tea Extract'],
                 'photo' => 'product-2.jpg',
             ],
             [
@@ -70,8 +66,6 @@ class ProductSeeder extends Seeder
                 'price' => 45.00,
                 'size_volume' => '50ml',
                 'quantity' => 30,
-                'skin_types' => ['Normal', 'Oily', 'Combination'],
-                'active_ingredients' => ['Retinol', 'Peptides', 'Niacinamide'],
                 'photo' => 'product-3.jpg',
             ],
             [

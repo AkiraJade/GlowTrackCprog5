@@ -18,7 +18,7 @@ return new class extends Migration
             $table->enum('severity', ['low', 'moderate', 'high', 'severe']);
             $table->text('description');
             $table->text('recommendation');
-            $table->json('alternatives')->nullable(); // Alternative ingredients or routines
+            $table->text('alternatives')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
@@ -36,7 +36,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('skincare_routine_id')->constrained()->onDelete('cascade');
             $table->foreignId('ingredient_conflict_id')->constrained()->onDelete('cascade');
-            $table->json('conflicting_ingredients'); // Store the actual conflicting ingredients from the routine
+            $table->text('conflicting_ingredients');
             $table->boolean('is_acknowledged')->default(false);
             $table->timestamp('acknowledged_at')->nullable();
             $table->timestamps();

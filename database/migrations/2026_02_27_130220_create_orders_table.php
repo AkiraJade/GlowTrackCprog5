@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('payment_method');
             $table->text('notes')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

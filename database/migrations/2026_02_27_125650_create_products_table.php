@@ -21,15 +21,16 @@ return new class extends Migration
             $table->decimal('price', 8, 2);
             $table->string('size_volume');
             $table->integer('quantity')->default(0);
-            $table->json('skin_types'); // Oily, Dry, Combination, Sensitive, Normal
-            $table->json('active_ingredients');
             $table->string('photo')->nullable();
             $table->foreignId('seller_id')->constrained('users');
             $table->enum('status', ['pending', 'approved', 'rejected', 'inactive'])->default('pending');
             $table->boolean('is_verified')->default(false);
             $table->decimal('average_rating', 3, 2)->default(0);
             $table->integer('review_count')->default(0);
+            $table->text('skin_types')->nullable();
+            $table->text('active_ingredients')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

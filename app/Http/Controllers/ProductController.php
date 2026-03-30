@@ -44,8 +44,8 @@ class ProductController extends Controller
                     $q->where('name', 'like', '%' . $searchTerm . '%')
                         ->orWhere('brand', 'like', '%' . $searchTerm . '%')
                         ->orWhere('description', 'like', '%' . $searchTerm . '%')
-                        ->orWhereRaw('json_extract(active_ingredients, \'$\') LIKE ?', ['%' . $searchTerm . '%'])
-                        ->orWhereRaw('json_extract(skin_types, \'$\') LIKE ?', ['%' . $searchTerm . '%']);
+                        ->orWhere('active_ingredients', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('skin_types', 'like', '%' . $searchTerm . '%');
                 });
             }
         }
@@ -311,7 +311,7 @@ class ProductController extends Controller
                 // Add skin type filtering if product has skin types
                 if ($product->skin_types && is_array($product->skin_types)) {
                     foreach ($product->skin_types as $skinType) {
-                        $query->orWhereRaw('json_extract(skin_types, \'$\') LIKE ?', ['%' . $skinType . '%']);
+                        $query->orWhere('skin_types', 'like', '%' . $skinType . '%');
                     }
                 }
             })

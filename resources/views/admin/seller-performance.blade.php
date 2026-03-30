@@ -897,7 +897,7 @@ function loadChartData() {
 
 function updateChartsWithSampleData() {
     // Top Performers
-    const topPerformers = @json(collect($topPerformers)->map(fn($p) => ['name' => $p['seller']->name, 'revenue' => $p['revenue']])->values());
+    const topPerformers = {!! \Illuminate\Support\Js::from(collect($topPerformers)->map(fn($p) => ['name' => $p['seller']->name, 'revenue' => $p['revenue']])->values()) !!};
     if (charts.topPerformers) {
         charts.topPerformers.data.labels = topPerformers.map(p => p.name);
         charts.topPerformers.data.datasets[0].data = topPerformers.map(p => p.revenue);
@@ -905,7 +905,7 @@ function updateChartsWithSampleData() {
     }
 
     // Revenue Chart
-    const revenueTrends = @json($revenueAnalysis['monthly_trends']);
+    const revenueTrends = {!! \Illuminate\Support\Js::from($revenueAnalysis['monthly_trends']) !!};
     if (charts.revenue) {
         charts.revenue.data.labels = Object.keys(revenueTrends).map(m => {
             const date = new Date(m);
@@ -916,7 +916,7 @@ function updateChartsWithSampleData() {
     }
 
     // Fulfillment Chart
-    const fulfillmentStatuses = @json($fulfillmentMetrics['order_status_breakdown']);
+    const fulfillmentStatuses = {!! \Illuminate\Support\Js::from($fulfillmentMetrics['order_status_breakdown']) !!};
     if (charts.fulfillment) {
         charts.fulfillment.data.datasets[0].data = [
             fulfillmentStatuses.delivered || 0,
@@ -928,7 +928,7 @@ function updateChartsWithSampleData() {
     }
 
     // Satisfaction Chart
-    const scores = @json($overview);
+    const scores = {!! \Illuminate\Support\Js::from($overview) !!};
     if (charts.satisfaction) {
         charts.satisfaction.data.datasets[0].data = [
             scores.avg_satisfaction_score || 0,
@@ -941,7 +941,7 @@ function updateChartsWithSampleData() {
     }
 
     // Growth Chart
-    const growthTrends = @json($growthTrends['new_sellers_trend']);
+    const growthTrends = {!! \Illuminate\Support\Js::from($growthTrends['new_sellers_trend']) !!};
     if (charts.growth) {
         charts.growth.data.labels = Object.keys(growthTrends).map(m => {
             const date = new Date(m);
@@ -952,7 +952,7 @@ function updateChartsWithSampleData() {
     }
 
     // Top Products
-    const topProducts = @json(collect($productPerformance['top_products'])->map(fn($p) => ['name' => \Illuminate\Support\Str::limit($p['product']->name, 15), 'revenue' => $p['revenue']])->values());
+    const topProducts = {!! \Illuminate\Support\Js::from(collect($productPerformance['top_products'])->map(fn($p) => ['name' => \Illuminate\Support\Str::limit($p['product']->name, 15), 'revenue' => $p['revenue']])->values()) !!};
     if (charts.topProducts) {
         charts.topProducts.data.labels = topProducts.map(p => p.name);
         charts.topProducts.data.datasets[0].data = topProducts.map(p => p.revenue);
@@ -960,7 +960,7 @@ function updateChartsWithSampleData() {
     }
 
     // Category Chart
-    const categoryPerf = @json(collect($productPerformance['category_performance'])->map(fn($c, $k) => ['name' => $k, 'revenue' => $c['revenue']])->values());
+    const categoryPerf = {!! \Illuminate\Support\Js::from(collect($productPerformance['category_performance'])->map(fn($c, $k) => ['name' => $k, 'revenue' => $c['revenue']])->values()) !!};
     if (charts.category) {
         charts.category.data.labels = categoryPerf.map(c => c.name);
         charts.category.data.datasets[0].data = categoryPerf.map(c => c.revenue);

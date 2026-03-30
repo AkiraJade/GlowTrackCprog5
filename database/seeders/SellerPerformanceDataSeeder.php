@@ -175,15 +175,17 @@ class SellerPerformanceDataSeeder extends Seeder
         ];
 
         foreach ($sellerProfiles as $profile) {
-            $user = User::create([
-                'name' => $profile['name'],
-                'username' => 'seller_' . rand(10000, 99999),
-                'email' => $profile['email'],
-                'password' => bcrypt('password'),
-                'role' => 'seller',
-                'address' => $this->generateSellerAddress(),
-                'created_at' => $profile['joined'],
-            ]);
+            $user = User::updateOrCreate(
+                ['email' => $profile['email']],
+                [
+                    'name' => $profile['name'],
+                    'username' => 'seller_' . rand(10000, 99999),
+                    'password' => bcrypt('password'),
+                    'role' => 'seller',
+                    'address' => $this->generateSellerAddress(),
+                    'created_at' => $profile['joined'],
+                ]
+            );
 
             // Create seller application
             SellerApplication::create([
@@ -196,7 +198,7 @@ class SellerPerformanceDataSeeder extends Seeder
                 'contact_phone' => $this->generatePhoneNumber(),
                 'business_address' => $this->generateSellerAddress(),
                 'website_url' => 'https://www.' . strtolower(str_replace(' ', '', $profile['name'])) . '.com',
-                'product_categories' => ['Serum', 'Moisturizer', 'Treatment', 'Mask'],
+                'product_categories' => implode(', ', ['Serum', 'Moisturizer', 'Treatment', 'Mask']),
                 'status' => 'approved',
                 'reviewed_at' => $profile['joined'],
                 'reviewed_by' => 1,

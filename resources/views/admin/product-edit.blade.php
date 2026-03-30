@@ -209,9 +209,7 @@
                     </div>
                     <div style="padding:1.5rem;">
                         @php
-                            $currentSkinTypes = is_array($product->skin_types)
-                                ? $product->skin_types
-                                : json_decode($product->skin_types ?? '[]', true);
+                            $currentSkinTypes = old('skin_types', $product->skin_types ?? []);
                         @endphp
                         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.75rem;">
                             @foreach(['Oily','Dry','Combination','Sensitive','Normal'] as $skinType)
@@ -249,10 +247,7 @@
                     </div>
                     <div style="padding:1.5rem;">
                         @php
-                            $currentIngredients = is_array($product->active_ingredients)
-                                ? $product->active_ingredients
-                                : json_decode($product->active_ingredients ?? '[]', true);
-                            $ingredients = old('active_ingredients', $currentIngredients);
+                            $ingredients = old('active_ingredients', $product->active_ingredients ?? []);
                             if (empty($ingredients)) $ingredients = ['Vitamin C'];
                         @endphp
 

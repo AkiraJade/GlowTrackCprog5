@@ -142,15 +142,15 @@
                         <span class="text-3xl">🧑</span> Suitable Skin Types
                     </h2>
                     
+                    @php
+                        $currentSkinTypes = old('skin_types', $product->skin_types ?? []);
+                    @endphp
                     <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                         @foreach($skinTypes as $skinType)
-                            @php
-                                $currentSkinTypes = is_array($product->skin_types) ? $product->skin_types : json_decode($product->skin_types ?? '[]', true);
-                            @endphp
                             <label class="flex items-center p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
                                 <input type="checkbox" name="skin_types[]" value="{{ $skinType }}"
                                        class="mr-3 text-jade-green focus:ring-jade-green"
-                                       {{ in_array($skinType, old('skin_types', $currentSkinTypes)) ? 'checked' : '' }}>
+                                       {{ in_array($skinType, $currentSkinTypes) ? 'checked' : '' }}>
                                 <span class="text-sm font-medium text-soft-brown">{{ $skinType }}</span>
                             </label>
                         @endforeach
@@ -168,9 +168,10 @@
                     
                     <div id="ingredients-container" class="space-y-3">
                         @php
-                            $currentIngredients = is_array($product->active_ingredients) ? $product->active_ingredients : json_decode($product->active_ingredients ?? '[]', true);
-                            $ingredients = old('active_ingredients', $currentIngredients);
-                            if(empty($ingredients)) $ingredients = ['Vitamin C']; // Default ingredient instead of empty string
+                            $ingredients = old('active_ingredients', $product->active_ingredients ?? []);
+                            if (empty($ingredients)) {
+                                $ingredients = ['Vitamin C'];
+                            }
                         @endphp
                         @foreach($ingredients as $index => $ingredient)
                             <div class="ingredient-input-group flex gap-3">

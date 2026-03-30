@@ -109,7 +109,7 @@ class SkinTrendReportController extends Controller
         $query = SkinProfile::where('created_at', '>=', $dateRange['start']);
 
         if ($filters['concern'] !== 'all') {
-            $query->whereJsonContains('skin_concerns', $filters['concern']);
+            $query->where('skin_concerns', 'like', '%' . $filters['concern'] . '%');
         }
 
         $profiles = $query->get();

@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Skin Type Distribution Chart
     const skinTypeCtx = document.getElementById('skinTypeChart');
     if (skinTypeCtx) {
-        const skinTypeData = @json($skinTypeDistribution['chart_data'] ?? []);
+        const skinTypeData = {!! \Illuminate\Support\Js::from($skinTypeDistribution['chart_data'] ?? []) !!};
         new Chart(skinTypeCtx, {
             type: 'doughnut',
             data: {
@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Skin Concerns Chart
     const concernsCtx = document.getElementById('skinConcernsChart');
     if (concernsCtx) {
-        const concernsData = @json($skinConcernsTrends['chart_data'] ?? []);
+        const concernsData = {!! \Illuminate\Support\Js::from($skinConcernsTrends['chart_data'] ?? []) !!};
         new Chart(concernsCtx, {
             type: 'bar',
             data: {
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Popular Ingredients Chart
     const ingredientsCtx = document.getElementById('ingredientsChart');
     if (ingredientsCtx) {
-        const ingredientsData = @json($popularIngredients['chart_data'] ?? []);
+        const ingredientsData = {!! \Illuminate\Support\Js::from($popularIngredients['chart_data'] ?? []) !!};
         new Chart(ingredientsCtx, {
             type: 'bar',
             data: {
