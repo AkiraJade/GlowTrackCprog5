@@ -16,62 +16,82 @@ class TestUserSeeder extends Seeder
     public function run(): void
     {
         // Create Admin User
-        $admin = User::create([
-            'name' => 'Admin User',
-            'username' => 'glowadmin',
-            'email' => 'glowadmin@test.com',
-            'phone' => '+639123456789',
-            'address' => '123 Admin Street, Manila, Philippines',
-            'role' => 'admin',
-            'password' => Hash::make('password'),
-            'loyalty_points' => 0,
-        ]);
+        $admin = User::updateOrCreate(
+            ['email' => 'glowadmin@test.com'],
+            [
+                'name' => 'Admin User',
+                'username' => 'glowadmin',
+                'email' => 'glowadmin@test.com',
+                'phone' => '+639123456789',
+                'address' => '123 Admin Street, Manila, Philippines',
+                'role' => 'admin',
+                'password' => Hash::make('password'),
+                'loyalty_points' => 0,
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Create Seller Users
-        $seller1 = User::create([
-            'name' => 'Beauty Skincare PH',
-            'username' => 'beautyseller',
-            'email' => 'beautyseller@test.com',
-            'phone' => '+639123456780',
-            'address' => '456 Seller Ave, Quezon City, Philippines',
-            'role' => 'seller',
-            'password' => Hash::make('password'),
-            'loyalty_points' => 0,
-        ]);
+        $seller1 = User::updateOrCreate(
+            ['email' => 'beautyseller@test.com'],
+            [
+                'name' => 'Beauty Skincare PH',
+                'username' => 'beautyseller',
+                'email' => 'beautyseller@test.com',
+                'phone' => '+639123456780',
+                'address' => '456 Seller Ave, Quezon City, Philippines',
+                'role' => 'seller',
+                'password' => Hash::make('password'),
+                'loyalty_points' => 0,
+                'email_verified_at' => now(),
+            ]
+        );
 
-        $seller2 = User::create([
-            'name' => 'Natural Glow Store',
-            'username' => 'naturalglow',
-            'email' => 'naturalglow@test.com',
-            'phone' => '+639123456781',
-            'address' => '789 Beauty Blvd, Makati, Philippines',
-            'role' => 'seller',
-            'password' => Hash::make('password'),
-            'loyalty_points' => 0,
-        ]);
+        $seller2 = User::updateOrCreate(
+            ['email' => 'naturalglow@test.com'],
+            [
+                'name' => 'Natural Glow Store',
+                'username' => 'naturalglow',
+                'email' => 'naturalglow@test.com',
+                'phone' => '+639123456781',
+                'address' => '789 Beauty Blvd, Makati, Philippines',
+                'role' => 'seller',
+                'password' => Hash::make('password'),
+                'loyalty_points' => 0,
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Create Customer Users
-        $customer1 = User::create([
-            'name' => 'Jane Doe',
-            'username' => 'janedoe',
-            'email' => 'janedoe@test.com',
-            'phone' => '+639123456782',
-            'address' => '321 Customer St, Pasig, Philippines',
-            'role' => 'customer',
-            'password' => Hash::make('password'),
-            'loyalty_points' => 150,
-        ]);
+        $customer1 = User::updateOrCreate(
+            ['email' => 'janedoe@test.com'],
+            [
+                'name' => 'Jane Doe',
+                'username' => 'janedoe',
+                'email' => 'janedoe@test.com',
+                'phone' => '+639123456782',
+                'address' => '321 Customer St, Pasig, Philippines',
+                'role' => 'customer',
+                'password' => Hash::make('password'),
+                'loyalty_points' => 150,
+                'email_verified_at' => now(),
+            ]
+        );
 
-        $customer2 = User::create([
-            'name' => 'John Smith',
-            'username' => 'johnsmith',
-            'email' => 'johnsmith@test.com',
-            'phone' => '+639123456783',
-            'address' => '654 Shopper Rd, Mandaluyong, Philippines',
-            'role' => 'customer',
-            'password' => Hash::make('password'),
-            'loyalty_points' => 75,
-        ]);
+        $customer2 = User::updateOrCreate(
+            ['email' => 'johnsmith@test.com'],
+            [
+                'name' => 'John Smith',
+                'username' => 'johnsmith',
+                'email' => 'johnsmith@test.com',
+                'phone' => '+639123456783',
+                'address' => '654 Shopper Rd, Mandaluyong, Philippines',
+                'role' => 'customer',
+                'password' => Hash::make('password'),
+                'loyalty_points' => 75,
+                'email_verified_at' => now(),
+            ]
+        );
 
         // Create Seller Applications (approved)
         SellerApplication::create([
@@ -202,7 +222,10 @@ class TestUserSeeder extends Seeder
         ];
 
         foreach ($products as $product) {
-            Product::create($product);
+            Product::updateOrCreate(
+                ['slug' => $product['slug']],
+                $product
+            );
         }
 
         $this->command->info('Test users and products created successfully!');
