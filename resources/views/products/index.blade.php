@@ -233,7 +233,7 @@
                             <!-- Skin Types -->
                             @if($product->skin_types)
                                 <div class="flex flex-wrap gap-2 mb-4">
-                                    @foreach($product->skin_types as $skinType)
+                                    @foreach(explode(', ', $product->skin_types) as $skinType)
                                         <span class="px-2 py-1 bg-gradient-to-r from-mint-cream to-light-sage text-xs font-medium rounded-full text-soft-brown">
                                             {{ $skinType }}
                                         </span>
